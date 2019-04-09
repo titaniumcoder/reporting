@@ -19,7 +19,6 @@ if you find any problems, please open an issue on [github](https://github.com/ti
   - [Coroutines](https://kotlinlang.org/docs/reference/coroutines-overview.html) for handling the fetching of the data via Toggl Api above.
 - Deployment to [Heroku](https://heroku.com) - one button deployment
 - CI/CD with [Travis](https://travis-ci.com) 
-- Testing with [Spek](https://spekframework.org/)
 
 ---
 Copyright 2019 Rico Metzger
