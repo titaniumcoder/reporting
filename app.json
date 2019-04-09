@@ -1,0 +1,26 @@
+{
+  "name": "Toggl Reporting App",
+  "description": "Toggl Reporting App that can be setup to generate customized Excel files from the Toggl App",
+  "repository": "https://github.com/titaniumcoder/toggl-reporting",
+  "keywords": ["toggl", "kotlin", "spring"],
+  "addons": ["heroku-postgresql:hobby-dev"],
+  "env": {
+    "RAILS_ENV": "production",
+    "WORKSPACE_ID": {
+      "description": "The Toggl Workspace Id",
+      "value": ""
+    },
+    "TOGGL_API_TOKEN": {
+      "description": "The Toggl Api Token for login",
+      "value": ""
+    },
+    "USERNAME": {
+      "description": "The username to login",
+      "value": ""
+    },
+    "PASSWORD": {
+      "description": "The password to login",
+      "value": ""
+    }
+  }
+}

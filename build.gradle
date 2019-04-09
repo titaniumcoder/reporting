@@ -11,7 +11,7 @@ version = '1.0.0'
 sourceCompatibility = '1.8'
 
 ext {
-    spekVersion = '2.0.2'
+    spekVersion = '2.0.1'
 }
 
 configurations {
