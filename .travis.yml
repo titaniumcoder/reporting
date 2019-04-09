@@ -6,7 +6,6 @@ addons:
 
 script:
   - ./gradlew check
-  - ./gradlew codeCoverageReport
   - sonar-scanner
 after_success:
   - bash < (curl -s https://codecov.io/bash)

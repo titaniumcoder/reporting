@@ -54,23 +54,14 @@ compileTestKotlin {
     }
 }
 
-task codeCoverageReport(type: JacocoReport) {
+jacocoTestReport {
     executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exc")
 
-    subprojects.each {
-        sourceSets it.sourceSets.main
-    }
-
     reports {
-        xml.enabled true
-        xml.destrination "${buildDir}/reports/jacoco/report.xml"
-        html.enabled false
-        csv.enabled false
+        xml.enabled = true
+        // xml.destination = "${buildDir}/reports/jacoco/report.xml"
+        html.enabled = true
     }
 }
 
-codeCoverageReport.dependsOn {
-    subprojects*.test
-}
-
-// check.dependsOn('jacocoTestReport')
+check.dependsOn(jacocoTestReport)
