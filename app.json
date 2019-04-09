@@ -5,7 +5,6 @@
   "keywords": ["toggl", "kotlin", "spring"],
   "addons": ["heroku-postgresql:hobby-dev"],
   "env": {
-    "RAILS_ENV": "production",
     "WORKSPACE_ID": {
       "description": "The Toggl Workspace Id",
       "value": ""
