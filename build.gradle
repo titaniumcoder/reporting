@@ -10,6 +10,10 @@ group = 'io.github.titaniumcoder'
 version = '1.0.0'
 sourceCompatibility = '1.8'
 
+ext {
+    spekVersion = '2.0.2'
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
@@ -37,6 +41,11 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
     testImplementation 'org.springframework.security:spring-security-test'
+
+    testImplementation "org.spekframework.spek2:spek-dsl-jvm:$spekVersion"
+    testRuntimeOnly "org.spekframework.spek2:spek-runner-junit5:$spekVersion"
+
+    // spek requires kotlin-reflect, can be omitted if already in the classpath
 }
 
 compileKotlin {
@@ -50,5 +59,11 @@ compileTestKotlin {
     kotlinOptions {
         freeCompilerArgs = ['-Xjsr305=strict']
         jvmTarget = '1.8'
+    }
+}
+
+test {
+    useJUnitPlatform {
+        includeEngines 'spek2'
     }
 }
