@@ -3,7 +3,5 @@ language: java
 addons:
   sonarcloud:
     organization: "titaniumcoder-github"
-    token:
-      secure: d36029dd022ce91f314c8a9138774580bd59736c
 script:
   - sonar-scanner
