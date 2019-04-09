@@ -5,6 +5,7 @@ plugins {
 }
 
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'jacoco'
 
 group = 'io.github.titaniumcoder'
 version = '1.0.0'
@@ -52,3 +53,5 @@ compileTestKotlin {
         jvmTarget = '1.8'
     }
 }
+
+check.dependsOn('jacocoTestReport')
