@@ -1,0 +1,7 @@
+spring.security.user:
+  name: test
+  password: test
+
+application:
+  apiToken: 12345
+  workspaceId: 98765
