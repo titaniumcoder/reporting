@@ -1,35 +1,68 @@
 package io.github.titaniumcoder.toggl.reporting.toggl
 
 import io.github.titaniumcoder.toggl.reporting.config.TogglConfiguration
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.web.reactive.function.client.ClientRequest
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
+
 
 @Service
 class TogglClient(config: TogglConfiguration) {
     val apiToken = config.apiToken
     val workspaceId = config.workspaceId
 
+    val log = LoggerFactory.getLogger(TogglClient::class.java)
+
+    val userAgent = "https://github.com/titaniumcoder/toggl-reporting"
+
     val authHeader by lazy {
         "Basic " + Base64.getEncoder().encodeToString("$apiToken:api_token".toByteArray())
+    }
+
+    // This method returns filter function which will log request data
+    private fun logRequest(): ExchangeFilterFunction {
+        return ExchangeFilterFunction.ofRequestProcessor { clientRequest ->
+            log.info("Request: {} {}", clientRequest.method(), clientRequest.url())
+            Mono.just<ClientRequest>(clientRequest)
+        }
     }
 
     val client = WebClient
             .builder()
             .baseUrl("https://toggl.com/")
+            .filter(logRequest()) // here is the magic
             .build()
 
     fun clients(): Flux<TogglModel.Client> =
+            client
+                    .get()
+                    .uri("https://www.toggl.com/api/v8/clients")
+                    .header("Authorization", authHeader)
+                    .retrieve()
+                    .bodyToFlux(TogglModel.Client::class.java)
+
+    fun summary(from: LocalDate, to: LocalDate): Mono<TogglModel.TogglSummary> =
         client
                 .get()
-                .uri("https://www.toggl.com/api/v8/clients")
+                .uri("https://toggl.com/reports/api/v2/summary?user_agent={userAgent}&since={since}&until={until}&tag_ids=0&grouping=clients&subgrouping=projects&subgrouping_ids=false&workspace_id={workspaceId}",
+                        mapOf(
+                                "userAgent" to userAgent,
+                                "workspaceId" to workspaceId.toString(),
+                                "since" to from.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                                "until" to to.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                        )
+                )
                 .header("Authorization", authHeader)
                 .retrieve()
-                .bodyToFlux(TogglModel.Client::class.java)
+                .bodyToMono(TogglModel.TogglSummary::class.java)
 
-    fun summary(from: LocalDate, to: LocalDate): List<TogglModel.TogglSummary> = TODO()
     fun entries(clientId: Long, from: LocalDate, to: LocalDate, nonBilledOnly: Boolean, page: Int = 1): TogglModel.TogglReporting = TODO()
 
     fun tagBilled(clientId: Long, from: LocalDate, to: LocalDate) {
@@ -64,17 +97,6 @@ class TogglWsClient @Inject()(ws: WSClient,
     ws.url(url)
       // .withRequestFilter(AhcCurlRequestLogger())
       .withAuth(apiToken, "api_token", WSAuthScheme.BASIC)
-
-  // GET https://www.toggl.com/api/v8/clients
-  override def clients(): Future[List[Client]] = {
-    import TogglModel.Client._
-
-    prepareWs("https://www.toggl.com/api/v8/clients")
-      .get()
-      .map {
-        response => response.json.as[List[Client]]
-      }
-  }
 
   private def mergeReportings(l: List[TogglReporting]): TogglReporting =
     l.reduceLeft { (a, b) => a.copy(data = a.data ++ b.data) }
@@ -111,31 +133,6 @@ class TogglWsClient @Inject()(ws: WSClient,
         .filter(x => !nonBilledOnly || !x.tags.contains("billed"))
         .sortBy(x => (x.client.getOrElse(""), x.start))
       ))
-  }
-
-  override def cash(from: LocalDate, to: LocalDate) = {
-    val summary = prepareWs("https://toggl.com/reports/api/v2/summary")
-      .addQueryStringParameters(
-        "user_agent" -> "https://github.com/titaniumcoder/reporting-play-scala",
-        "workspace_id" -> workspaceId.toString,
-        "since" -> from.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-        "until" -> to.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-        "tag_ids" -> "0,",
-        "grouping" -> "clients",
-        "subgrouping" -> "projects",
-        "subgrouping_ids" -> "false"
-      )
-      .get()
-      .map {
-        response => {
-          response.json.as[TogglSummary]
-        }
-      }
-
-    summary.map(sum => {
-      val clientSummary = sum.data.map(x => (x.title, x.totalCurrencies.flatMap(_.amount.toList).sum))
-      clientSummary.map(c => Cashout(c._1.getOrElse("Unbekannter Kunde"), c._2))
-    })
   }
 
   private def tagId(ids: String, body: JsObject): Future[Int] = {

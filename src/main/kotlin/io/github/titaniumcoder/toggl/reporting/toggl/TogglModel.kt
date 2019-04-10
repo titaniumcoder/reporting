@@ -52,21 +52,24 @@ object TogglModel {
     )
 
     data class ClientSummaryEntry(
-            @JsonProperty("client.title")
-            val title: String?,
+            val title: TogglIClient?,
             val time: Long,
             @JsonProperty("total_currencies")
             val totalCurrencies: List<TogglCurrency>
     )
 
     data class ProjectSummaryEntry(
-            @JsonProperty("client.title")
-            val title: String?,
+            val title: TogglIClient?,
             val time: Long,
             @JsonProperty("cur")
             val currency: String?,
             val sum: Double?,
             val rate: Double?
+    )
+
+    data class TogglIClient(
+            @JsonProperty("client")
+            val name: String?
     )
 
     data class TogglSummary(
