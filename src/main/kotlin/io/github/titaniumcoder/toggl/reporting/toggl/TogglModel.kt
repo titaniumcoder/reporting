@@ -1,7 +1,7 @@
 package io.github.titaniumcoder.toggl.reporting.toggl
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 // -----------  Toggl Models -----------------
 object TogglModel {
@@ -24,9 +24,9 @@ object TogglModel {
             val client: String?,
             val task: String?,
             val description: String?,
-            val start: LocalDateTime,
+            val start: ZonedDateTime,
             @JsonProperty("end")
-            val end: LocalDateTime,
+            val end: ZonedDateTime,
             @JsonProperty("dur")
             val duration: Int, // duration ms
             val billable: Float,

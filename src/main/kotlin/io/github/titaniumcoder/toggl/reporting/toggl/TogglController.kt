@@ -1,5 +1,6 @@
 package io.github.titaniumcoder.toggl.reporting.toggl
 
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
 
@@ -9,12 +10,20 @@ class TogglController(val client: TogglClient) {
     fun clients() = client.clients()
 
     @PutMapping("/api/client/{clientId}/billed")
-    fun tagBilled(@PathVariable clientId: Long, @RequestParam from: LocalDate, @RequestParam to: LocalDate) {
+    fun tagBilled(
+            @PathVariable clientId: Long,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) from: LocalDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) to: LocalDate
+    ) {
         client.tagBilled(clientId, from, to)
     }
 
     @DeleteMapping("/api/client/{clientId}/billed")
-    fun untagBilled(@PathVariable clientId: Long, @RequestParam from: LocalDate, @RequestParam to: LocalDate) {
+    fun untagBilled(
+            @PathVariable clientId: Long,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) from: LocalDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) to: LocalDate
+    ) {
         client.untagBilled(clientId, from, to)
     }
 
@@ -25,6 +34,6 @@ class TogglController(val client: TogglClient) {
 
     @DeleteMapping("/api/tag/{entry}")
     fun untagEntry(@PathVariable entry: Long) {
-        client.tagBilled(entry)
+        client.untagBilled(entry)
     }
 }

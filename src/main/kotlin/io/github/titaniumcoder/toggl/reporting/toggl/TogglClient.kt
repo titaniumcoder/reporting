@@ -8,7 +8,9 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.core.publisher.toFlux
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -49,21 +51,62 @@ class TogglClient(config: TogglConfiguration) {
                     .bodyToFlux(TogglModel.Client::class.java)
 
     fun summary(from: LocalDate, to: LocalDate): Mono<TogglModel.TogglSummary> =
-        client
-                .get()
-                .uri("https://toggl.com/reports/api/v2/summary?user_agent={userAgent}&since={since}&until={until}&tag_ids=0&grouping=clients&subgrouping=projects&subgrouping_ids=false&workspace_id={workspaceId}",
-                        mapOf(
-                                "userAgent" to userAgent,
-                                "workspaceId" to workspaceId.toString(),
-                                "since" to from.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-                                "until" to to.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                        )
-                )
-                .header("Authorization", authHeader)
-                .retrieve()
-                .bodyToMono(TogglModel.TogglSummary::class.java)
+            client
+                    .get()
+                    .uri("https://toggl.com/reports/api/v2/summary?user_agent={userAgent}&since={since}&until={until}&tag_ids=0&grouping=clients&subgrouping=projects&subgrouping_ids=false&workspace_id={workspaceId}",
+                            mapOf(
+                                    "userAgent" to userAgent,
+                                    "workspaceId" to workspaceId.toString(),
+                                    "since" to from.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                                    "until" to to.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                            )
+                    )
+                    .header("Authorization", authHeader)
+                    .retrieve()
+                    .bodyToMono(TogglModel.TogglSummary::class.java)
 
-    fun entries(clientId: Long, from: LocalDate, to: LocalDate, nonBilledOnly: Boolean, page: Int = 1): TogglModel.TogglReporting = TODO()
+    fun entries(clientId: Long, from: LocalDate, to: LocalDate, nonBilledOnly: Boolean): Mono<TogglModel.TogglReporting> {
+        fun onePage(pageNo: Int): Mono<TogglModel.TogglReporting> =
+                client
+                        .get()
+                        .uri("https://toggl.com/reports/api/v2/details?user_agent={userAgent}&since={since}&until={until}&workspace_id={workspaceId}&client_ids={clientIds}&display_hours=minutes&page={page}",
+                                mapOf(
+                                        "userAgent" to userAgent,
+                                        "workspaceId" to workspaceId.toString(),
+                                        "since" to from.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                                        "until" to to.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                                        "clientIds" to clientId.toString(),
+                                        "page" to pageNo.toString()
+                                )
+                        )
+                        .header("Authorization", authHeader)
+                        .retrieve()
+                        .bodyToMono(TogglModel.TogglReporting::class.java)
+
+        val firstPage = onePage(1)
+        val followingEntries = firstPage
+                .map { Math.ceil(it.totalCount.toDouble() / it.perPage.toDouble()).toInt() }
+                .flatMapMany { 2.rangeTo(it).toFlux() }
+                .flatMap { onePage(it).toFlux() } // TODO make this parallel later
+
+        data class ClientSort(val client: String, val start: LocalDateTime) : Comparable<ClientSort> {
+            override fun compareTo(other: ClientSort): Int =
+                    when {
+                        client.compareTo(other.client) != 0 -> client.compareTo(other.client)
+                        else -> start.compareTo(other.start)
+                    }
+        }
+
+        return Flux
+                .concat(firstPage, followingEntries)
+                .reduce { t: TogglModel.TogglReporting, u: TogglModel.TogglReporting -> t.copy(data = t.data + u.data) }
+                .map { t ->
+                    t.copy(data = t.data
+                            .filter { x -> !nonBilledOnly || !x.tags.contains("billed") }
+                            .sortedBy { x -> ClientSort(x.client ?: "", x.start.toLocalDateTime()) }
+                    )
+                }
+    }
 
     fun tagBilled(clientId: Long, from: LocalDate, to: LocalDate) {
         TODO()
@@ -89,52 +132,6 @@ class TogglWsClient @Inject()(ws: WSClient,
                               config: Configuration
                              )(implicit ec: ExecutionContext)
   extends TogglClient {
-
-  lazy val apiToken = config.get[String]("apiToken")
-  lazy val workspaceId = config.get[Int]("workspaceId")
-
-  def prepareWs(url: String) =
-    ws.url(url)
-      // .withRequestFilter(AhcCurlRequestLogger())
-      .withAuth(apiToken, "api_token", WSAuthScheme.BASIC)
-
-  private def mergeReportings(l: List[TogglReporting]): TogglReporting =
-    l.reduceLeft { (a, b) => a.copy(data = a.data ++ b.data) }
-
-  override def entries(clientId: Long, from: LocalDate, to: LocalDate, nonBilledOnly: Boolean, page: Int): Future[TogglReporting] = {
-    def onePage(pageNo: Int): Future[TogglReporting] =
-      prepareWs("https://toggl.com/reports/api/v2/details")
-        .addQueryStringParameters(
-          "user_agent" -> "https://github.com/titaniumcoder/reporting-play-scala",
-          "workspace_id" -> workspaceId.toString,
-          "since" -> from.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-          "until" -> to.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-          "client_ids" -> clientId.toString,
-          "display_hours" -> "minutes",
-          "page" -> pageNo.toString
-        )
-        .get()
-        .map {
-          response => response.json.as[TogglReporting]
-        }
-
-    val allPages = for {
-      firstPage <- onePage(page)
-      pageCount = Math.ceil((0.0 + firstPage.totalCount) / firstPage.perPage).toInt
-      pages = 2 to pageCount
-      remaining <- Future.sequence(pages.map(onePage))
-    } yield firstPage :: remaining.toList
-
-    implicit val o: Ordering[LocalDateTime] = (x, y) => x.toEpochSecond(ZoneOffset.UTC).compareTo(y.toEpochSecond(ZoneOffset.UTC))
-
-    allPages
-      .map(mergeReportings)
-      .map(v => v.copy(data = v.data
-        .filter(x => !nonBilledOnly || !x.tags.contains("billed"))
-        .sortBy(x => (x.client.getOrElse(""), x.start))
-      ))
-  }
-
   private def tagId(ids: String, body: JsObject): Future[Int] = {
     prepareWs(s"https://www.toggl.com/api/v8/time_entries/$ids")
       .put(body)
