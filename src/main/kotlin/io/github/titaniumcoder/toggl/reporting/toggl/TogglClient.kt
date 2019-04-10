@@ -1,17 +1,57 @@
-package toggl
+package io.github.titaniumcoder.toggl.reporting.toggl
 
-import java.time.{LocalDate, LocalDateTime, ZoneOffset}
-import java.time.format.DateTimeFormatter
+import io.github.titaniumcoder.toggl.reporting.config.TogglConfiguration
+import org.springframework.stereotype.Service
+import org.springframework.web.reactive.function.client.WebClient
+import reactor.core.publisher.Flux
+import java.time.LocalDate
+import java.util.*
 
-import javax.inject.Inject
-import play.api.Configuration
-import play.api.libs.json.{JsObject, Json}
-import play.api.libs.ws._
-import play.api.libs.ws.ahc.AhcCurlRequestLogger
-import toggl.TogglModel._
+@Service
+class TogglClient(config: TogglConfiguration) {
+    val apiToken = config.apiToken
+    val workspaceId = config.workspaceId
 
-import scala.concurrent.{ExecutionContext, Future}
+    val authHeader by lazy {
+        "Basic " + Base64.getEncoder().encodeToString("$apiToken:api_token".toByteArray())
+    }
 
+    val client = WebClient
+            .builder()
+            .baseUrl("https://toggl.com/")
+            .build()
+
+    fun clients(): Flux<TogglModel.Client> =
+        client
+                .get()
+                .uri("https://www.toggl.com/api/v8/clients")
+                .header("Authorization", authHeader)
+                .retrieve()
+                .bodyToFlux(TogglModel.Client::class.java)
+
+    fun summary(from: LocalDate, to: LocalDate): List<TogglModel.TogglSummary> = TODO()
+    fun entries(clientId: Long, from: LocalDate, to: LocalDate, nonBilledOnly: Boolean, page: Int = 1): TogglModel.TogglReporting = TODO()
+
+    fun tagBilled(clientId: Long, from: LocalDate, to: LocalDate) {
+        TODO()
+    }
+
+    fun untagBilled(clientId: Long, from: LocalDate, to: LocalDate) {
+        TODO()
+    }
+
+    fun tagBilled(entryId: Long) {
+        TODO()
+    }
+
+    fun untagBilled(entryId: Long) {
+        TODO()
+    }
+}
+
+
+// original implementation:
+/*
 class TogglWsClient @Inject()(ws: WSClient,
                               config: Configuration
                              )(implicit ec: ExecutionContext)
@@ -137,3 +177,4 @@ class TogglWsClient @Inject()(ws: WSClient,
   override def tagBilled(entryId: Long) = tagId(entryId.toString, tagBody(remove = false)).map(_ => ())
   override def untagBilled(entryId: Long) = tagId(entryId.toString, tagBody(remove = true)).map(_ => ())
 }
+ */

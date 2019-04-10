@@ -1,3 +1,13 @@
+package io.github.titaniumcoder.toggl.reporting.reporting
+
+import io.github.titaniumcoder.toggl.reporting.transformers.ViewModel
+import org.springframework.stereotype.Service
+
+@Service
+class ReportingService {
+    fun generateExcel(model: ViewModel.ReportingModel): ByteArray = TODO()
+
+    /*
 package excel
 
 import java.awt.Color
@@ -303,4 +313,6 @@ class TimesheetExcelService @Inject()(implicit ec: ExecutionContext) extends Tim
   private def formatTime(minutes: Int): Double = minutes.toDouble / 1440
 
   private def formatNumeric(minutes: Int): Double = minutes.toDouble / 60
+}
+     */
 }
