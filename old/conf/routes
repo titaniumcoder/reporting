@@ -1,0 +1,15 @@
+GET           /                                 frontend.FrontendController.index()
+
+GET           /api/clients                      toggl.TogglController.clients
+GET           /api/cash                         toggl.TogglController.cash(from: Option[LocalDate], to: Option[LocalDate])
+GET           /api/client/:client               excel.ReportingController.entries(client: Long, from: Option[LocalDate], to: Option[LocalDate], tagged: Option[Boolean] = None)
+
+PUT           /api/client/:client/billed        toggl.TagController.tagBilled(client: Long, from: LocalDate, to: LocalDate)
+DELETE        /api/client/:client/billed        toggl.TagController.untagBilled(client: Long, from: LocalDate, to: LocalDate)
+
+PUT           /api/tag/:entry                   toggl.TagController.tagEntry(entry: Long)
+DELETE        /api/tag/:entry                   toggl.TagController.untagEntry(entry: Long)
+
+GET           /api/timesheet/:client            excel.ReportingController.timesheet(client: Long, from: LocalDate, to: LocalDate)
+
+GET           /*file                            frontend.FrontendController.assetOrDefault(file)
