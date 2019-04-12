@@ -1,93 +1,24 @@
 package io.github.titaniumcoder.toggl.reporting.toggl
 
-import io.github.titaniumcoder.toggl.reporting.config.TogglConfiguration
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import org.springframework.web.reactive.function.client.ClientRequest
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction
-import org.springframework.web.reactive.function.client.WebClient
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
-import reactor.core.publisher.toFlux
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.*
-
 
 @Service
-class TogglClient(config: TogglConfiguration) {
-    val apiToken = config.apiToken
-    val workspaceId = config.workspaceId
+class TogglClient(val webClient: TogglWebClient) {
+    private val log = LoggerFactory.getLogger(TogglClient::class.java)
 
-    val log = LoggerFactory.getLogger(TogglClient::class.java)
+    suspend fun clients(): List<TogglModel.Client> = webClient.clients()
 
-    val userAgent = "https://github.com/titaniumcoder/toggl-reporting"
+    suspend fun summary(from: LocalDate, to: LocalDate): TogglModel.TogglSummary = webClient.summary(from, to)
 
-    val authHeader by lazy {
-        "Basic " + Base64.getEncoder().encodeToString("$apiToken:api_token".toByteArray())
-    }
-
-    // This method returns filter function which will log request data
-    private fun logRequest(): ExchangeFilterFunction {
-        return ExchangeFilterFunction.ofRequestProcessor { clientRequest ->
-            log.info("Request: {} {}", clientRequest.method(), clientRequest.url())
-            Mono.just<ClientRequest>(clientRequest)
-        }
-    }
-
-    val client = WebClient
-            .builder()
-            .baseUrl("https://toggl.com/")
-            .filter(logRequest()) // here is the magic
-            .build()
-
-    fun clients(): Flux<TogglModel.Client> =
-            client
-                    .get()
-                    .uri("https://www.toggl.com/api/v8/clients")
-                    .header("Authorization", authHeader)
-                    .retrieve()
-                    .bodyToFlux(TogglModel.Client::class.java)
-
-    fun summary(from: LocalDate, to: LocalDate): Mono<TogglModel.TogglSummary> =
-            client
-                    .get()
-                    .uri("https://toggl.com/reports/api/v2/summary?user_agent={userAgent}&since={since}&until={until}&tag_ids=0&grouping=clients&subgrouping=projects&subgrouping_ids=false&workspace_id={workspaceId}",
-                            mapOf(
-                                    "userAgent" to userAgent,
-                                    "workspaceId" to workspaceId.toString(),
-                                    "since" to from.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-                                    "until" to to.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                            )
-                    )
-                    .header("Authorization", authHeader)
-                    .retrieve()
-                    .bodyToMono(TogglModel.TogglSummary::class.java)
-
-    fun entries(clientId: Long, from: LocalDate, to: LocalDate, nonBilledOnly: Boolean): Mono<TogglModel.TogglReporting> {
-        fun onePage(pageNo: Int): Mono<TogglModel.TogglReporting> =
-                client
-                        .get()
-                        .uri("https://toggl.com/reports/api/v2/details?user_agent={userAgent}&since={since}&until={until}&workspace_id={workspaceId}&client_ids={clientIds}&display_hours=minutes&page={page}",
-                                mapOf(
-                                        "userAgent" to userAgent,
-                                        "workspaceId" to workspaceId.toString(),
-                                        "since" to from.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-                                        "until" to to.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-                                        "clientIds" to clientId.toString(),
-                                        "page" to pageNo.toString()
-                                )
-                        )
-                        .header("Authorization", authHeader)
-                        .retrieve()
-                        .bodyToMono(TogglModel.TogglReporting::class.java)
-
-        val firstPage = onePage(1)
-        val followingEntries = firstPage
-                .map { Math.ceil(it.totalCount.toDouble() / it.perPage.toDouble()).toInt() }
-                .flatMapMany { 2.rangeTo(it).toFlux() }
-                .flatMap { onePage(it).toFlux() } // TODO make this parallel later
+    suspend fun entries(clientId: Long, from: LocalDate, to: LocalDate, nonBilledOnly: Boolean): TogglModel.TogglReporting {
+        val firstPage = webClient.entries(clientId, from, to, nonBilledOnly, 1)
+        val range = 2.rangeTo(
+                Math.ceil(firstPage.totalCount.toDouble() / firstPage.perPage).toInt()
+        )
+                .map { webClient.entries(clientId, from, to, nonBilledOnly, it) }
 
         data class ClientSort(val client: String, val start: LocalDateTime) : Comparable<ClientSort> {
             override fun compareTo(other: ClientSort): Int =
@@ -97,78 +28,45 @@ class TogglClient(config: TogglConfiguration) {
                     }
         }
 
-        return Flux
-                .concat(firstPage, followingEntries)
+        val summary = (listOf(firstPage) + range)
                 .reduce { t: TogglModel.TogglReporting, u: TogglModel.TogglReporting -> t.copy(data = t.data + u.data) }
-                .map { t ->
-                    t.copy(data = t.data
-                            .filter { x -> !nonBilledOnly || !x.tags.contains("billed") }
-                            .sortedBy { x -> ClientSort(x.client ?: "", x.start.toLocalDateTime()) }
-                    )
-                }
+
+        return summary.copy(data = summary.data
+                .filter { x -> !nonBilledOnly || !x.tags.contains("billed") }
+                .sortedBy { x -> ClientSort(x.client ?: "", x.start.toLocalDateTime()) }
+        )
     }
 
-    fun tagBilled(clientId: Long, from: LocalDate, to: LocalDate) {
-        TODO()
+    suspend fun tagBilled(clientId: Long, from: LocalDate, to: LocalDate) {
+        tagRange(clientId, from, to, true)
     }
 
-    fun untagBilled(clientId: Long, from: LocalDate, to: LocalDate) {
-        TODO()
+    suspend fun untagBilled(clientId: Long, from: LocalDate, to: LocalDate) {
+        tagRange(clientId, from, to, false)
     }
 
-    fun tagBilled(entryId: Long) {
-        TODO()
+    suspend fun tagBilled(entryId: Long) {
+        webClient.tagId(listOf(entryId.toString()), true)
     }
 
-    fun untagBilled(entryId: Long) {
-        TODO()
+    suspend fun untagBilled(entryId: Long) {
+        webClient.tagId(listOf(entryId.toString()), false)
+    }
+
+    private suspend fun tagRange(clientId: Long, from: LocalDate, to: LocalDate, billed: Boolean) {
+        val entriesMatched = entries(
+                clientId = clientId,
+                from = from,
+                to = to,
+                nonBilledOnly = false
+        )
+
+        val ids = entriesMatched.data.map { it.id.toString()}.chunked(50)
+
+        val completeResult = ids.map { webClient.tagId(it, billed)}
+        if (completeResult.any { it.isError }) {
+            // TODO decide what we do here for the future
+            log.warn("Could not update the ids, got an error from the Toggl API")
+        }
     }
 }
-
-
-// original implementation:
-/*
-class TogglWsClient @Inject()(ws: WSClient,
-                              config: Configuration
-                             )(implicit ec: ExecutionContext)
-  extends TogglClient {
-  private def tagId(ids: String, body: JsObject): Future[Int] = {
-    prepareWs(s"https://www.toggl.com/api/v8/time_entries/$ids")
-      .put(body)
-      .map(response => response.status)
-  }
-
-  private def tagBody(remove: Boolean) = Json.obj(
-    "time_entry" ->
-      Json.obj(
-        "tags" -> (if (remove) Json.arr() else Json.arr("billed"))
-      )
-  )
-
-  // TODO this is a dirty hack until toggl fixes it's remove tags api...
-
-  sealed trait BilledAction
-
-  case object Add extends BilledAction
-  case object Remove extends BilledAction
-
-  private def tagRange(clientId: Long, from: LocalDate, to: LocalDate, action: BilledAction): Future[Unit] = {
-    // TODO error handling decision still needs to be done because I ignore currently the result of the successful call...
-    val body = tagBody(remove = action == Remove)
-
-    entries(clientId = clientId, from = from, to = to, nonBilledOnly = false)
-      .map(_.data.map(r => r.id).grouped(50).map(z => z.mkString(",")).toList)
-      .flatMap(ids => Future.sequence(ids.map(id => tagId(id, body))))
-      .map(statu => statu.forall(_ == 200))
-      .flatMap {
-        case true => Future.unit
-        case false => Future.failed(new RuntimeException("Update failed for some pages"))
-      }
-  }
-
-  override def tagBilled(clientId: Long, from: LocalDate, to: LocalDate): Future[Unit] = tagRange(clientId, from, to, Add)
-  override def untagBilled(clientId: Long, from: LocalDate, to: LocalDate): Future[Unit] = tagRange(clientId, from, to, Remove)
-  override def tagBilled(entryId: Long) = tagId(entryId.toString, tagBody(remove = false)).map(_ => ())
-  override def untagBilled(entryId: Long) = tagId(entryId.toString, tagBody(remove = true)).map(_ => ())
-}
- */
