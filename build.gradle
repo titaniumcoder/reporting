@@ -38,9 +38,17 @@ dependencies {
     runtimeOnly 'org.springframework.boot:spring-boot-devtools'
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude module: 'junit'
+    }
     testImplementation 'io.projectreactor:reactor-test'
     testImplementation 'org.springframework.security:spring-security-test'
+
+    // JUnit 5 as well as mocking
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testImplementation 'io.mockk:mockk:1.9.3'
+
 }
 
 compileKotlin {
@@ -73,3 +81,7 @@ jacocoTestReport {
 }
 
 check.dependsOn(jacocoTestReport)
+
+test {
+    useJUnitPlatform()
+}

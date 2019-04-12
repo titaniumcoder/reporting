@@ -61,7 +61,7 @@ class TogglClient(val webClient: TogglWebClient) {
                 nonBilledOnly = false
         )
 
-        val ids = entriesMatched.data.map { it.id.toString()}.chunked(50)
+        val ids = entriesMatched.data.map { it.id.toString()}.sorted().chunked(50)
 
         val completeResult = ids.map { webClient.tagId(it, billed)}
         if (completeResult.any { it.isError }) {

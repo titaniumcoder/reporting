@@ -11,11 +11,11 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.ClientRequest
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction
+import org.springframework.web.reactive.function.client.ExchangeFilterFunctions
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.*
 
 @Service
 class TogglWebClient(config: TogglConfiguration) {
@@ -26,13 +26,10 @@ class TogglWebClient(config: TogglConfiguration) {
 
     private val userAgent = "https://github.com/titaniumcoder/toggl-reporting"
 
-    private val authHeader by lazy {
-        "Basic " + Base64.getEncoder().encodeToString("$apiToken:api_token".toByteArray())
-    }
-
     val client = WebClient
             .builder()
             .baseUrl("https://toggl.com/")
+            .filter(ExchangeFilterFunctions.basicAuthentication(apiToken, "api_token"))
             .filter(logRequest()) // here is the magic
             .build()
 
@@ -40,7 +37,6 @@ class TogglWebClient(config: TogglConfiguration) {
             client
                     .get()
                     .uri("https://www.toggl.com/api/v8/clients")
-                    .header("Authorization", authHeader)
                     .retrieve()
                     .bodyToMono(object : ParameterizedTypeReference<List<TogglModel.Client>>() {})
                     .awaitFirst()
@@ -57,7 +53,6 @@ class TogglWebClient(config: TogglConfiguration) {
                                     "until" to to.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                             )
                     )
-                    .header("Authorization", authHeader)
                     .retrieve()
                     .bodyToMono(TogglModel.TogglSummary::class.java)
                     .awaitFirst()
@@ -75,7 +70,6 @@ class TogglWebClient(config: TogglConfiguration) {
                                     "page" to pageNo.toString()
                             )
                     )
-                    .header("Authorization", authHeader)
                     .retrieve()
                     .bodyToMono(TogglModel.TogglReporting::class.java)
                     .awaitFirst()
@@ -85,7 +79,6 @@ class TogglWebClient(config: TogglConfiguration) {
                     .put()
                     .uri("https://www.toggl.com/api/v8/time_entries/${ids.joinToString(",")}")
                     .syncBody(tagbody(billed))
-                    .header("Authorization", authHeader)
                     .exchange()
                     .map { it.statusCode() }
                     .awaitFirst()

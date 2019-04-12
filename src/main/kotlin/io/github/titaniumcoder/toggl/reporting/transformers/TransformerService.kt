@@ -21,20 +21,24 @@ class TransformerService {
                     to = to,
                     projects = input.data.groupBy {
                         it.project ?: "???"
-                    }.map { ViewModel.Project(it.key, (it.value.map { reporting -> reporting.duration }.sum() / 60000)) },
-                    timeEntries = input.data.groupBy { it.start.toLocalDate() }.map {
-                        it.value.map { v ->
-                            ViewModel.TimeEntry(
-                                    id = v.id,
-                                    day = v.start.toLocalDate(),
-                                    project = v.project,
-                                    startdate = v.start.toLocalDateTime(),
-                                    enddate = v.end.toLocalDateTime(),
-                                    minutes = v.duration / 60000,
-                                    description = v.description,
-                                    tags = v.tags
-                            )
-                        }
                     }
+                            .map { ViewModel.Project(it.key, (it.value.map { reporting -> reporting.duration }.sum() / 60000)) }
+                            .sortedBy { it.name },
+                    timeEntries = input.data
+                            .groupBy { it.start.toLocalDate() }
+                            .map {
+                                it.value.map { v ->
+                                    ViewModel.TimeEntry(
+                                            id = v.id,
+                                            day = v.start.toLocalDate(),
+                                            project = v.project,
+                                            startdate = v.start.toLocalDateTime(),
+                                            enddate = v.end.toLocalDateTime(),
+                                            minutes = v.duration / 60000,
+                                            description = v.description,
+                                            tags = v.tags
+                                    )
+                                }.sortedBy { it.startdate }
+                            }.sortedBy { it.firstOrNull()?.day ?: LocalDate.now() }
             )
 }

@@ -1,11 +1,22 @@
 package io.github.titaniumcoder.toggl.reporting.reporting
 
 import io.github.titaniumcoder.toggl.reporting.transformers.ViewModel
+import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.springframework.stereotype.Service
+import java.io.ByteArrayOutputStream
 
 @Service
 class ReportingService {
-    fun generateExcel(model: ViewModel.ReportingModel): ByteArray = TODO()
+    fun generateExcel(model: ViewModel.ReportingModel): ByteArray {
+        val workbook = XSSFWorkbook()
+
+        workbook.createSheet("Timesheet")
+
+        val bos = ByteArrayOutputStream()
+        workbook.write(bos)
+        bos.flush()
+        return bos.toByteArray()
+    }
 
     /*
 package excel
