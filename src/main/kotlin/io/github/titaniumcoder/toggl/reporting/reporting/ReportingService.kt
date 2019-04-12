@@ -1,16 +1,40 @@
 package io.github.titaniumcoder.toggl.reporting.reporting
 
+import io.github.titaniumcoder.toggl.reporting.toggl.TogglClient
+import io.github.titaniumcoder.toggl.reporting.transformers.TransformerService
 import io.github.titaniumcoder.toggl.reporting.transformers.ViewModel
 import org.springframework.stereotype.Service
+import java.time.LocalDate
+
+data class ExcelSheet(val name: String, val date: LocalDate, val excel: ByteArray)
 
 @Service
-class ReportingService {
-    fun generateExcel(model: ViewModel.ReportingModel): ByteArray =
+class ReportingService(val client: TogglClient, val transformer: TransformerService) {
+    private fun generateExcel(model: ViewModel.ReportingModel): ByteArray =
             excel {
                 sheet("Timesheet") {
 
                 }
             }.render()
+
+
+    suspend fun timesheet(clientId: Long, from: LocalDate, to: LocalDate): ExcelSheet {
+        val entries = client.entries(clientId, from, to, true)
+
+        val body = generateExcel(transformer.transformInput(entries, from, to, clientId))
+
+        val name = entries.data.firstOrNull()?.client?.toLowerCase() ?: "unbekannt"
+
+        return ExcelSheet(name, from, body)
+    }
+
+    suspend fun entries(clientId: Long, from: LocalDate?, to: LocalDate?, tagged: Boolean): ViewModel.ReportingModel {
+        val definiteTo = to ?: (LocalDate.now().plusMonths(1).withDayOfMonth(1).minusDays(1))
+        val definiteFrom = from ?: (definiteTo.withDayOfMonth(1))
+
+        val entries = client.entries(clientId, definiteFrom, definiteTo, tagged)
+        return transformer.transformInput(entries, definiteFrom, definiteTo, clientId)
+    }
 
 
     /*
