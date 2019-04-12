@@ -11,7 +11,7 @@ class TransformerService {
                 ViewModel.Cashout(x.title?.name ?: "unbekannt", x.totalCurrencies.map { c ->
                     c.amount ?: 0.0
                 }.sum())
-            }
+            }.sortedBy { it.client }
 
     fun transformInput(input: TogglModel.TogglReporting, from: LocalDate, to: LocalDate, clientId: Long): ViewModel.ReportingModel =
             ViewModel.ReportingModel(

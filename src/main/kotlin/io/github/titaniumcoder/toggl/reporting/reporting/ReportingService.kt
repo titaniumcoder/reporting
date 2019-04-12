@@ -2,19 +2,15 @@ package io.github.titaniumcoder.toggl.reporting.reporting
 
 import io.github.titaniumcoder.toggl.reporting.transformers.ViewModel
 import org.springframework.stereotype.Service
-import java.io.ByteArrayOutputStream
 
 @Service
 class ReportingService {
-    fun generateExcel(model: ViewModel.ReportingModel): ByteArray {
-        val bos = ByteArrayOutputStream()
-        excel {
-            sheet("Timesheet") {
+    fun generateExcel(model: ViewModel.ReportingModel): ByteArray =
+            excel {
+                sheet("Timesheet") {
 
-            }
-        }.render()
-        return bos.toByteArray()
-    }
+                }
+            }.render()
 
 
     /*

@@ -35,14 +35,13 @@ class TransformerServiceTest {
         assertThat(transformerService.cash(TogglModel.TogglSummary(
                 100L, 200L, listOf(), listOf(
                 TogglModel.ClientSummaryEntry(TogglModel.TogglIClient("c1"), 100, listOf(TogglModel.TogglCurrency("CHF", 100.50))),
-                TogglModel.ClientSummaryEntry(TogglModel.TogglIClient("c1"), 100, listOf(TogglModel.TogglCurrency("CHF", 99.50))),
                 TogglModel.ClientSummaryEntry(TogglModel.TogglIClient("c3"), 100, listOf(TogglModel.TogglCurrency("CHF", 101.50))),
                 TogglModel.ClientSummaryEntry(TogglModel.TogglIClient("c2"), 100, listOf(TogglModel.TogglCurrency("CHF", 102.50)))
         )
         )
         ))
                 .isEqualTo(listOf(
-                        ViewModel.Cashout("c1", 200.00),
+                        ViewModel.Cashout("c1", 100.50),
                         ViewModel.Cashout("c2", 102.50),
                         ViewModel.Cashout("c3", 101.50)
                 ))
