@@ -2,7 +2,6 @@
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 [![Build Status](https://travis-ci.com/titaniumcoder/toggl-reporting.svg?branch=master)](https://travis-ci.com/titaniumcoder/toggl-reporting)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=titaniumcoder-toggl-reporting&metric=alert_status)](https://sonarcloud.io/dashboard?id=titaniumcoder-toggl-reporting)
 [![codecov](https://codecov.io/gh/titaniumcoder/toggl-reporting/branch/master/graph/badge.svg)](https://codecov.io/gh/titaniumcoder/toggl-reporting)
 
 
