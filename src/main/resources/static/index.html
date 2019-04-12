@@ -2,10 +2,37 @@
 <head>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="reporting.css">
 </head>
 <body>
 <div id="app">
-    {{ message }}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col pl-4">
+                Cash output
+            </div>
+        </div>
+        <hr/>
+        <div class="row mb-5">
+            <div class="col">
+                <form>Here comes the form: from, to, submit</form>
+            </div>
+            <div class="col-auto">
+                <div class="btn-group">
+                    <button class="btn btn-secondary">Excel -- wenn vorhanden</button>
+                    <button class="btn btn-secondary">Excel herunterladen -- wenn vorhanden</button>
+                    <button class="btn btn-danger">Abgerechnet</button>
+                    <button class="btn btn-danger">Zur&uuml;cksetzen</button>
+                </div>
+            </div>
+        </div>
+        <ul class="nav nav-pills nav-fill mb-3">
+            <li class="nav-item"><a href="/">ABC</a></li>
+            <li class="nav-item"><a href="/">DEF</a></li>
+        </ul>
+        <hr>
+        Was auch immer... der Inhalt ist :)
+    </div>
 </div>
 
 
