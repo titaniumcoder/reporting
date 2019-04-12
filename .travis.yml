@@ -1,11 +1,6 @@
 language: java
 
-addons:
-  sonarcloud:
-    organization: "titaniumcoder-github"
-
 script:
   - ./gradlew check
-  - sonar-scanner
 after_success:
   - bash <(curl -s https://codecov.io/bash)
