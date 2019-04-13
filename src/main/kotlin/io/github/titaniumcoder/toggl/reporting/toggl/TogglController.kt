@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
 
 @RestController
-class TogglController(val client: TogglClient) {
+class TogglController(val service: TogglService) {
     @GetMapping("/api/clients")
     fun clients() = GlobalScope.mono {
         // FIXME this can be replaced with "suspend" with Spring 5.2
-        client.clients()
+        service.clients()
     }
 
     @PutMapping("/api/client/{clientId}/billed")
@@ -21,7 +21,7 @@ class TogglController(val client: TogglClient) {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) to: LocalDate
     ) = GlobalScope.mono {
         // FIXME this can be replaced with "suspend" with Spring 5.2
-        client.tagBilled(clientId, from, to)
+        service.tagBilled(clientId, from, to)
     }
 
     @DeleteMapping("/api/client/{clientId}/billed")
@@ -31,18 +31,18 @@ class TogglController(val client: TogglClient) {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) to: LocalDate
     ) = GlobalScope.mono {
         // FIXME this can be replaced with "suspend" with Spring 5.2
-        client.untagBilled(clientId, from, to)
+        service.untagBilled(clientId, from, to)
     }
 
     @PutMapping("/api/tag/{entry}")
     fun tagEntry(@PathVariable entry: Long) = GlobalScope.mono {
         // FIXME this can be replaced with "suspend" with Spring 5.2
-        client.tagBilled(entry)
+        service.tagBilled(entry)
     }
 
     @DeleteMapping("/api/tag/{entry}")
     fun untagEntry(@PathVariable entry: Long) = GlobalScope.mono {
         // FIXME this can be replaced with "suspend" with Spring 5.2
-        client.untagBilled(entry)
+        service.untagBilled(entry)
     }
 }

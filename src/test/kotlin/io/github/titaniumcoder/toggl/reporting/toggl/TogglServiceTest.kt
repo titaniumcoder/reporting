@@ -18,16 +18,16 @@ import java.time.ZonedDateTime
 
 // TODO find a better way than just run it inside a runBlock for everything
 @ExtendWith(SpringExtension::class)
-class TogglClientTest {
+class TogglServiceTest {
     @TestConfiguration
     class TogglClientTestConfiguration {
         @Bean
-        fun togglClient(webClient: TogglWebClient): TogglClient =
-                TogglClient(webClient)
+        fun togglClient(webClient: TogglWebClient): TogglService =
+                TogglService(webClient)
     }
 
     @Autowired
-    private lateinit var togglClient: TogglClient
+    private lateinit var togglService: TogglService
 
     @MockBean
     private lateinit var webClient: TogglWebClient
@@ -46,7 +46,7 @@ class TogglClientTest {
                             )
                     )
 
-            val result = togglClient.clients()
+            val result = togglService.clients()
 
             assertThat(result).isEqualTo(listOf(
                     TogglModel.Client(1L, 1L, "First", "First Notes"),
@@ -64,8 +64,8 @@ class TogglClientTest {
             `when`(webClient.tagId(listOf("2"), false))
                     .thenReturn(HttpStatus.BAD_REQUEST)
 
-            togglClient.untagBilled(1L)
-            togglClient.untagBilled(2L)
+            togglService.untagBilled(1L)
+            togglService.untagBilled(2L)
         }
     }
 
@@ -77,8 +77,8 @@ class TogglClientTest {
             `when`(webClient.tagId(listOf("2"), true))
                     .thenReturn(HttpStatus.BAD_REQUEST)
 
-            togglClient.untagBilled(1L)
-            togglClient.untagBilled(2L)
+            togglService.untagBilled(1L)
+            togglService.untagBilled(2L)
         }
     }
 
@@ -108,7 +108,7 @@ class TogglClientTest {
             `when`(webClient.tagId(listOf("1", "2", "3", "4"), false)).thenReturn(HttpStatus.OK)
             `when`(webClient.tagId(listOf("1", "2", "3", "4"), false)).thenReturn(HttpStatus.BAD_REQUEST)
 
-            togglClient.untagBilled(1L, sampleStartDate, sampleEndDate)
+            togglService.untagBilled(1L, sampleStartDate, sampleEndDate)
         }
     }
 
@@ -137,7 +137,7 @@ class TogglClientTest {
             `when`(webClient.tagId(listOf("1", "2", "3", "4"), true)).thenReturn(HttpStatus.OK)
             `when`(webClient.tagId(listOf("1", "2", "3", "4"), true)).thenReturn(HttpStatus.BAD_REQUEST)
 
-            togglClient.tagBilled(1L, sampleStartDate, sampleEndDate)
+            togglService.tagBilled(1L, sampleStartDate, sampleEndDate)
         }
     }
 
@@ -154,7 +154,7 @@ class TogglClientTest {
                     )
                     ))
 
-            assertThat(togglClient.summary(sampleStartDate, sampleEndDate))
+            assertThat(togglService.summary(sampleStartDate, sampleEndDate))
                     .isEqualTo(
                             TogglModel.TogglSummary(
                                     100L, 200L, listOf(
@@ -191,7 +191,7 @@ class TogglClientTest {
                     )
                     ))
 
-            assertThat(togglClient.entries(1L, sampleStartDate, sampleEndDate, false))
+            assertThat(togglService.entries(1L, sampleStartDate, sampleEndDate, false))
                     .isEqualTo(
                             TogglModel.TogglReporting(
                                     4, 3, 100, 200, listOf(

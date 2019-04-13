@@ -6,8 +6,8 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Service
-class TogglClient(val webClient: TogglWebClient) {
-    private val log = LoggerFactory.getLogger(TogglClient::class.java)
+class TogglService(val webClient: TogglWebClient) {
+    private val log = LoggerFactory.getLogger(TogglService::class.java)
 
     suspend fun clients(): List<TogglModel.Client> = webClient.clients()
 

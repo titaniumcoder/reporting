@@ -1,6 +1,6 @@
 package io.github.titaniumcoder.toggl.reporting.reporting
 
-import io.github.titaniumcoder.toggl.reporting.toggl.TogglClient
+import io.github.titaniumcoder.toggl.reporting.toggl.TogglService
 import io.github.titaniumcoder.toggl.reporting.transformers.TransformerService
 import io.github.titaniumcoder.toggl.reporting.transformers.ViewModel
 import org.springframework.stereotype.Service
@@ -9,7 +9,7 @@ import java.time.LocalDate
 data class ExcelSheet(val name: String, val date: LocalDate, val excel: ByteArray)
 
 @Service
-class ReportingService(val client: TogglClient, val transformer: TransformerService) {
+class ReportingService(val service: TogglService, val transformer: TransformerService) {
     private fun generateExcel(model: ViewModel.ReportingModel): ByteArray =
             excel {
                 sheet("Timesheet") {
@@ -19,7 +19,7 @@ class ReportingService(val client: TogglClient, val transformer: TransformerServ
 
 
     suspend fun timesheet(clientId: Long, from: LocalDate, to: LocalDate): ExcelSheet {
-        val entries = client.entries(clientId, from, to, true)
+        val entries = service.entries(clientId, from, to, true)
 
         val body = generateExcel(transformer.transformInput(entries, from, to, clientId))
 
@@ -32,7 +32,7 @@ class ReportingService(val client: TogglClient, val transformer: TransformerServ
         val definiteTo = to ?: (LocalDate.now().plusMonths(1).withDayOfMonth(1).minusDays(1))
         val definiteFrom = from ?: (definiteTo.withDayOfMonth(1))
 
-        val entries = client.entries(clientId, definiteFrom, definiteTo, tagged)
+        val entries = service.entries(clientId, definiteFrom, definiteTo, tagged)
         return transformer.transformInput(entries, definiteFrom, definiteTo, clientId)
     }
 
@@ -64,7 +64,7 @@ class TimesheetExcelService @Inject()(implicit ec: ExecutionContext) extends Tim
     val cells: Map[(Int, Int), Cell] =
       headerCells(model) ++ timeCells(model) ++ projectCells(model)
 
-    Timesheet(model.client, cells)
+    Timesheet(model.service, cells)
   }
 
   private def headerCells(model: ViewModel): Map[(Int, Int), Cell] = {

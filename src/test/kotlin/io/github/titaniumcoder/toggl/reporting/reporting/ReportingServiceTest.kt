@@ -1,6 +1,6 @@
 package io.github.titaniumcoder.toggl.reporting.reporting
 
-import io.github.titaniumcoder.toggl.reporting.toggl.TogglClient
+import io.github.titaniumcoder.toggl.reporting.toggl.TogglService
 import io.github.titaniumcoder.toggl.reporting.toggl.TogglModel
 import io.github.titaniumcoder.toggl.reporting.transformers.TransformerService
 import io.github.titaniumcoder.toggl.reporting.transformers.ViewModel
@@ -29,15 +29,15 @@ class ReportingServiceTest {
     @TestConfiguration
     class TogglClientTestConfiguration {
         @Bean
-        fun reportingService(client: TogglClient, transformer: TransformerService): ReportingService =
-                ReportingService(client, transformer)
+        fun reportingService(service: TogglService, transformer: TransformerService): ReportingService =
+                ReportingService(service, transformer)
     }
 
     @Autowired
     private lateinit var reportingService: ReportingService
 
     @MockBean
-    private lateinit var client: TogglClient
+    private lateinit var service: TogglService
 
     @MockBean
     private lateinit var transformer: TransformerService
@@ -66,7 +66,7 @@ class ReportingServiceTest {
     @Test
     fun testTimesheetCreation() {
         runBlocking {
-            `when`(client.entries(1L, sampleStartDate, sampleEndDate, true))
+            `when`(service.entries(1L, sampleStartDate, sampleEndDate, true))
                     .thenReturn(te)
             `when`(transformer.transformInput(te, sampleStartDate, sampleEndDate, 1L))
                     .thenReturn(rm)
@@ -84,7 +84,7 @@ class ReportingServiceTest {
     @Test
     fun testEntriesRetrieval() {
         runBlocking {
-            `when`(client.entries(1L, sampleStartDate, sampleEndDate, false))
+            `when`(service.entries(1L, sampleStartDate, sampleEndDate, false))
                     .thenReturn(te)
             `when`(transformer.transformInput(te, sampleStartDate, sampleEndDate, 1L))
                     .thenReturn(rm)
