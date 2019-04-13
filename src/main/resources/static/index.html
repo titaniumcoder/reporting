@@ -20,8 +20,8 @@
             </div>
             <div class="col-auto">
                 <div class="btn-group">
-                    <button class="btn btn-secondary" v-on:click="prepare">Excel -- wenn vorhanden</button>
-                    <button class="btn btn-secondary" v-on:click="download">Excel herunterladen -- wenn vorhanden</button>
+                    <button class="btn btn-secondary" v-on:click="prepare" v-if="!excelAvailable">Excel</button>
+                    <button class="btn btn-secondary" v-on:click="download" v-if="excelAvailable">Excel herunterladen</button>
                     <button class="btn btn-danger" v-on:click="tagRange">Abgerechnet</button>
                     <button class="btn btn-danger" v-on:click="untagRange">Zur&uuml;cksetzen</button>
                 </div>

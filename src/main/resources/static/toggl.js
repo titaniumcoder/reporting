@@ -12,14 +12,19 @@ const formatDecimal = (minutes) => (minutes / 60.0).toLocaleString('de-CH', {
 const app = new Vue({
     el: '#app',
     data: {
-        message: 'Hello Spring!'
+        message: 'Hello Spring!',
+        excelAvailable: false
     },
     methods: {
         prepare: function () {
             console.log('Preparing Excel Sheet');
+
+            this.excelAvailable = true;
         },
         download: function () {
             console.log('Downloading Excel Sheet');
+
+            this.excelAvailable = false;
         },
         tagRange: function () {
             console.log('Flagging current service and date range to billed');
