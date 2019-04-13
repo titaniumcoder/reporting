@@ -42,12 +42,11 @@ class ReportingControllerTest {
                     .thenReturn(rm)
 
             client.get()
-                    .uri("/api/service/1")
+                    .uri("/api/client/1")
                     .header(HttpHeaders.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString("test:test".toByteArray()))
                     .exchange()
                     .expectStatus().isOk
-                    .expectBody().json("""{"service":"a","clientId":1,"from":"2019-01-01","to":"2019-02-03","projects":[{"name":"a","minutes":1}],"timeEntries":[[{"id":1,"day":"2019-01-03","project":"a","startdate":"2019-01-03T13:30:00","enddate":"2019-01-03T13:35:00","minutes":1,"description":"d","tags":["a","b"]}]]}""")
-
+                    .expectBody().json("""{"client":"a","clientId":1,"from":"2019-01-01","to":"2019-02-03","projects":[{"name":"a","minutes":1}],"timeEntries":[[{"id":1,"day":"2019-01-03","project":"a","startdate":"2019-01-03T13:30:00","enddate":"2019-01-03T13:35:00","minutes":1,"description":"d","tags":["a","b"]}]]}""")
         }
     }
 

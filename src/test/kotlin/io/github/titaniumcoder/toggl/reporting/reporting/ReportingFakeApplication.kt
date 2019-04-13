@@ -1,6 +1,6 @@
-package io.github.titaniumcoder.toggl.reporting.toggl
+package io.github.titaniumcoder.toggl.reporting.reporting
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 
 @SpringBootApplication
-class FakeApplication
+class ReportingFakeApplication

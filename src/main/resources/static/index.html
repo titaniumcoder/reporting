@@ -28,8 +28,8 @@
             </div>
         </div>
         <ul class="nav nav-pills nav-fill mb-3">
-            <li class="nav-item"><a href v-on:click="switchClient(0, $event)">ABC</a></li>
-            <li class="nav-item"><a href v-on:click="switchClient(1, $event)">DEF</a></li>
+            <li class="nav-item"><a href v-on:click.prevent="switchClient(0)">ABC</a></li>
+            <li class="nav-item"><a href v-on:click.prevent="switchClient(1)">DEF</a></li>
         </ul>
         <hr>
         Was auch immer... der Inhalt ist :)

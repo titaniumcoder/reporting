@@ -27,10 +27,7 @@ const app = new Vue({
         untagRange: function () {
             console.log('Flagging current service and date range to non-billed');
         },
-        switchClient: function(id, evt) {
-            if (evt) {
-                evt.preventDefault();
-            }
+        switchClient: function(id) {
             console.log('Switching to Client: ' + id);
         }
     }
