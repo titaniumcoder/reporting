@@ -68,7 +68,7 @@ object TogglModel {
     )
 
     data class TogglIClient(
-            @JsonProperty("service")
+            @JsonProperty("client")
             val name: String?
     )
 

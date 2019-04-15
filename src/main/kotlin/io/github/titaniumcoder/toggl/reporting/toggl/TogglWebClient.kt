@@ -102,7 +102,7 @@ class TogglWebClient(config: TogglConfiguration) {
     // This method returns filter function which will log request data
     private fun logRequest(): ExchangeFilterFunction {
         return ExchangeFilterFunction.ofRequestProcessor { clientRequest ->
-            log.debug("Request: {} {}", clientRequest.method(), clientRequest.url())
+            log.info("Request: {} {}", clientRequest.method(), clientRequest.url())
             Mono.just<ClientRequest>(clientRequest)
         }
     }

@@ -11,7 +11,10 @@ class TogglService(val webClient: TogglWebClient) {
 
     suspend fun clients(): List<TogglModel.Client> = webClient.clients()
 
-    suspend fun summary(from: LocalDate, to: LocalDate): TogglModel.TogglSummary = webClient.summary(from, to)
+    suspend fun summary(from: LocalDate, to: LocalDate): TogglModel.TogglSummary {
+        val summary = webClient.summary(from, to)
+        return summary.copy(data = summary.data.filter { it.time > 0 })
+    }
 
     suspend fun entries(clientId: Long, from: LocalDate, to: LocalDate, nonBilledOnly: Boolean): TogglModel.TogglReporting {
         val firstPage = webClient.entries(clientId, from, to, nonBilledOnly, 1)
@@ -61,9 +64,9 @@ class TogglService(val webClient: TogglWebClient) {
                 nonBilledOnly = false
         )
 
-        val ids = entriesMatched.data.map { it.id.toString()}.sorted().chunked(50)
+        val ids = entriesMatched.data.map { it.id.toString() }.sorted().chunked(50)
 
-        val completeResult = ids.map { webClient.tagId(it, billed)}
+        val completeResult = ids.map { webClient.tagId(it, billed) }
         if (completeResult.any { it.isError }) {
             // TODO decide what we do here for the future
             log.warn("Could not update the ids, got an error from the Toggl API")

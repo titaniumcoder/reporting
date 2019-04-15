@@ -8,31 +8,100 @@
 <body>
 <div id="app">
     <div class="container-fluid">
-        <div class="row">
-            <div class="col pl-4">
-                Cash output
-            </div>
-        </div>
-        <hr/>
         <div class="row mb-5">
             <div class="col">
-                <form>Here comes the form: from, to, submit</form>
+                <form>
+                    <div class="row">
+                        <div class="col-4">
+                            <input type="date" class="form-control" v-model="dateFrom">
+                        </div>
+                        <div class="col-4">
+                            <input type="date" class="form-control" v-model="dateTo">
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary">Laden</button>
+                        </div>
+                    </div>
+                </form>
             </div>
             <div class="col-auto">
                 <div class="btn-group">
                     <button class="btn btn-secondary" v-on:click="prepare" v-if="!excelAvailable">Excel</button>
-                    <button class="btn btn-secondary" v-on:click="download" v-if="excelAvailable">Excel herunterladen</button>
+                    <button class="btn btn-secondary" v-on:click="download" v-if="excelAvailable">Excel herunterladen
+                    </button>
                     <button class="btn btn-danger" v-on:click="tagRange">Abgerechnet</button>
                     <button class="btn btn-danger" v-on:click="untagRange">Zur&uuml;cksetzen</button>
                 </div>
             </div>
         </div>
-        <ul class="nav nav-pills nav-fill mb-3">
-            <li class="nav-item"><a href v-on:click.prevent="switchClient(0)">ABC</a></li>
-            <li class="nav-item"><a href v-on:click.prevent="switchClient(1)">DEF</a></li>
+        <div class="row">
+            <div class="col pl-4">
+                <div class="row">
+                    <div class="col-4"  v-if="cashout" v-for="client in cashout"><b>{{client.client}}</b>: {{client.amount}}</div>
+                </div>
+                <div class="row">
+                    <div class="col-xs"></div>
+                    <div class="col-xs-4"><b>Total</b>: {{totalCashout}}</div>
+                </div>
+            </div>
+        </div>
+        <hr/>
+        <ul class="nav nav-pills nav-fill">
+            <li class=nav-item v-for="(client, idx) in clients">
+                <a class="nav-link" v-bind:class="{ active: (idx === activeClient) }" href
+                   v-on:click.prevent="switchClient(idx)">{{client.name}}</a>
+            </li>
         </ul>
         <hr>
-        Was auch immer... der Inhalt ist :)
+        <table class="table table-bordered" v-if="projects">
+            <thead>
+            <tr>
+                <th>Projekt</th>
+                <th class="text-right">h:m</th>
+                <th class="text-right">h.m</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="project in projects">
+                <td>{{project.name}}</td>
+                <td class="text-right">{{formatMinutes(project.minutes)}}</td>
+                <td class="text-right">{{formatDecimal(project.minutes)}}</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <table class="table table-bordered table-sm" v-if="timesheet">
+            <thead>
+            <tr>
+                <th>Datum</th>
+                <th>Tagestotal</th>
+                <th>Von</th>
+                <th>Bis</th>
+                <th>Dauer</th>
+                <th>Projekt</th>
+                <th>Beschreibung
+                <th>Tags</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <template v-for="day in timesheet">
+                <tr v-for="(time, idx) in day">
+                    <td v-bind:rowspan="day.length" v-if="idx == 0">{{formatDate(time.day)}}</td>
+                    <td v-bind:rowspan="day.length" v-if="idx == 0">{{formatDayMinutes(day)}}<br/>{{formatDayDecimal(day)}}</td>
+                    <td>{{formatTime(time.startdate)}}</td>
+                    <td>{{formatTime(time.enddate)}}</td>
+                    <td>{{formatMinutes(time.minutes)}}<br/>{{formatDecimal(time.minutes)}}</td>
+                    <td>{{time.project}}</td>
+                    <td>{{time.description}}</td>
+                    <td>{{time.tags}}</td>
+                    <td>
+                        <button class="btn btn-sm" v-on:click="tagBilled(time.id)">&#x2611;</button>
+                    </td>
+                </tr>
+            </template>
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -46,7 +115,8 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"
+        crossorigin="anonymous"></script>
 <script src="toggl.js"></script>
 </body>
 </html>
