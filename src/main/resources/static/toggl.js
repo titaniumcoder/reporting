@@ -32,7 +32,7 @@ const app = new Vue({
                 fetch('/api/cash')
                     .then(res => res.json())
                     .then(res => {
-                        this.cashout = res.filter(x => x.amount !== 0);
+                        this.cashout = res;
                         this.totalCashout = res.map(x => x.amount).reduce((acc, r) => acc + r)
                     });
 
