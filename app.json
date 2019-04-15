@@ -3,7 +3,7 @@
   "description": "Toggl Reporting App that can be setup to generate customized Excel files from the Toggl App",
   "repository": "https://github.com/titaniumcoder/toggl-reporting",
   "keywords": ["toggl", "kotlin", "spring"],
-  "addons": ["heroku-postgresql:hobby-dev"],
+  "addons": [],
   "env": {
     "WORKSPACE_ID": {
       "description": "The Toggl Workspace Id",
