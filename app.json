@@ -9,7 +9,7 @@
       "description": "The Toggl Workspace Id",
       "value": ""
     },
-    "TOGGL_API_TOKEN": {
+    "API_TOKEN": {
       "description": "The Toggl Api Token for login",
       "value": ""
     },
