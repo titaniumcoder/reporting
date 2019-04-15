@@ -19,7 +19,7 @@
                             <input type="date" class="form-control" v-model="dateTo">
                         </div>
                         <div class="col-auto">
-                            <button type="submit" class="btn btn-primary">Laden</button>
+                            <button type="submit" class="btn btn-primary" v-on:click.prevent="updateDates">Laden</button>
                         </div>
                     </div>
                 </form>

@@ -49,30 +49,24 @@ const app = new Vue({
                 console.log('Preparing Excel Sheet');
 
                 this.excelAvailable = true;
-            }
-            ,
+            },
             download: function () {
                 console.log('Downloading Excel Sheet');
 
                 this.excelAvailable = false;
-            }
-            ,
+            },
             tagRange: function () {
                 console.log('Flagging current service and date range to billed');
-            }
-            ,
+            },
             untagRange: function () {
                 console.log('Flagging current service and date range to non-billed');
-            }
-            ,
+            },
             tagBilled: function (id) {
                 console.log(`Flagging ${id} to billed`);
-            }
-            ,
+            },
             untagBilled: function () {
                 console.log(`Flagging ${id} to unbilled`);
-            }
-            ,
+            },
             switchClient: function (id) {
                 this.activeClient = id;
                 const selectedClient = this.clients[id];
@@ -82,43 +76,42 @@ const app = new Vue({
                         this.timesheet = res.timeEntries;
                         this.projects = res.projects;
                     });
-            }
-            ,
-            loadClients: function () {
-                console.log('Loading clients...');
-            }
-            ,
+            },
+            updateDates: function() {
+                if (this.activeClient !== null) {
+                    fetch(`/api/client/${selectedClient.id}?from=${this.dateFrom}&to=${this.dateTo}`)
+                        .then(res => res.json())
+                        .then(res => {
+                            this.timesheet = res.timeEntries;
+                            this.projects = res.projects;
+                        });
+                }
+            },
             formatMinutes: function (minutes) {
                 const hours = Math.floor(minutes / 60);
                 const remaining = minutes % 60;
                 return hours + ':' + remaining.toLocaleString('de-CH', {minimumIntegerDigits: 2, maximumFractionDigits: 0})
-            }
-            ,
+            },
             formatDecimal: function (minutes) {
                 return (minutes / 60.0).toLocaleString('de-CH', {
                     maximumFractionDigits: 2,
                     minimumFractionDigits: 2
                 })
-            }
-            ,
+            },
             formatDate: function (d) {
                 return moment(d).format('DD.MM.YYYY');
-            }
-            ,
+            },
             formatTime: function (d) {
                 return moment(d).format('HH:mm');
-            }
-            ,
+            },
             formatDayMinutes: function (day) {
                 const sum = day.map(x => x.minutes).reduce((acc, c) => acc + c);
                 return this.formatMinutes(sum)
-            }
-            ,
+            },
             formatDayDecimal: function (day) {
                 const sum = day.map(x => x.minutes).reduce((acc, c) => acc + c);
                 return this.formatDecimal(sum)
             }
-            ,
         }
     })
 ;
