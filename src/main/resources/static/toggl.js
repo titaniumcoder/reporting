@@ -33,7 +33,11 @@ const app = new Vue({
                     .then(res => res.json())
                     .then(res => {
                         this.cashout = res;
-                        this.totalCashout = res.map(x => x.amount).reduce((acc, r) => acc + r)
+                        if (res) {
+                            this.totalCashout = res.map(x => x.amount).reduce((acc, r) => acc + r)
+                        } else {
+                            this.totalCashout = 0;
+                        }
                     });
 
                 this.casher = setInterval(() => {
@@ -77,7 +81,7 @@ const app = new Vue({
                         this.projects = res.projects;
                     });
             },
-            updateDates: function() {
+            updateDates: function () {
                 if (this.activeClient !== null) {
                     fetch(`/api/client/${selectedClient.id}?from=${this.dateFrom}&to=${this.dateTo}`)
                         .then(res => res.json())
