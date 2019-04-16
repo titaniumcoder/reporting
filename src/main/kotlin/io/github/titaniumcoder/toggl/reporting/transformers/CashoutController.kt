@@ -17,7 +17,7 @@ class CashoutController(val service: TogglService, val transformer: TransformerS
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) to: LocalDate?
     ) = GlobalScope.mono {
         // FIXME this can be replaced with "suspend" with Spring 5.2
-        val finalFrom = from ?: LocalDate.now().minusYears(1).withDayOfMonth(1)
+        val finalFrom = from ?: LocalDate.now().minusMonths(3).withDayOfMonth(1)
         val finalTo = to ?: LocalDate.now().plusMonths(1).withDayOfMonth(1).minusDays(1)
 
         val summary = service.summary(finalFrom, finalTo)
