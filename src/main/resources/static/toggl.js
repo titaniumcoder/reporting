@@ -28,14 +28,16 @@ const app = new Vue({
         clearInterval(this.casher);
     },
     methods: {
+        handleFetchError: function(res) {
+            if (!res.ok) {
+                throw Error(res.statusText);
+            }
+            return res;
+        },
         updatecash: function () {
             fetch('/api/cash')
-                .then(res => {
-                    if (!res.ok) {
-                        throw Error(res.statusText);
-                    }
-                    return res.json();
-                })
+                .then(this.handleFetchError)
+                .then(res => res.json())
                 .then(res => {
                     this.cashout = res;
                     if (res) {
@@ -47,12 +49,8 @@ const app = new Vue({
 
             this.casher = setInterval(() => {
                 fetch('/api/cash')
-                    .then(res => {
-                        if (!res.ok) {
-                            throw Error(res.statusText);
-                        }
-                        return res.json();
-                    })
+                    .then(this.handleFetchError)
+                    .then(res => res.json())
                     .then(res => {
                         this.cashout = res;
                         this.totalCashout = res.map(x => x.amount).reduce((acc, r) => acc + r)
@@ -85,12 +83,8 @@ const app = new Vue({
             this.activeClient = id;
             const selectedClient = this.clients[id];
             fetch(`/api/client/${selectedClient.id}?from=${this.dateFrom}&to=${this.dateTo}`)
-                .then(res => {
-                    if (!res.ok) {
-                        throw Error(res.statusText);
-                    }
-                    return res.json();
-                })
+                .then(this.handleFetchError)
+                .then(res => res.json())
                 .then(res => {
                     this.timesheet = res.timeEntries;
                     this.projects = res.projects;
@@ -99,12 +93,8 @@ const app = new Vue({
         updateDates: function () {
             if (this.activeClient !== null) {
                 fetch(`/api/client/${selectedClient.id}?from=${this.dateFrom}&to=${this.dateTo}`)
-                    .then(res => {
-                        if (!res.ok) {
-                            throw Error(res.statusText);
-                        }
-                        return res.json();
-                    })
+                    .then(this.handleFetchError)
+                    .then(res => res.json())
                     .then(res => {
                         this.timesheet = res.timeEntries;
                         this.projects = res.projects;
