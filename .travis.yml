@@ -1,6 +1,12 @@
 language: java
-
 script:
-  - ./gradlew check
+  - "./gradlew check"
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+deploy:
+  provider: heroku
+  api_key:
+    secure: hn8pU/RGn+7ZHv8AJW9lrpz+r5JrZ/QQvceFQVQoNzMfx8oI9+loR2uUqxCRmxpyqS+N4DqHmvJ9Yvca7zb7H8m0KXCrPsq/gAT7EMZPFajVnYWOwnFFW3v/rZ0SRTGU4dtnMv0xMe3vdIauiWJHp0WgKTr7ybtUOIV5AYhQVzxujxy1gWo4jLEmt65MRq6QEiQed+AABRsvEMCIZhBypzdPIequQzd0r+zKsxpDkSP2VvtQcLR1W/U7Z8IDUMmOFbFmQsC0SMnRtAbMpg7swbLlOVW+18zhNL/KmtKGEQHMaIAKDJIVXZtjFvvpKuC/E3z8gmBxegqGyIRpqrkUHoTeMPs48lJIdebDHlZZ5EqBbCZKiF+q1VL/SWMal4idAQMaUBpdP4m4QxQ5pYYpxb8LlHmnDGaAiC/CqjSOJulIkwGGjfgr6lb0vJjmGPNlbmBoKR9g0fJgVK/4BFH3kHfrJniYx138jcGTw112aWvlmtvle2yYB6cXyG5jd2lNhse7w1QLjzYAEYYuRW0Zbs9i6IFZi0+mOUFbFUCuYYi9JXh8j4szrX/fN7DXX3WWw+Bq6F8VxJ+KrqeLiHMmCDOV51sO9ZVJWPetplWQU/7ieexQigPCJ2Vt4wKYreGxdBC0C8C8+KbdIzgkDUuDgkBjlXW+F7Hh++jeL/HgK+w=
+  app: kotlin-reporting
+  on:
+    repo: titaniumcoder/toggl-reporting
