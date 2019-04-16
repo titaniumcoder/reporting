@@ -5,11 +5,3 @@ script:
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-
-deploy:
-  provider: heroku
-  api_key:
-    secure: PXXeAx+kL7R7IjcGpYkj/KncwRW2sdBoqC4Sb8HsOFWuTYSoWsXMpzRYn6Oa+IWozH2612qPYBjgVHGO7qV/ErxbifzoFX8JwuDg2nRaUM8FVIZwpN+bKYcAXQ0ULV31iJ4rJ/+mwdy9ZRA3FAPxzzEKxc62JTdJ/FCy+HdZk/VIsGg5hlFyomtujisB/fFEpnLJkqEvlyZCRsEDZ3zbzbu3bjWWbPa5U/wpkQbyhTCqd8d9i2vRQzI3fQ/l89tbwGdbHHXEhkK6jaf3tBsRjU3siDnrbroxFdRpA2A5gXYKEYWG3/L+Ws44v04mW51XrZYlilS4TEQMoCBHfT+3Gir5s0yqqktwpxSZdUtWZ2nhZ4uhw2xT/elIliq7EXm59QbpsqoMWueii+Q1DC5xx1SUrsJpgtqtmtbrUUlYqswuMEpWfPH4iU2JVaUVjzh3XM9P6g+3BMMhRcp40KwFC/0a84XUDD1POWlnwMVz4LBvBT21kEpPRvNJWrHa6RJf0ErU6voLxQjfMvGSnJPFJJujKn2rmCUnm6nkEmB6mUONwAcvm9tBNIvKAWJ2EuFKKKY3M4Dg7o7k8Y65cOJ9/boAuUJwbiPllxw06d9ylcwpoQADitPEWvqCKeL6f4YLRcBQBEGW/pz/GGKVUW0hI1zoHJLfpVpcOCSDd+AmR68=
-  app: kotlin-reporting
-  on:
-    repo: titaniumcoder/toggl-reporting
