@@ -1,13 +1,25 @@
 const startOfMonth = moment().startOf('month');
 const endOfMonth = moment().endOf('month');
 
+Vue.filter('currency', function (value) {
+    if (typeof value !== "number") {
+        return value;
+    }
+    const formatter = new Intl.NumberFormat('de-CH', {
+        style: 'currency',
+        currency: 'CHF',
+        minimumFractionDigits: 0
+    });
+    return formatter.format(value);
+});
+
 const app = new Vue({
     el: '#app',
     data: {
         dateFrom: startOfMonth.format('YYYY-MM-DD'),
         dateTo: endOfMonth.format('YYYY-MM-DD'),
         message: 'Hello Spring!',
-        excelAvailable: false,
+        excel: null,
         clients: [{id: 1, name: 'A'}, {id: 2, name: 'B'}],
         activeClient: null,
         timesheet: null,
@@ -28,70 +40,108 @@ const app = new Vue({
         clearInterval(this.casher);
     },
     methods: {
-        handleFetchError: function(res) {
+        handleFetchError: function (res) {
             if (!res.ok) {
                 throw Error(res.statusText);
             }
             return res;
         },
         updatecash: function () {
+            this.fetchCash();
+
+            this.casher = setInterval(() => this.fetchCash(), 30000);
+        },
+        fetchCash: function () {
+            const s = this;
+
             fetch('/api/cash')
                 .then(this.handleFetchError)
                 .then(res => res.json())
                 .then(res => {
-                    this.cashout = res;
                     if (res) {
-                        this.totalCashout = res.map(x => x.amount).reduce((acc, r) => acc + r)
+                        s.cashout = res;
+                        s.totalCashout = res.map(x => x.amount).reduce((acc, r) => acc + r)
                     } else {
-                        this.totalCashout = 0;
+                        s.cashout = null;
+                        s.totalCashout = 0;
                     }
-                });
-
-            this.casher = setInterval(() => {
-                fetch('/api/cash')
-                    .then(this.handleFetchError)
-                    .then(res => res.json())
-                    .then(res => {
-                        this.cashout = res;
-                        this.totalCashout = res.map(x => x.amount).reduce((acc, r) => acc + r)
-                    })
-            }, 30000);
+                })
         },
         prepare: function () {
-            console.log('Preparing Excel Sheet');
+            const s = this;
 
-            this.excelAvailable = true;
+            if (this.activeClient) {
+                const selectedClient = this.clients[this.activeClient];
+                fetch(`/api/timesheet/${selectedClient.id}?from=${this.dateFrom}&to=${this.dateTo}`)
+                    .then(this.handleFetchError)
+                    .then(res => res.blob())
+                    .then(res => {
+                        s.excel = window.URL.createObjectURL(res);
+                    });
+            }
+
         },
         download: function () {
-            console.log('Downloading Excel Sheet');
-
-            this.excelAvailable = false;
+            this.excel = null;
         },
         tagRange: function () {
-            console.log('Flagging current service and date range to billed');
+            if (this.activeClient !== null) {
+                const selectedClient = this.clients[this.activeClient];
+                fetch(`/api/client/${selectedClient.id}/billed?from=${this.dateFrom}&to=${this.dateTo}`, {
+                    method: 'PUT',
+                    credentials: 'include'
+
+                })
+                    .then(this.handleFetchError)
+                    .then(() => {
+                        this.updateDates();
+                    });
+            }
         },
         untagRange: function () {
-            console.log('Flagging current service and date range to non-billed');
+            if (this.activeClient !== null) {
+                const selectedClient = this.clients[this.activeClient];
+                fetch(`/api/client/${selectedClient.id}/billed?from=${this.dateFrom}&to=${this.dateTo}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+
+                })
+                    .then(this.handleFetchError)
+                    .then(() => {
+                        this.updateDates();
+                    });
+            }
         },
         tagBilled: function (id) {
-            console.log(`Flagging ${id} to billed`);
+            fetch(`/api/tag/${id}`, {method: 'PUT', credentials: 'include'})
+                .then(this.handleFetchError)
+                .then(() => {
+                    this.updateDates();
+                })
         },
-        untagBilled: function () {
-            console.log(`Flagging ${id} to unbilled`);
+        untagBilled: function (id) {
+            fetch(`/api/tag/${id}`, {method: 'DELETE', credentials: 'include'})
+                .then(this.handleFetchError)
+                .then(() => {
+                    this.updateDates();
+                })
         },
         switchClient: function (id) {
             this.activeClient = id;
             const selectedClient = this.clients[id];
+            const s = this;
+
             fetch(`/api/client/${selectedClient.id}?from=${this.dateFrom}&to=${this.dateTo}`)
                 .then(this.handleFetchError)
                 .then(res => res.json())
                 .then(res => {
-                    this.timesheet = res.timeEntries;
-                    this.projects = res.projects;
+                    s.timesheet = res.timeEntries;
+                    s.projects = res.projects;
                 });
         },
         updateDates: function () {
             if (this.activeClient !== null) {
+                const selectedClient = this.clients[this.activeClient];
                 fetch(`/api/client/${selectedClient.id}?from=${this.dateFrom}&to=${this.dateTo}`)
                     .then(this.handleFetchError)
                     .then(res => res.json())
