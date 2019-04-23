@@ -24,15 +24,18 @@ class ReportingService(val service: TogglService, val transformer: TransformerSe
             sheet(name) {
                 // ---- header ----
                 cell(0, 0) {
-                    tableheader(this)
                     size = 14
+                    bold = true
                     mergedCols = 5
+                    alignment = HorizontalAlignment.Left
+
                     format = "\"Arbeitszeit \"MMMM yyyy"
-                    content = model.timeEntries.flatMap { te -> te.map { it.startdate } }.first()
+                    content = model.timeEntries.flatMap { te -> te.map { it.startdate } }.last()
                 }
+
                 cell(0, 5) {
-                    tableheader(this)
                     size = 14
+                    bold = true
                     alignment = HorizontalAlignment.Right
                     mergedCols = 2
                     content = "Rico Metzger" // FIXME move this to environment properties
@@ -90,6 +93,8 @@ class ReportingService(val service: TogglService, val transformer: TransformerSe
                                 content = entry.day
                                 format = "dd.MM.yyyy"
                                 top = topBorder
+                                left = 1
+                                right = 1
                                 bottom = 1
                                 mergedRows = te.size
                             }
@@ -98,6 +103,8 @@ class ReportingService(val service: TogglService, val transformer: TransformerSe
                                 format = "[h]:mm"
                                 alignment = HorizontalAlignment.Right
                                 top = topBorder
+                                left = 1
+                                right = 1
                                 bottom = 1
                                 mergedRows = te.size
                             }
@@ -108,6 +115,8 @@ class ReportingService(val service: TogglService, val transformer: TransformerSe
                             format = "hh:mm"
                             alignment = HorizontalAlignment.Center
 
+                            left = 1
+                            right = 1
                             top = topBorder
                             bottom = bottomBorder
                         }
@@ -116,6 +125,8 @@ class ReportingService(val service: TogglService, val transformer: TransformerSe
                             format = "hh:mm"
                             alignment = HorizontalAlignment.Center
 
+                            left = 1
+                            right = 1
                             top = topBorder
                             bottom = bottomBorder
                         }
@@ -124,18 +135,24 @@ class ReportingService(val service: TogglService, val transformer: TransformerSe
                             format = "[h]:mm"
                             alignment = HorizontalAlignment.Right
 
+                            left = 1
+                            right = 1
                             top = topBorder
                             bottom = bottomBorder
                         }
                         cell(row, 5) {
                             content = entry.project
 
+                            left = 1
+                            right = 1
                             top = topBorder
                             bottom = bottomBorder
                         }
                         cell(row, 6) {
                             content = entry.description
 
+                            left = 1
+                            right = 1
                             top = topBorder
                             bottom = bottomBorder
                         }
@@ -177,19 +194,30 @@ class ReportingService(val service: TogglService, val transformer: TransformerSe
                 }
                 cell(row + 1, 3) {
                     content = formatTime(total)
+                    format = "[h]:mm"
                     bold = true
                     alignment = HorizontalAlignment.Right
                 }
                 cell(row + 1, 4) {
                     content = formatNumeric(total)
+                    format = "0.00"
                     bold = true
                     alignment = HorizontalAlignment.Right
                 }
                 cell(row + 3, 0) {
                     content = "Pro Projekt:"
-                    mergedCols = 5
+                    mergedCols = 3
                     alignment = HorizontalAlignment.Center
                     bold = true
+
+                    top = 1
+                    left = 1
+                    right = 1
+                }
+                cell(row + 3, 3) {
+                    content = ""
+                    mergedCols = 2
+                    alignment = HorizontalAlignment.Center
 
                     top = 1
                     left = 1
@@ -228,7 +256,6 @@ class ReportingService(val service: TogglService, val transformer: TransformerSe
                                 bottom = if (idx == totalPerProject.size - 1) 1 else null
                             }
                         }
-
             }
         }
                 .render()

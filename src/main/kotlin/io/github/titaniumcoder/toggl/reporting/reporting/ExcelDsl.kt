@@ -34,6 +34,7 @@ class Excel {
 
         ByteArrayOutputStream().use {
             workbook.write(it)
+            workbook.close()
             return it.toByteArray()
         }
     }
@@ -41,7 +42,9 @@ class Excel {
 
     private fun calculateCellstyles(workbook: XSSFWorkbook, sheets: List<Sheet>): Map<Style, XSSFCellStyle> {
         val defaultFontSize = 12
+
         data class InternalFont(val size: Int, val bold: Boolean)
+
         fun styleToFont(style: Style) = InternalFont(style.fontSize ?: defaultFontSize, style.bold)
 
         val createHelper = workbook.creationHelper
@@ -51,7 +54,7 @@ class Excel {
                 .distinct()
                 .map {
                     val f1 = workbook.createFont()
-                    f1.fontHeight = it.size.toShort()
+                    f1.fontHeightInPoints = it.size.toShort()
                     f1.bold = it.bold
                     it to f1
                 }
@@ -226,14 +229,17 @@ class Cell(private val row: Int, private val col: Int) {
             else -> throw UnsupportedOperationException("unknown value type $currentContent (${currentContent.javaClass}) for cell $row / $col")
         }
 
-        c.cellStyle = styles.getValue(style)
+        val cellStyle = styles.getValue(style)
+        c.cellStyle = cellStyle
 
         if (mergedRows > 1 || mergedCols > 1) {
-            sheet.addMergedRegion(CellRangeAddress(row, row + mergedRows - 1, col, col + mergedCols - 1))
-            for (rows in row..(row + mergedRows)) {
-                for (cols in col..(col + mergedCols)) {
-                    if (rows != row || cols != col) {
-                        getCell(sheet, rows, cols).cellStyle = styles.getValue(style)
+            val cra = CellRangeAddress(row, row + mergedRows - 1, col, col + mergedCols - 1)
+            sheet.addMergedRegion(cra)
+
+            for (cr in cra.firstRow..cra.lastRow) {
+                for (cc in cra.firstColumn..(cra.lastColumn)) {
+                    if (cr != row || cc != col) {
+                        getCell(sheet, cr, cc).cellStyle = cellStyle
                     }
                 }
             }
