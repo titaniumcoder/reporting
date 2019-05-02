@@ -3,6 +3,9 @@ package io.github.titaniumcoder.toggl.reporting.transformers
 import io.github.titaniumcoder.toggl.reporting.toggl.TogglModel
 import org.springframework.stereotype.Service
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 @Service
 class TransformerService {
@@ -30,10 +33,10 @@ class TransformerService {
                                 it.value.map { v ->
                                     ViewModel.TimeEntry(
                                             id = v.id,
-                                            day = v.start.toLocalDate(),
+                                            day = convertToZurichLocale(v.start).toLocalDate(),
                                             project = v.project,
-                                            startdate = v.start.toLocalDateTime(),
-                                            enddate = v.end.toLocalDateTime(),
+                                            startdate = convertToZurichLocale(v.start),
+                                            enddate = convertToZurichLocale(v.end),
                                             minutes = v.duration / 60000,
                                             description = v.description,
                                             tags = v.tags
@@ -41,4 +44,7 @@ class TransformerService {
                                 }.sortedBy { it.startdate }
                             }.sortedBy { it.firstOrNull()?.day ?: LocalDate.now() }
             )
+
+    private fun convertToZurichLocale(v: ZonedDateTime): LocalDateTime =
+            v.withZoneSameInstant(ZoneId.of("Europe/Zurich")).toLocalDateTime()
 }
