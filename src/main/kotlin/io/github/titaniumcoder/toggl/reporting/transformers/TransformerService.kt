@@ -3,9 +3,7 @@ package io.github.titaniumcoder.toggl.reporting.transformers
 import io.github.titaniumcoder.toggl.reporting.toggl.TogglModel
 import org.springframework.stereotype.Service
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 
 @Service
 class TransformerService {
@@ -29,14 +27,14 @@ class TransformerService {
                             .sortedBy { it.name },
                     timeEntries = input.data
                             .groupBy { it.start.toLocalDate() }
-                            .map {
-                                it.value.map { v ->
+                            .map { entry ->
+                                entry.value.map { v ->
                                     ViewModel.TimeEntry(
                                             id = v.id,
-                                            day = convertToZurichLocale(v.start).toLocalDate(),
+                                            day = v.start.toLocalDate(),
                                             project = v.project,
-                                            startdate = convertToZurichLocale(v.start),
-                                            enddate = convertToZurichLocale(v.end),
+                                            startdate = v.start.truncatedTo(ChronoUnit.MINUTES),
+                                            enddate = v.end.truncatedTo(ChronoUnit.MINUTES),
                                             minutes = v.duration / 60000,
                                             description = v.description,
                                             tags = v.tags
@@ -44,7 +42,4 @@ class TransformerService {
                                 }.sortedBy { it.startdate }
                             }.sortedBy { it.firstOrNull()?.day ?: LocalDate.now() }
             )
-
-    private fun convertToZurichLocale(v: ZonedDateTime): LocalDateTime =
-            v.withZoneSameInstant(ZoneId.of("Europe/Zurich")).toLocalDateTime()
 }

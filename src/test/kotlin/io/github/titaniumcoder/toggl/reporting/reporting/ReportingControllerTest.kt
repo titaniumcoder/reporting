@@ -10,7 +10,7 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpHeaders
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.*
 
 @WebFluxTest
@@ -24,8 +24,8 @@ class ReportingControllerTest {
     private val start: LocalDate = LocalDate.of(2019, 1, 1)
     private val end: LocalDate = LocalDate.of(2019, 2, 3)
 
-    private val startTime: LocalDateTime = start.plusDays(2).atTime(13, 30)
-    private val endTime: LocalDateTime = start.plusDays(2).atTime(13, 35)
+    private val startTime = start.plusDays(2).atTime(13, 30).atZone(ZoneId.systemDefault())
+    private val endTime = start.plusDays(2).atTime(13, 35).atZone(ZoneId.systemDefault())
     private val date: LocalDate = startTime.toLocalDate()
 
     private val rm = ViewModel.ReportingModel(
@@ -46,7 +46,8 @@ class ReportingControllerTest {
                     .header(HttpHeaders.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString("test:test".toByteArray()))
                     .exchange()
                     .expectStatus().isOk
-                    .expectBody().json("""{"client":"a","clientId":1,"from":"2019-01-01","to":"2019-02-03","projects":[{"name":"a","minutes":1}],"timeEntries":[[{"id":1,"day":"2019-01-03","project":"a","startdate":"2019-01-03T13:30:00","enddate":"2019-01-03T13:35:00","minutes":1,"description":"d","tags":["a","b"]}]]}""")
+                    .expectBody()
+                    .json("""{"client":"a","clientId":1,"from":"2019-01-01","to":"2019-02-03","projects":[{"name":"a","minutes":1}],"timeEntries":[[{"id":1,"day":"2019-01-03","project":"a","startdate":"2019-01-03T13:30:00+01:00","enddate":"2019-01-03T13:35:00+01:00","minutes":1,"description":"d","tags":["a","b"]}]]}""")
         }
     }
 

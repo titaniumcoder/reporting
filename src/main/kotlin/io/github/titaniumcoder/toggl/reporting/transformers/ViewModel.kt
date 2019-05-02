@@ -1,7 +1,7 @@
 package io.github.titaniumcoder.toggl.reporting.transformers
 
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 // Application ViewModel
 object ViewModel {
@@ -19,8 +19,8 @@ object ViewModel {
             val id: Long,
             val day: LocalDate,
             val project: String?,
-            val startdate: LocalDateTime,
-            val enddate: LocalDateTime?,
+            val startdate: ZonedDateTime,
+            val enddate: ZonedDateTime,
             val minutes: Int,
             val description: String?,
             val tags: List<String>

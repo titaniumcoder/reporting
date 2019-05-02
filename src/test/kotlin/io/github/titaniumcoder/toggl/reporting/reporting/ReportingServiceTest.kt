@@ -54,7 +54,7 @@ class ReportingServiceTest {
     private val rm = ViewModel.ReportingModel(
             "a", 1L, sampleStartDate, sampleEndDate, listOf(ViewModel.Project("a", 1)), listOf(
             listOf(
-                    ViewModel.TimeEntry(1, start.toLocalDate(), "a", start.toLocalDateTime(), end.toLocalDateTime(), 1, "d", listOf("a", "b"))
+                    ViewModel.TimeEntry(1, start.toLocalDate(), "a", start, end, 1, "d", listOf("a", "b"))
             )
     )
     )
@@ -99,7 +99,7 @@ class ReportingServiceTest {
                                     ViewModel.Project("a", 1)
                             ), listOf(
                                     listOf(
-                                            ViewModel.TimeEntry(1, start.toLocalDate(), "a", start.toLocalDateTime(), end.toLocalDateTime(), 1, "d", listOf("a", "b"))
+                                            ViewModel.TimeEntry(1, start.toLocalDate(), "a", start, end, 1, "d", listOf("a", "b"))
                                     )
                             ))
                     )

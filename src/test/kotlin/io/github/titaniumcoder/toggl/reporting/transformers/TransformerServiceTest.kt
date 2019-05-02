@@ -49,6 +49,12 @@ class TransformerServiceTest {
 
     @Test
     fun testTransformer() {
+        fun startOf(day: Int): ZonedDateTime =
+                ZonedDateTime.of(LocalDateTime.of(2019, 1, day, 12, 13, 0, 0), ZoneId.systemDefault())
+
+        fun endOf(day: Int): ZonedDateTime =
+                ZonedDateTime.of(LocalDateTime.of(2019, 1, day, 12, 23, 0, 0), ZoneId.systemDefault())
+
         assertThat(transformerService.transformInput(TogglModel.TogglReporting(
                 4, 3, 100L, 200L, listOf(), listOf(
                 TogglModel.TimeEntryReporting(1L, 1L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 1, 12, 13, 0, 0, ZoneId.systemDefault()), ZonedDateTime.of(2019, 1, 1, 12, 23, 0, 0, ZoneId.systemDefault()), 600_000, 10.0f, true, "CHF", listOf("tag1", "tag2")),
@@ -64,16 +70,16 @@ class TransformerServiceTest {
                                 ViewModel.Project("P0", 10), ViewModel.Project("P1", 30)
                         ), listOf(
                                 listOf(
-                                        ViewModel.TimeEntry(1L, LocalDate.of(2019, 1, 1), "P1", LocalDateTime.of(2019, 1, 1, 12, 13, 0, 0), LocalDateTime.of(2019, 1, 1, 12, 23, 0, 0), 10, "d1", listOf("tag1", "tag2"))
+                                        ViewModel.TimeEntry(1L, LocalDate.of(2019, 1, 1), "P1", startOf(1), endOf(1), 10, "d1", listOf("tag1", "tag2"))
                                 ),
                                 listOf(
-                                        ViewModel.TimeEntry(2L, LocalDate.of(2019, 1, 2), "P0", LocalDateTime.of(2019, 1, 2, 12, 13, 0, 0), LocalDateTime.of(2019, 1, 2, 12, 23, 0, 0), 10, "d2", listOf("tag1", "tag2"))
+                                        ViewModel.TimeEntry(2L, LocalDate.of(2019, 1, 2), "P0", startOf(2), endOf(2), 10, "d2", listOf("tag1", "tag2"))
                                 ),
                                 listOf(
-                                        ViewModel.TimeEntry(3L, LocalDate.of(2019, 1, 3), "P1", LocalDateTime.of(2019, 1, 3, 12, 13, 0, 0), LocalDateTime.of(2019, 1, 3, 12, 23, 0, 0), 10, "d1", listOf("tag1", "tag2"))
+                                        ViewModel.TimeEntry(3L, LocalDate.of(2019, 1, 3), "P1", startOf(3), endOf(3), 10, "d1", listOf("tag1", "tag2"))
                                 ),
                                 listOf(
-                                        ViewModel.TimeEntry(4L, LocalDate.of(2019, 1, 4), "P1", LocalDateTime.of(2019, 1, 4, 12, 13, 0, 0), LocalDateTime.of(2019, 1, 4, 12, 23, 0, 0), 10, "d1", listOf("tag1", "tag2"))
+                                        ViewModel.TimeEntry(4L, LocalDate.of(2019, 1, 4), "P1", startOf(4), endOf(4), 10, "d1", listOf("tag1", "tag2"))
                                 )
                         ))
                 )

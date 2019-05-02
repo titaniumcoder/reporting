@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -157,6 +158,7 @@ class Sheet(val name: String) {
 
 fun toDate(t: LocalDateTime): Date = Date.from(t.atZone(ZoneId.systemDefault()).toInstant())
 fun toDate(t: LocalDate): Date = Date.from(t.atStartOfDay(ZoneId.systemDefault()).toInstant())
+fun toDate(t: ZonedDateTime): Date =Date.from(t.toInstant())
 
 class Cell(private val row: Int, private val col: Int) {
     internal var style: Style = Style()
@@ -225,6 +227,7 @@ class Cell(private val row: Int, private val col: Int) {
             is Double -> c.setCellValue(currentContent)
             is LocalDateTime -> c.setCellValue(toDate(currentContent))
             is LocalDate -> c.setCellValue(toDate(currentContent))
+            is ZonedDateTime -> c.setCellValue(toDate(currentContent))
             null -> c.setCellValue("")
             else -> throw UnsupportedOperationException("unknown value type $currentContent (${currentContent.javaClass}) for cell $row / $col")
         }
