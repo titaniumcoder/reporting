@@ -156,8 +156,10 @@ class Sheet(val name: String) {
     }
 }
 
-fun toDate(t: LocalDateTime): Date = Date.from(t.atZone(ZoneId.systemDefault()).toInstant())
-fun toDate(t: LocalDate): Date = Date.from(t.atStartOfDay(ZoneId.systemDefault()).toInstant())
+val zurichZone = ZoneId.of("Europe/Zurich")
+
+fun toDate(t: LocalDateTime): Date = Date.from(t.atZone(zurichZone).toInstant())
+fun toDate(t: LocalDate): Date = Date.from(t.atStartOfDay(zurichZone).toInstant())
 fun toDate(t: ZonedDateTime): Date =Date.from(t.toInstant())
 
 class Cell(private val row: Int, private val col: Int) {

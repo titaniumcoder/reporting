@@ -21,11 +21,13 @@ class ReportingControllerTest {
     @MockBean
     private lateinit var service: ReportingService
 
+    val zurichZone = ZoneId.of("Europe/Zurich")
+
     private val start: LocalDate = LocalDate.of(2019, 1, 1)
     private val end: LocalDate = LocalDate.of(2019, 2, 3)
 
-    private val startTime = start.plusDays(2).atTime(13, 30).atZone(ZoneId.systemDefault())
-    private val endTime = start.plusDays(2).atTime(13, 35).atZone(ZoneId.systemDefault())
+    private val startTime = start.plusDays(2).atTime(13, 30).atZone(zurichZone)
+    private val endTime = start.plusDays(2).atTime(13, 35).atZone(zurichZone)
     private val date: LocalDate = startTime.toLocalDate()
 
     private val rm = ViewModel.ReportingModel(

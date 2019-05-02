@@ -32,6 +32,8 @@ class TogglServiceTest {
     @MockBean
     private lateinit var webClient: TogglWebClient
 
+    val zurichZone = ZoneId.of("Europe/Zurich")
+
     private val sampleStartDate: LocalDate = LocalDate.of(2019, 2, 10)
     private val sampleEndDate: LocalDate = LocalDate.of(2019, 10, 15)
 
@@ -82,7 +84,6 @@ class TogglServiceTest {
         }
     }
 
-    // TODO write a test for the chunking part... just never needed it till now...
     @Test
     fun testUntagBilledClient() {
         runBlocking {
@@ -91,9 +92,9 @@ class TogglServiceTest {
                             4, 3, 100L, 200L, listOf(
                             TogglModel.TogglCurrency("CHF", 10.0), TogglModel.TogglCurrency("EUR", 20.0)
                     ), listOf(
-                            TogglModel.TimeEntryReporting(1L, 1L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 1, 12, 13, 0, 0, ZoneId.systemDefault()), ZonedDateTime.of(2019, 1, 1, 12, 23, 0, 0, ZoneId.systemDefault()), 10, 10.0f, true, "CHF", listOf("tag1", "tag2")),
-                            TogglModel.TimeEntryReporting(2L, 2L, "P2", "wilma", "t2", "d2", ZonedDateTime.of(2019, 1, 2, 12, 13, 0, 0, ZoneId.systemDefault()), ZonedDateTime.of(2019, 1, 2, 12, 23, 0, 0, ZoneId.systemDefault()), 10, 10.0f, true, "CHF", listOf("tag1", "tag2")),
-                            TogglModel.TimeEntryReporting(3L, 3L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 3, 12, 13, 0, 0, ZoneId.systemDefault()), ZonedDateTime.of(2019, 1, 3, 12, 23, 0, 0, ZoneId.systemDefault()), 10, 10.0f, true, "CHF", listOf("tag1", "tag2"))
+                                TogglModel.TimeEntryReporting(1L, 1L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 1, 12, 13, 0, 0, zurichZone), ZonedDateTime.of(2019, 1, 1, 12, 23, 0, 0, zurichZone), 10, 10.0f, true, "CHF", listOf("tag1", "tag2")),
+                            TogglModel.TimeEntryReporting(2L, 2L, "P2", "wilma", "t2", "d2", ZonedDateTime.of(2019, 1, 2, 12, 13, 0, 0, zurichZone), ZonedDateTime.of(2019, 1, 2, 12, 23, 0, 0, zurichZone), 10, 10.0f, true, "CHF", listOf("tag1", "tag2")),
+                            TogglModel.TimeEntryReporting(3L, 3L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 3, 12, 13, 0, 0, zurichZone), ZonedDateTime.of(2019, 1, 3, 12, 23, 0, 0, zurichZone), 10, 10.0f, true, "CHF", listOf("tag1", "tag2"))
                     )
                     ))
             `when`(webClient.entries(1L, sampleStartDate, sampleEndDate, false, 2))
@@ -101,7 +102,7 @@ class TogglServiceTest {
                             4, 3, 100L, 200L, listOf(
                             TogglModel.TogglCurrency("CHF", 10.0), TogglModel.TogglCurrency("EUR", 20.0)
                     ), listOf(
-                            TogglModel.TimeEntryReporting(4L, 4L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 4, 12, 13, 0, 0, ZoneId.systemDefault()), ZonedDateTime.of(2019, 1, 4, 12, 23, 0, 0, ZoneId.systemDefault()), 10, 10.0f, true, "CHF", listOf("tag1", "tag2"))
+                            TogglModel.TimeEntryReporting(4L, 4L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 4, 12, 13, 0, 0, zurichZone), ZonedDateTime.of(2019, 1, 4, 12, 23, 0, 0, zurichZone), 10, 10.0f, true, "CHF", listOf("tag1", "tag2"))
                     )
                     ))
 
@@ -120,9 +121,9 @@ class TogglServiceTest {
                             4, 3, 100L, 200L, listOf(
                             TogglModel.TogglCurrency("CHF", 10.0), TogglModel.TogglCurrency("EUR", 20.0)
                     ), listOf(
-                            TogglModel.TimeEntryReporting(1L, 1L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 1, 12, 13, 0, 0, ZoneId.systemDefault()), ZonedDateTime.of(2019, 1, 1, 12, 23, 0, 0, ZoneId.systemDefault()), 10, 10.0f, true, "CHF", listOf("tag1", "tag2")),
-                            TogglModel.TimeEntryReporting(2L, 2L, "P2", "wilma", "t2", "d2", ZonedDateTime.of(2019, 1, 2, 12, 13, 0, 0, ZoneId.systemDefault()), ZonedDateTime.of(2019, 1, 2, 12, 23, 0, 0, ZoneId.systemDefault()), 10, 10.0f, true, "CHF", listOf("tag1", "tag2")),
-                            TogglModel.TimeEntryReporting(3L, 3L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 3, 12, 13, 0, 0, ZoneId.systemDefault()), ZonedDateTime.of(2019, 1, 3, 12, 23, 0, 0, ZoneId.systemDefault()), 10, 10.0f, true, "CHF", listOf("tag1", "tag2"))
+                            TogglModel.TimeEntryReporting(1L, 1L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 1, 12, 13, 0, 0, zurichZone), ZonedDateTime.of(2019, 1, 1, 12, 23, 0, 0, zurichZone), 10, 10.0f, true, "CHF", listOf("tag1", "tag2")),
+                            TogglModel.TimeEntryReporting(2L, 2L, "P2", "wilma", "t2", "d2", ZonedDateTime.of(2019, 1, 2, 12, 13, 0, 0, zurichZone), ZonedDateTime.of(2019, 1, 2, 12, 23, 0, 0, zurichZone), 10, 10.0f, true, "CHF", listOf("tag1", "tag2")),
+                            TogglModel.TimeEntryReporting(3L, 3L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 3, 12, 13, 0, 0, zurichZone), ZonedDateTime.of(2019, 1, 3, 12, 23, 0, 0, zurichZone), 10, 10.0f, true, "CHF", listOf("tag1", "tag2"))
                     )
                     ))
             `when`(webClient.entries(1L, sampleStartDate, sampleEndDate, false, 2))
@@ -130,7 +131,7 @@ class TogglServiceTest {
                             4, 3, 100L, 200L, listOf(
                             TogglModel.TogglCurrency("CHF", 10.0), TogglModel.TogglCurrency("EUR", 20.0)
                     ), listOf(
-                            TogglModel.TimeEntryReporting(4L, 4L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 4, 12, 13, 0, 0, ZoneId.systemDefault()), ZonedDateTime.of(2019, 1, 4, 12, 23, 0, 0, ZoneId.systemDefault()), 10, 10.0f, true, "CHF", listOf("tag1", "tag2"))
+                            TogglModel.TimeEntryReporting(4L, 4L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 4, 12, 13, 0, 0, zurichZone), ZonedDateTime.of(2019, 1, 4, 12, 23, 0, 0, zurichZone), 10, 10.0f, true, "CHF", listOf("tag1", "tag2"))
                     )
                     ))
 
@@ -168,7 +169,6 @@ class TogglServiceTest {
         }
     }
 
-    // TODO add testing the nonBilledOnly part
     @Test
     fun testEntries() {
         runBlocking {
@@ -177,9 +177,9 @@ class TogglServiceTest {
                             4, 3, 100L, 200L, listOf(
                             TogglModel.TogglCurrency("CHF", 10.0), TogglModel.TogglCurrency("EUR", 20.0)
                     ), listOf(
-                            TogglModel.TimeEntryReporting(1L, 1L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 1, 12, 13, 0, 0, ZoneId.systemDefault()), ZonedDateTime.of(2019, 1, 1, 12, 23, 0, 0, ZoneId.systemDefault()), 600_000, 10.0f, true, "CHF", listOf("tag1", "tag2")),
-                            TogglModel.TimeEntryReporting(2L, 2L, "P2", "wilma", "t2", "d2", ZonedDateTime.of(2019, 1, 2, 12, 13, 0, 0, ZoneId.systemDefault()), ZonedDateTime.of(2019, 1, 2, 12, 23, 0, 0, ZoneId.systemDefault()), 600_000, 10.0f, true, "CHF", listOf("tag1", "tag2")),
-                            TogglModel.TimeEntryReporting(3L, 3L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 3, 12, 13, 0, 0, ZoneId.systemDefault()), ZonedDateTime.of(2019, 1, 3, 12, 23, 0, 0, ZoneId.systemDefault()), 600_000, 10.0f, true, "CHF", listOf("tag1", "tag2"))
+                            TogglModel.TimeEntryReporting(1L, 1L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 1, 12, 13, 0, 0, zurichZone), ZonedDateTime.of(2019, 1, 1, 12, 23, 0, 0, zurichZone), 600_000, 10.0f, true, "CHF", listOf("tag1", "tag2")),
+                            TogglModel.TimeEntryReporting(2L, 2L, "P2", "wilma", "t2", "d2", ZonedDateTime.of(2019, 1, 2, 12, 13, 0, 0, zurichZone), ZonedDateTime.of(2019, 1, 2, 12, 23, 0, 0, zurichZone), 600_000, 10.0f, true, "CHF", listOf("tag1", "tag2")),
+                            TogglModel.TimeEntryReporting(3L, 3L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 3, 12, 13, 0, 0, zurichZone), ZonedDateTime.of(2019, 1, 3, 12, 23, 0, 0, zurichZone), 600_000, 10.0f, true, "CHF", listOf("tag1", "tag2"))
                     )
                     ))
             `when`(webClient.entries(1L, sampleStartDate, sampleEndDate, false, 2))
@@ -187,7 +187,7 @@ class TogglServiceTest {
                             4, 3, 100L, 200L, listOf(
                             TogglModel.TogglCurrency("CHF", 10.0), TogglModel.TogglCurrency("EUR", 20.0)
                     ), listOf(
-                            TogglModel.TimeEntryReporting(4L, 4L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 4, 12, 13, 0, 0, ZoneId.systemDefault()), ZonedDateTime.of(2019, 1, 4, 12, 23, 0, 0, ZoneId.systemDefault()), 600_000, 10.0f, true, "CHF", listOf("tag1", "tag2"))
+                            TogglModel.TimeEntryReporting(4L, 4L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 4, 12, 13, 0, 0, zurichZone), ZonedDateTime.of(2019, 1, 4, 12, 23, 0, 0, zurichZone), 600_000, 10.0f, true, "CHF", listOf("tag1", "tag2"))
                     )
                     ))
 
@@ -197,10 +197,10 @@ class TogglServiceTest {
                                     4, 3, 100, 200, listOf(
                                     TogglModel.TogglCurrency("CHF", 10.0), TogglModel.TogglCurrency("EUR", 20.0)
                             ), listOf(
-                                    TogglModel.TimeEntryReporting(1L, 1L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 1, 12, 13, 0, 0, ZoneId.systemDefault()), ZonedDateTime.of(2019, 1, 1, 12, 23, 0, 0, ZoneId.systemDefault()), 600_000, 10.0f, true, "CHF", listOf("tag1", "tag2")),
-                                    TogglModel.TimeEntryReporting(3L, 3L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 3, 12, 13, 0, 0, ZoneId.systemDefault()), ZonedDateTime.of(2019, 1, 3, 12, 23, 0, 0, ZoneId.systemDefault()), 600_000, 10.0f, true, "CHF", listOf("tag1", "tag2")),
-                                    TogglModel.TimeEntryReporting(4L, 4L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 4, 12, 13, 0, 0, ZoneId.systemDefault()), ZonedDateTime.of(2019, 1, 4, 12, 23, 0, 0, ZoneId.systemDefault()), 600_000, 10.0f, true, "CHF", listOf("tag1", "tag2")),
-                                    TogglModel.TimeEntryReporting(2L, 2L, "P2", "wilma", "t2", "d2", ZonedDateTime.of(2019, 1, 2, 12, 13, 0, 0, ZoneId.systemDefault()), ZonedDateTime.of(2019, 1, 2, 12, 23, 0, 0, ZoneId.systemDefault()), 600_000, 10.0f, true, "CHF", listOf("tag1", "tag2"))
+                                    TogglModel.TimeEntryReporting(1L, 1L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 1, 12, 13, 0, 0, zurichZone), ZonedDateTime.of(2019, 1, 1, 12, 23, 0, 0, zurichZone), 600_000, 10.0f, true, "CHF", listOf("tag1", "tag2")),
+                                    TogglModel.TimeEntryReporting(3L, 3L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 3, 12, 13, 0, 0, zurichZone), ZonedDateTime.of(2019, 1, 3, 12, 23, 0, 0, zurichZone), 600_000, 10.0f, true, "CHF", listOf("tag1", "tag2")),
+                                    TogglModel.TimeEntryReporting(4L, 4L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 4, 12, 13, 0, 0, zurichZone), ZonedDateTime.of(2019, 1, 4, 12, 23, 0, 0, zurichZone), 600_000, 10.0f, true, "CHF", listOf("tag1", "tag2")),
+                                    TogglModel.TimeEntryReporting(2L, 2L, "P2", "wilma", "t2", "d2", ZonedDateTime.of(2019, 1, 2, 12, 13, 0, 0, zurichZone), ZonedDateTime.of(2019, 1, 2, 12, 23, 0, 0, zurichZone), 600_000, 10.0f, true, "CHF", listOf("tag1", "tag2"))
                             )
                             )
                     )
