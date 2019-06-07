@@ -1,12 +1,13 @@
 import React from 'react';
 import './App.css';
-import { Container } from 'reactstrap';
+import { Button, ButtonGroup, Col, Container, Nav, NavItem, Row } from 'reactstrap';
 import moment from 'moment';
+import { AvForm, AvField } from 'availity-reactstrap-validation';
 
 const formatMinutes = (minutes) => {
     const hours = Math.floor(minutes / 60);
     const remaining = minutes % 60;
-    return hours + ':' + remaining.toLocaleString('de-CH', {minimumIntegerDigits: 2, maximumFractionDigits: 0})
+    return hours + ':' + remaining.toLocaleString('de-CH', { minimumIntegerDigits: 2, maximumFractionDigits: 0 })
 };
 
 const formatDecimal = (minutes) => {
@@ -20,7 +21,7 @@ const formatDate = (d) => {
     return moment(d).format('DD.MM.YYYY');
 };
 
-const formatTime = (d)  => {
+const formatTime = (d) => {
     return moment(d).format('HH:mm');
 };
 
@@ -34,64 +35,87 @@ const formatDayDecimal = (day) => {
     return formatDecimal(sum)
 };
 
+const formatCurrency = (value) => {
+    return new Intl.NumberFormat('de-CH', {
+        style: 'currency',
+        currency: 'CHF'
+    }).format(value)
+};
+
 const App: React.FC = () => {
-    const client = { client: 'Fred', amount: 1000 };
     const totalCashout = 1000;
-    const clients = [{ name: 'First' }];
-    const projects = [{ name: 'Fred', minutes: 100 }]
+    const clients = [{ name: 'First', id: 50 }, { name: 'Second', id: 90 }, { name: 'Third', id: 100 }, { name: 'Fourth', id: 120 }];
+    const projects = [{ name: 'Fred', minutes: 100 }];
+    const activeClient = 100;
+    const cashout = [
+        { client: 'Fred', amount: 1000 },
+        { client: 'Wilma', amount: 1233.22 }
+    ];
+
+    const defaultFromTo = {
+        dateFrom: moment().startOf('month').format('YYYY-MM-DD'),
+        dateTo: moment().endOf('month').format('YYYY-MM-DD')
+    };
+
+    const handleSubmit = (event, errors, values) => {
+        console.log('Errors_ ', errors, ' Values: ', values);
+    };
+
+    const excel: (any[] | null) = null;
+
     return (
         <div id="app">
             <Container fluid={true}>
-                <div className="row mt-5">
-                    <div className="col">
-                        <form>
-                            <div className="row">
-                                <div className="col-4">
-                                    <input type="date" className="form-control"/> { /* v-model="dateFrom"/> */}
-                                </div>
-                                <div className="col-4">
-                                    <input type="date" className="form-control"/> { /* v-model="dateTo"/> */}
-                                </div>
-                                <div className="col-auto">
-                                    <button type="submit" className="btn btn-primary">{ /* v-on:click.prevent="updateDates */}Laden</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    <div className="col-auto">
-                        <div className="btn-group">
-                            <button className="btn btn-secondary">{ /* v-on:click="prepare" v-if="excel == null"> */}Excel</button>
-                            <a download="excel.xlsx" className="btn btn-secondary">{ /* v-on:click="download" v-bind:href="excel" v-if="excel != null"> */}Excel herunterladen</a>
-                            <button className="btn btn-danger">{ /*  v-on:click="tagRange"> */}Abgerechnet</button>
-                            <button className="btn btn-danger">{ /* v-on:click="untagRange"> */}Zur&uuml;cksetzen</button>
-                        </div>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col pl-4 mt-2">
-                        <div className="row">
-                            { /* <template v-if="cashout" v-for="client in cashout"> */}
-                            <div className="col-2"><b>{client.client}:</b></div>
-                            <div className="col-2">{client.amount /* | currency  */}</div>
-                            { /* </template> */}
-                        </div>
-                        <div className="row">
-                            <div className="col-2"><b>Total:</b></div>
-                            <div className="col-2">{totalCashout /*| currency */}</div>
-                        </div>
-                    </div>
-                </div>
+                <Row style={{ paddingTop: "0.5rem" }}>
+                    <Col>
+                        <AvForm onValidSubmit={handleSubmit} model={defaultFromTo}>
+                            <Row>
+                                <Col xs="4">
+                                    <AvField name="dateFrom" type="date" required/>
+                                </Col>
+                                <Col xs="4">
+                                    <AvField name="dateTo" type="date" required/>
+                                </Col>
+                                <Col xs="auto">
+                                    <Button type="submit" color="primary">Laden</Button>
+                                </Col>
+                            </Row>
+                        </AvForm>
+                    </Col>
+                    <Col xs="auto">
+                        <ButtonGroup>
+                            {excel === null ?
+                                <Button color="secondary">Excel</Button> :
+                                <Button color="secondary">Excel herunterladen</Button>}
+                            <Button color="danger">Abgerechnet</Button>
+                            <Button color="danger">Zurücksetzen</Button>
+                        </ButtonGroup>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col style={{ paddingLeft: '0.4rem', marginTop: '0.2rem' }}>
+                        <Row>
+                            {cashout.map((client) => (
+                                <React.Fragment key={client.client}>
+                                    <Col xs={2}><b>{client.client}</b>:</Col>
+                                    <Col xs={2}>{formatCurrency(client.amount)}</Col>
+                                </React.Fragment>
+                            ))}
+                        </Row>
+                        <Row>
+                            <Col xs={{ size: 2, offset: 4 }}><b>Total:</b></Col>
+                            <Col xs={2}>{formatCurrency(totalCashout)}</Col>
+                        </Row>
+                    </Col>
+                </Row>
                 <hr/>
-                <ul className="nav nav-pills nav-fill">
+                <Nav pills={true} fill={true}>
                     {clients.map((c, idx) =>
-                        (
-                            <li className="nav-item" key={idx}>
-                                <a className="nav-link">{ /*v-bind:class="{ active: (idx === activeClient) }"
-                                 v-on:click.prevent="switchClient(idx)"> */}{c.name}</a>
-                            </li>
-                        ))
-                    }
-                </ul>
+                        <NavItem key={c.name} onClick={(e) => {
+                            console.log('Nav: ', e)
+                        }} active={c.id === activeClient}>{c.name}</NavItem>
+                    )}
+                </Nav>
                 <hr/>
                 <table className="table table-bordered">{ /* v-if="projects"> */}
                     <thead>
