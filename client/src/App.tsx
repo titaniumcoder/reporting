@@ -58,9 +58,7 @@ class App extends React.Component<{}, IAppState> {
         excel: null
     };
 
-    createHeaders = () => this.createFetchHeaders(undefined);
-
-    createFetchHeaders = (basicAuth) => {
+    createFetchHeaders = (basicAuth = undefined) => {
         const headers = { 'Authorization': basicAuth ? basicAuth : this.state.basicAuth };
         if (process.env.NODE_ENV === 'production') {
             console.log('production with ', headers);
@@ -75,7 +73,7 @@ class App extends React.Component<{}, IAppState> {
     };
 
     fetchClients = () => {
-        fetch(`${API_BASE_URL}/clients`, this.createHeaders())
+        fetch(`${API_BASE_URL}/clients`, this.createFetchHeaders())
             .then(this.checkLogin)
             .then(app => app.json())
             .then(clients => {
@@ -87,7 +85,7 @@ class App extends React.Component<{}, IAppState> {
     };
 
     fetchCash = () => {
-        fetch(`${API_BASE_URL}/cash`, this.createHeaders())
+        fetch(`${API_BASE_URL}/cash`, this.createFetchHeaders())
             .then(this.checkLogin)
             .then(app => app.json())
             .then(cashout => {
@@ -103,7 +101,7 @@ class App extends React.Component<{}, IAppState> {
         fetch({
             method: 'DELETE',
             url: `${API_BASE_URL}/tag/${id}`
-        } as RequestInfo, this.createHeaders())
+        } as RequestInfo, this.createFetchHeaders())
             .then(this.checkLogin)
             .then(() => {
                 this.fetchClient();
@@ -116,7 +114,7 @@ class App extends React.Component<{}, IAppState> {
         fetch({
             method: 'PUT',
             url: `${API_BASE_URL}/tag/${id}`
-        } as RequestInfo, this.createHeaders())
+        } as RequestInfo, this.createFetchHeaders())
             .then(this.checkLogin)
             .then(() => {
                 this.fetchClient();
@@ -132,7 +130,7 @@ class App extends React.Component<{}, IAppState> {
         fetch({
             method: 'DELETE',
             url: `${API_BASE_URL}/tag/client/${id}/billed?from=${from}&to=${to}`
-        } as RequestInfo, this.createHeaders())
+        } as RequestInfo, this.createFetchHeaders())
             .then(this.checkLogin)
             .then(() => {
                 this.fetchClient();
@@ -148,7 +146,7 @@ class App extends React.Component<{}, IAppState> {
         fetch({
             method: 'PUT',
             url: `${API_BASE_URL}/tag/client/${id}/billed?from=${from}&to=${to}`
-        } as RequestInfo, this.createHeaders())
+        } as RequestInfo, this.createFetchHeaders())
             .then(this.checkLogin)
             .then(() => {
                 this.fetchClient();
@@ -161,7 +159,7 @@ class App extends React.Component<{}, IAppState> {
         const id = mayBeId ? mayBeId : this.state.activeClient;
         const from = this.state.from.format('YYYY-MM-DD');
         const to = this.state.to.format('YYYY-MM-DD');
-        fetch(`${API_BASE_URL}/client/${id}?from=${from}&to=${to}`, this.createHeaders())
+        fetch(`${API_BASE_URL}/client/${id}?from=${from}&to=${to}`, this.createFetchHeaders())
             .then(this.checkLogin)
             .then(res => res.json())
             .then(client => {
@@ -177,7 +175,7 @@ class App extends React.Component<{}, IAppState> {
         const id = this.state.activeClient;
         const from = this.state.from.format('YYYY-MM-DD');
         const to = this.state.to.format('YYYY-MM-DD');
-        fetch(`${API_BASE_URL}/timesheet/${id}?from=${from}&to=${to}`, this.createHeaders())
+        fetch(`${API_BASE_URL}/timesheet/${id}?from=${from}&to=${to}`, this.createFetchHeaders())
             .then(this.checkLogin)
             .then(res => res.blob())
             .then(excel => {
