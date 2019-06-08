@@ -21,3 +21,5 @@ task test {
 task check {
 
 }
+
+task stage(dependsOn: ['clean', 'assembleServerAndClient'])
