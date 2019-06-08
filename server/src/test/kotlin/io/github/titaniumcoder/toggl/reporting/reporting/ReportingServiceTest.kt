@@ -66,7 +66,7 @@ class ReportingServiceTest {
     @Test
     fun testTimesheetCreation() {
         runBlocking {
-            `when`(service.entries(1L, sampleStartDate, sampleEndDate, true))
+            `when`(service.entries(1L, sampleStartDate, sampleEndDate))
                     .thenReturn(te)
             `when`(transformer.transformInput(te, sampleStartDate, sampleEndDate, 1L))
                     .thenReturn(rm)
@@ -84,12 +84,12 @@ class ReportingServiceTest {
     @Test
     fun testEntriesRetrieval() {
         runBlocking {
-            `when`(service.entries(1L, sampleStartDate, sampleEndDate, false))
+            `when`(service.entries(1L, sampleStartDate, sampleEndDate))
                     .thenReturn(te)
             `when`(transformer.transformInput(te, sampleStartDate, sampleEndDate, 1L))
                     .thenReturn(rm)
 
-            val entries = reportingService.entries(1L, sampleStartDate, sampleEndDate, false)
+            val entries = reportingService.entries(1L, sampleStartDate, sampleEndDate)
 
             // read in the excel to make sure it's still readable and has some general info inside
             assertThat(entries)

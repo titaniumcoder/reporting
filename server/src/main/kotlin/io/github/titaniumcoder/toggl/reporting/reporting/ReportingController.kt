@@ -17,11 +17,10 @@ class ReportingController(val service: ReportingService) {
     fun entries(
             @PathVariable clientId: Long,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) from: LocalDate?,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) to: LocalDate?,
-            @RequestParam(required = false, defaultValue = "false") tagged: Boolean
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) to: LocalDate?
     ) = GlobalScope.mono {
         // TODO unneeded after Spring 5.2
-        service.entries(clientId, from, to, tagged)
+        service.entries(clientId, from, to)
     }
 
     @GetMapping("/api/timesheet/{clientId}", produces = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"])

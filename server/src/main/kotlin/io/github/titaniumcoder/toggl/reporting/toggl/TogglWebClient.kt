@@ -57,7 +57,7 @@ class TogglWebClient(config: TogglConfiguration) {
                     .bodyToMono(TogglModel.TogglSummary::class.java)
                     .awaitFirst()
 
-    suspend fun entries(clientId: Long, from: LocalDate, to: LocalDate, nonBilledOnly: Boolean, pageNo: Int): TogglModel.TogglReporting =
+    suspend fun entries(clientId: Long, from: LocalDate, to: LocalDate, pageNo: Int): TogglModel.TogglReporting =
             client
                     .get()
                     .uri("https://toggl.com/reports/api/v2/details?user_agent={userAgent}&since={since}&until={until}&workspace_id={workspaceId}&client_ids={clientIds}&display_hours=minutes&page={page}",

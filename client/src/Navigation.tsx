@@ -8,17 +8,17 @@ interface INavigationProps {
         id: number;
     }[];
     activeClient: number | null;
+
+    selectClient: (number) => void;
 }
 
-const Navigation: React.FC<INavigationProps> = ({clients, activeClient}) => {
+const Navigation: React.FC<INavigationProps> = ({clients, activeClient, selectClient}) => {
 
     return (
         <Nav tabs fill>
             {clients.map(c =>
                 <NavItem key={c.name} style={{ cursor: "pointer" }}>
-                    <NavLink onClick={(e) => {
-                        console.log('Nav: ', e)
-                    }} active={activeClient !== null && c.id === activeClient}>{c.name}</NavLink>
+                    <NavLink onClick={() => {selectClient(c.id)}} active={activeClient !== null && c.id === activeClient}>{c.name}</NavLink>
                 </NavItem>
             )}
         </Nav>

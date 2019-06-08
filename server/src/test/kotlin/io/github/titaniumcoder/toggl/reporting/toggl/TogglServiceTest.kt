@@ -87,7 +87,7 @@ class TogglServiceTest {
     @Test
     fun testUntagBilledClient() {
         runBlocking {
-            `when`(webClient.entries(1L, sampleStartDate, sampleEndDate, false, 1))
+            `when`(webClient.entries(1L, sampleStartDate, sampleEndDate, 1))
                     .thenReturn(TogglModel.TogglReporting(
                             4, 3, 100L, 200L, listOf(
                             TogglModel.TogglCurrency("CHF", 10.0), TogglModel.TogglCurrency("EUR", 20.0)
@@ -97,7 +97,7 @@ class TogglServiceTest {
                             TogglModel.TimeEntryReporting(3L, 3L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 3, 12, 13, 0, 0, zurichZone), ZonedDateTime.of(2019, 1, 3, 12, 23, 0, 0, zurichZone), 10, 10.0f, true, "CHF", listOf("tag1", "tag2"))
                     )
                     ))
-            `when`(webClient.entries(1L, sampleStartDate, sampleEndDate, false, 2))
+            `when`(webClient.entries(1L, sampleStartDate, sampleEndDate, 2))
                     .thenReturn(TogglModel.TogglReporting(
                             4, 3, 100L, 200L, listOf(
                             TogglModel.TogglCurrency("CHF", 10.0), TogglModel.TogglCurrency("EUR", 20.0)
@@ -116,7 +116,7 @@ class TogglServiceTest {
     @Test
     fun testTagBilledClient() {
         runBlocking {
-            `when`(webClient.entries(1L, sampleStartDate, sampleEndDate, false, 1))
+            `when`(webClient.entries(1L, sampleStartDate, sampleEndDate, 1))
                     .thenReturn(TogglModel.TogglReporting(
                             4, 3, 100L, 200L, listOf(
                             TogglModel.TogglCurrency("CHF", 10.0), TogglModel.TogglCurrency("EUR", 20.0)
@@ -126,7 +126,7 @@ class TogglServiceTest {
                             TogglModel.TimeEntryReporting(3L, 3L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 3, 12, 13, 0, 0, zurichZone), ZonedDateTime.of(2019, 1, 3, 12, 23, 0, 0, zurichZone), 10, 10.0f, true, "CHF", listOf("tag1", "tag2"))
                     )
                     ))
-            `when`(webClient.entries(1L, sampleStartDate, sampleEndDate, false, 2))
+            `when`(webClient.entries(1L, sampleStartDate, sampleEndDate, 2))
                     .thenReturn(TogglModel.TogglReporting(
                             4, 3, 100L, 200L, listOf(
                             TogglModel.TogglCurrency("CHF", 10.0), TogglModel.TogglCurrency("EUR", 20.0)
@@ -172,7 +172,7 @@ class TogglServiceTest {
     @Test
     fun testEntries() {
         runBlocking {
-            `when`(webClient.entries(1L, sampleStartDate, sampleEndDate, false, 1))
+            `when`(webClient.entries(1L, sampleStartDate, sampleEndDate, 1))
                     .thenReturn(TogglModel.TogglReporting(
                             4, 3, 100L, 200L, listOf(
                             TogglModel.TogglCurrency("CHF", 10.0), TogglModel.TogglCurrency("EUR", 20.0)
@@ -182,7 +182,7 @@ class TogglServiceTest {
                             TogglModel.TimeEntryReporting(3L, 3L, "P1", "fred", "t1", "d1", ZonedDateTime.of(2019, 1, 3, 12, 13, 0, 0, zurichZone), ZonedDateTime.of(2019, 1, 3, 12, 23, 0, 0, zurichZone), 600_000, 10.0f, true, "CHF", listOf("tag1", "tag2"))
                     )
                     ))
-            `when`(webClient.entries(1L, sampleStartDate, sampleEndDate, false, 2))
+            `when`(webClient.entries(1L, sampleStartDate, sampleEndDate, 2))
                     .thenReturn(TogglModel.TogglReporting(
                             4, 3, 100L, 200L, listOf(
                             TogglModel.TogglCurrency("CHF", 10.0), TogglModel.TogglCurrency("EUR", 20.0)
@@ -191,7 +191,7 @@ class TogglServiceTest {
                     )
                     ))
 
-            assertThat(togglService.entries(1L, sampleStartDate, sampleEndDate, false))
+            assertThat(togglService.entries(1L, sampleStartDate, sampleEndDate))
                     .isEqualTo(
                             TogglModel.TogglReporting(
                                     4, 3, 100, 200, listOf(

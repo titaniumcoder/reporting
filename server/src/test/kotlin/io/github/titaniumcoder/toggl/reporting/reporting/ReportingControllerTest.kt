@@ -40,7 +40,7 @@ class ReportingControllerTest {
     @Test
     fun testEntries() {
         runBlocking {
-            `when`(service.entries(1, null, null, false))
+            `when`(service.entries(1, null, null))
                     .thenReturn(rm)
 
             client.get()

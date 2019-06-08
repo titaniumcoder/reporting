@@ -5,3 +5,16 @@ spring.security.user:
 application:
   apiToken: ${API_TOKEN}
   workspaceId: ${WORKSPACE_ID}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  info:
+    build:
+      enabled: true
+    git:
+      enabled: true
+      mode: full
+

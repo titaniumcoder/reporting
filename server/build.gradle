@@ -23,31 +23,36 @@ repositories {
 }
 
 dependencies {
+    // Spring Stuff
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
-    implementation 'org.jetbrains.kotlin:kotlin-reflect'
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     implementation 'org.springframework.retry:spring-retry'
 
+    runtimeOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // Kotlin Stuff
+    implementation 'org.jetbrains.kotlin:kotlin-reflect'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     compile 'org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.1.1'
 
+    // Poi for Excel Creation
     implementation 'org.apache.poi:poi-ooxml:4.0.1'
-
-    runtimeOnly 'org.springframework.boot:spring-boot-devtools'
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude module: 'junit'
     }
+
+    // Testing needs
     testImplementation 'io.projectreactor:reactor-test'
     testImplementation 'org.springframework.security:spring-security-test'
 
     // JUnit 5 as well as mocking
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     testImplementation 'io.mockk:mockk:1.9.3'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 
 }
 

@@ -16,12 +16,12 @@ class TogglService(val webClient: TogglWebClient) {
         return summary.copy(data = summary.data.filter { it.time > 0 })
     }
 
-    suspend fun entries(clientId: Long, from: LocalDate, to: LocalDate, nonBilledOnly: Boolean): TogglModel.TogglReporting {
-        val firstPage = webClient.entries(clientId, from, to, nonBilledOnly, 1)
+    suspend fun entries(clientId: Long, from: LocalDate, to: LocalDate): TogglModel.TogglReporting {
+        val firstPage = webClient.entries(clientId, from, to, 1)
         val range = 2.rangeTo(
                 Math.ceil(firstPage.totalCount.toDouble() / firstPage.perPage).toInt()
         )
-                .map { webClient.entries(clientId, from, to, nonBilledOnly, it) }
+                .map { webClient.entries(clientId, from, to, it) }
 
         data class ClientSort(val client: String, val start: LocalDateTime) : Comparable<ClientSort> {
             override fun compareTo(other: ClientSort): Int =
@@ -35,7 +35,6 @@ class TogglService(val webClient: TogglWebClient) {
                 .reduce { t: TogglModel.TogglReporting, u: TogglModel.TogglReporting -> t.copy(data = t.data + u.data) }
 
         return summary.copy(data = summary.data
-                .filter { x -> !nonBilledOnly || !x.tags.contains("billed") }
                 .sortedBy { x -> ClientSort(x.client ?: "", x.start.toLocalDateTime()) }
         )
     }
@@ -60,8 +59,7 @@ class TogglService(val webClient: TogglWebClient) {
         val entriesMatched = entries(
                 clientId = clientId,
                 from = from,
-                to = to,
-                nonBilledOnly = false
+                to = to
         )
 
         val ids = entriesMatched.data.map { it.id.toString() }.sorted().chunked(50)

@@ -21,7 +21,7 @@ const Header: React.FC<IHeaderProps> = ({ dateFrom, dateTo, excel, loadFromTo, c
     };
 
     const handleSubmit = (event, values) => {
-        loadFromTo(moment(values.from, 'YYYY-MM-DD'), moment(values.to, 'YYYY-MM-DD'));
+        loadFromTo(moment(values.dateFrom, 'YYYY-MM-DD'), moment(values.dateTo, 'YYYY-MM-DD'));
     };
 
     const downloadExcel = () => {

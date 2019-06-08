@@ -263,7 +263,7 @@ class ReportingService(val service: TogglService, val transformer: TransformerSe
 
 
     suspend fun timesheet(clientId: Long, from: LocalDate, to: LocalDate): ExcelSheet {
-        val entries = service.entries(clientId, from, to, true)
+        val entries = service.entries(clientId, from, to)
 
         val name = entries.data.firstOrNull()?.client?.toLowerCase() ?: "unbekannt"
 
@@ -272,11 +272,11 @@ class ReportingService(val service: TogglService, val transformer: TransformerSe
         return ExcelSheet(name, from, body)
     }
 
-    suspend fun entries(clientId: Long, from: LocalDate?, to: LocalDate?, tagged: Boolean): ViewModel.ReportingModel {
+    suspend fun entries(clientId: Long, from: LocalDate?, to: LocalDate?): ViewModel.ReportingModel {
         val definiteTo = to ?: (LocalDate.now().plusMonths(1).withDayOfMonth(1).minusDays(1))
         val definiteFrom = from ?: (definiteTo.withDayOfMonth(1))
 
-        val entries = service.entries(clientId, definiteFrom, definiteTo, tagged)
+        val entries = service.entries(clientId, definiteFrom, definiteTo)
         return transformer.transformInput(entries, definiteFrom, definiteTo, clientId)
     }
 
