@@ -8,6 +8,10 @@ node {
     download = true
 }
 
+task clean(type: Delete) {
+    delete project.buildDir
+}
+
 task start(type: YarnTask, dependsOn: 'yarn') {
     group = 'application'
     description = 'Run the client app'
