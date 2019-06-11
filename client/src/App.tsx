@@ -8,44 +8,31 @@ import Navigation from './Navigation';
 import Projects from './Projects';
 import Timesheet from './Timesheet';
 import Login from './Login';
-
-const API_BASE_URL = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:8080/api';
+import { ICashout, IClient, IProject, ITimeEntry } from './model';
+import { ITogglReportingApi, TogglReportingApi } from './api';
 
 export interface IAppState {
-    basicAuth: string | null;
+    username: string | null;
+    password: string | null;
     from: Moment;
     to: Moment;
-    clients: {
-        name: string;
-        id: number;
-    }[];
-    projects: {
-        name: string;
-        minutes: number;
-    }[];
+    clients: IClient[];
+    projects: IProject[];
     activeClient: number | null;
-    cashout: {
-        client: string;
-        amount: number;
-    }[];
+    cashout: ICashout[];
     totalCashout: number;
-    timesheet: {
-        id: number;
-        day: string;
-        project: string;
-        startdate: string;
-        enddate: string;
-        minutes: number;
-        description: string;
-        tags: string[];
-    }[][];
+    timesheet: ITimeEntry[][];
     regularFetcher: number | null;
     excel: any | null;
+    loggedIn: boolean;
 }
 
 class App extends React.Component<{}, IAppState> {
+    api: ITogglReportingApi = new TogglReportingApi();
+
     state: Readonly<IAppState> = {
-        basicAuth: null,
+        username: null,
+        password: null,
         clients: [],
         activeClient: null,
         cashout: [],
@@ -55,157 +42,49 @@ class App extends React.Component<{}, IAppState> {
         regularFetcher: null,
         from: moment().startOf('month'),
         to: moment().endOf('month'),
-        excel: null
+        excel: null,
+        loggedIn: false
     };
 
-    createFetchHeaders = (basicAuth = undefined) => {
-        const headers = { 'Authorization': basicAuth ? basicAuth : this.state.basicAuth };
-        if (process.env.NODE_ENV === 'production') {
-            console.log('production with ', headers);
-            return { headers } as RequestInit
-        } else {
-            console.log('development with ', headers);
-            return {
-                headers,
-                mode: 'cors'
-            } as RequestInit;
+    errorHandler = (err) => {
+        console.log('Got fetch error', err);
+        this.setState({ loggedIn: false });
+        return err;
+    };
+
+    loadData = async (withClient) => {
+        const clients = await this.api.fetchClients().catch(this.errorHandler);
+        const cashout = await this.api.fetchCash().catch(this.errorHandler);
+        this.setState({ clients: clients.data, cashout: cashout.data });
+        if (withClient && this.state.activeClient !== null) {
+            const client = await this.api.fetchClient(this.state.activeClient, this.state.from, this.state.to).catch(this.errorHandler);
+            this.setState({
+                projects: client.data.projects,
+                timesheet: client.data.timeEntries
+            })
+
         }
     };
 
-    fetchClients = () => {
-        fetch(`${API_BASE_URL}/clients`, this.createFetchHeaders())
-            .then(this.checkLogin)
-            .then(app => app.json())
-            .then(clients => {
-                this.setState({
-                    clients: clients,
-                })
-            })
-            .catch(this.catchError);
-    };
-
-    fetchCash = () => {
-        fetch(`${API_BASE_URL}/cash`, this.createFetchHeaders())
-            .then(this.checkLogin)
-            .then(app => app.json())
-            .then(cashout => {
-                this.setState({
-                    cashout,
-                    totalCashout: cashout.map(x => x.amount).reduce((a, v) => a + v)
-                })
-            })
-            .catch(this.catchError);
-    };
-
-    untagEntry = (id: number) => {
-        fetch({
-            method: 'DELETE',
-            url: `${API_BASE_URL}/tag/${id}`
-        } as RequestInfo, this.createFetchHeaders())
-            .then(this.checkLogin)
-            .then(() => {
-                this.fetchClient();
-                this.fetchCash();
-            })
-            .catch(this.catchError);
-    };
-
-    tagEntry = (id: number) => {
-        fetch({
-            method: 'PUT',
-            url: `${API_BASE_URL}/tag/${id}`
-        } as RequestInfo, this.createFetchHeaders())
-            .then(this.checkLogin)
-            .then(() => {
-                this.fetchClient();
-                this.fetchCash();
-            })
-            .catch(this.catchError);
-    };
-
-    untagClient = () => {
-        const id = this.state.activeClient;
-        const from = this.state.from.format('YYYY-MM-DD');
-        const to = this.state.to.format('YYYY-MM-DD');
-        fetch({
-            method: 'DELETE',
-            url: `${API_BASE_URL}/tag/client/${id}/billed?from=${from}&to=${to}`
-        } as RequestInfo, this.createFetchHeaders())
-            .then(this.checkLogin)
-            .then(() => {
-                this.fetchClient();
-                this.fetchCash();
-            })
-            .catch(this.catchError);
-    };
-
-    tagClient = () => {
-        const id = this.state.activeClient;
-        const from = this.state.from.format('YYYY-MM-DD');
-        const to = this.state.to.format('YYYY-MM-DD');
-        fetch({
-            method: 'PUT',
-            url: `${API_BASE_URL}/tag/client/${id}/billed?from=${from}&to=${to}`
-        } as RequestInfo, this.createFetchHeaders())
-            .then(this.checkLogin)
-            .then(() => {
-                this.fetchClient();
-                this.fetchCash();
-            })
-            .catch(this.catchError);
-    };
-
-    fetchClient = (mayBeId = undefined) => {
-        const id = mayBeId ? mayBeId : this.state.activeClient;
-        const from = this.state.from.format('YYYY-MM-DD');
-        const to = this.state.to.format('YYYY-MM-DD');
-        fetch(`${API_BASE_URL}/client/${id}?from=${from}&to=${to}`, this.createFetchHeaders())
-            .then(this.checkLogin)
-            .then(res => res.json())
-            .then(client => {
-                this.setState({
-                    projects: client.projects,
-                    timesheet: client.timeEntries
-                });
-            })
-            .catch(this.catchError);
-    };
-
-    fetchExcel = () => {
-        const id = this.state.activeClient;
-        const from = this.state.from.format('YYYY-MM-DD');
-        const to = this.state.to.format('YYYY-MM-DD');
-        fetch(`${API_BASE_URL}/timesheet/${id}?from=${from}&to=${to}`, this.createFetchHeaders())
-            .then(this.checkLogin)
-            .then(res => res.blob())
-            .then(excel => {
-                this.setState({ excel })
-            })
-            .catch(this.catchError);
-    };
-
-    startFetching = () => {
-        if (this.state.regularFetcher !== null && this.state.basicAuth === null) {
+    startFetching = async () => {
+        if (this.state.regularFetcher !== null && this.state.username === null) {
             this.stopFetching();
-        } else if (this.state.regularFetcher === null && this.state.basicAuth !== null) {
-            const fetchAction = () => {
-                this.fetchClients();
-                this.fetchCash();
-                if (this.state.activeClient !== null) {
-                    this.fetchClient();
-                }
-            };
-            const regularFetcher = setInterval(fetchAction, 10000);
+        } else if (this.state.regularFetcher === null && this.state.username !== null) {
+            const regularFetcher = setInterval(this.loadData, 10000);
             // @ts-ignore
             this.setState({ regularFetcher });
-            fetchAction();
+            await this.loadData(false);
         }
     };
 
     componentDidUpdate(prevProps: Readonly<{}>, prevState: Readonly<IAppState>, snapshot?: any): void {
-        if (prevState.basicAuth !== this.state.basicAuth) {
-            if (this.state.basicAuth !== null) {
-                this.startFetching();
+        if (prevState.username !== this.state.username || prevState.password !== this.state.password) {
+            if (this.state.username !== null) {
+                this.startFetching()
+                    .then(() => {
+                        // ignore result but probably there are better ways...
+                    })
+                ;
             } else {
                 this.stopFetching();
             }
@@ -224,40 +103,72 @@ class App extends React.Component<{}, IAppState> {
     }
 
     componentDidMount(): void {
-        if (localStorage && localStorage.getItem('auth')) {
-            this.setState({
-                basicAuth: localStorage.getItem('auth')
-            });
+        if (localStorage) {
+            const username = localStorage.getItem('username');
+            const password = localStorage.getItem('password');
+            if (username && password) {
+                this.setState({ username, password, loggedIn: true });
+                this.api.saveLogin(username, password);
+            }
         }
     }
 
-    checkLogin = (res) => {
-        if (res.status === 401 || res.status === 403) {
-            localStorage.removeItem('auth');
-            this.setState({ basicAuth: null });
-            return new Error('authentication failed');
-        } else {
-            return res;
+    login = (username, password) => {
+        this.setState({ username, password, loggedIn: true });
+        localStorage.setItem('username', username);
+        localStorage.setItem('password', password);
+        this.api.saveLogin(username, password);
+    };
+
+    fetchClient = async () => {
+        if (this.state.activeClient) {
+            const data = await this.api.fetchClient(this.state.activeClient, this.state.from, this.state.to).catch(this.errorHandler);
+            this.setState({
+                projects: data.data.projects,
+                timesheet: data.data.timeEntries
+            });
         }
     };
 
-    catchError = (res) => {
-        localStorage.removeItem('auth');
-        this.setState({ basicAuth: null });
-        return res;
+    selectClient = async (id) => {
+        this.setState({ activeClient: id });
+        setTimeout(async () => await this.fetchClient().catch(this.errorHandler), 100);
     };
 
-    login = (username, password) => {
-        const basicAuth = 'Basic ' + btoa(`${username}:${password}`);
-        this.setState({
-            basicAuth
-        });
-        localStorage.setItem('auth', basicAuth);
+    loadFromTo = (from: Moment, to: Moment) => {
+        this.setState({ from, to });
+        setTimeout(async () => await this.fetchClient().catch(this.errorHandler), 100);
     };
 
-    selectClient = (id) => {
-        this.setState({activeClient: id});
-        this.fetchClient(id);
+    loadExcel = async () => {
+        if (this.state.activeClient) {
+            const excel = await this.api.fetchExcel(this.state.activeClient, this.state.from, this.state.to).catch(this.errorHandler);
+            this.setState({ excel })
+        }
+    };
+
+    tagClient = async () => {
+        if (this.state.activeClient) {
+            await this.api.tagClient(this.state.activeClient, this.state.from, this.state.to).catch(this.errorHandler);
+            await this.loadData(true);
+        }
+    };
+
+    untagClient = async () => {
+        if (this.state.activeClient) {
+            await this.api.untagClient(this.state.activeClient, this.state.from, this.state.to).catch(this.errorHandler);
+            await this.loadData(true);
+        }
+    };
+
+    tagEntry = async (id: number) => {
+        await this.api.tagEntry(id).catch(this.errorHandler);
+        await this.loadData(true);
+    };
+
+    untagEntry = async (id: number) => {
+        await this.api.untagEntry(id).catch(this.errorHandler);
+        await this.loadData(true);
     };
 
     render() {
@@ -271,12 +182,14 @@ class App extends React.Component<{}, IAppState> {
 
         return (
             <div id="app">
-                <Login showModal={!this.state.basicAuth} executeLogin={this.login}/>
+                <Login showModal={!this.state.username || !this.state.password} executeLogin={this.login}/>
                 <Container fluid={true}>
-                    <Header dateFrom={this.state.from} excel={this.state.excel} dateTo={this.state.to} loadFromTo={(from, to) => {
-                        this.setState({ from, to });
-                        setTimeout(() => {this.fetchClient()}, 100);
-                    }} createExcel={this.fetchExcel} setBilled={this.tagClient}
+                    <Header dateFrom={this.state.from}
+                            excel={this.state.excel}
+                            dateTo={this.state.to}
+                            loadFromTo={this.loadFromTo}
+                            createExcel={this.loadExcel}
+                            setBilled={this.tagClient}
                             setUnbilled={this.untagClient}/>
                     <Cashout cashout={cashout} totalCashout={totalCashout}/>
                     <hr/>
