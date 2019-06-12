@@ -12,9 +12,11 @@ interface IHeaderProps {
     createExcel: () => void;
     setBilled: () => void;
     setUnbilled: () => void;
+
+    logout: () => void;
 }
 
-const Header: React.FC<IHeaderProps> = ({ dateFrom, dateTo, excel, loadFromTo, createExcel, setBilled, setUnbilled }) => {
+const Header: React.FC<IHeaderProps> = ({ dateFrom, dateTo, excel, loadFromTo, createExcel, setBilled, setUnbilled, logout }) => {
     const defaultFromTo = {
         dateFrom: dateFrom.format('YYYY-MM-DD'),
         dateTo: dateTo.format('YYYY-MM-DD')
@@ -52,6 +54,9 @@ const Header: React.FC<IHeaderProps> = ({ dateFrom, dateTo, excel, loadFromTo, c
                     <Button color="danger" onClick={setBilled}>Abgerechnet</Button>
                     <Button color="danger" onClick={setUnbilled}>Zurücksetzen</Button>
                 </ButtonGroup>
+            </Col>
+            <Col xs="auto" style={{paddingLeft: "0.4rem"}}>
+                <Button color="info" onClick={logout}>Ausloggen</Button>
             </Col>
         </Row>
     );

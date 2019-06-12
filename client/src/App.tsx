@@ -114,10 +114,12 @@ class App extends React.Component<{}, IAppState> {
     }
 
     login = (username, password) => {
-        this.setState({ username, password, loggedIn: true });
         localStorage.setItem('username', username);
         localStorage.setItem('password', password);
+
         this.api.saveLogin(username, password);
+
+        this.setState({ username, password, loggedIn: true });
     };
 
     fetchClient = async () => {
@@ -171,6 +173,17 @@ class App extends React.Component<{}, IAppState> {
         await this.loadData(true);
     };
 
+    logout = () => {
+        this.stopFetching();
+
+        localStorage.removeItem("username");
+        localStorage.removeItem("password");
+
+        this.api.logout();
+
+        this.setState({ loggedIn: false, username: null, password: null })
+    };
+
     render() {
         const totalCashout = this.state.totalCashout;
         const clients = this.state.clients;
@@ -190,7 +203,8 @@ class App extends React.Component<{}, IAppState> {
                             loadFromTo={this.loadFromTo}
                             createExcel={this.loadExcel}
                             setBilled={this.tagClient}
-                            setUnbilled={this.untagClient}/>
+                            setUnbilled={this.untagClient}
+                            logout={this.logout}/>
                     <Cashout cashout={cashout} totalCashout={totalCashout}/>
                     <hr/>
                     <Navigation clients={clients} activeClient={activeClient} selectClient={this.selectClient}/>

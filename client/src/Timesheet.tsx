@@ -19,6 +19,7 @@ interface ITimesheetProps {
 
 const Timesheet: React.FC<ITimesheetProps> = ({ timesheet, tagBilled, tagUnbilled }) =>
     (
+        timesheet ?
         <table className="table table-bordered table-sm">
             <thead>
             <tr>
@@ -55,7 +56,7 @@ const Timesheet: React.FC<ITimesheetProps> = ({ timesheet, tagBilled, tagUnbille
                 ))
             ))}
             </tbody>
-        </table>
+        </table> : <h4>Noch keine Daten geladen...</h4>
     );
 
 export default Timesheet;

@@ -27,6 +27,8 @@ export interface ITogglReportingApi {
     tagClient(id: number, from: Moment, to: Moment): Promise<AxiosResponse<void>>;
 
     untagClient(id: number, from: Moment, to: Moment): Promise<AxiosResponse<void>>;
+
+    logout(): void;
 }
 
 export class TogglReportingApi implements ITogglReportingApi {
@@ -35,6 +37,10 @@ export class TogglReportingApi implements ITogglReportingApi {
         axios.defaults.auth = {
             username, password
         };
+    }
+
+    logout() {
+        axios.defaults.auth = undefined;
     }
 
     async fetchClients() {

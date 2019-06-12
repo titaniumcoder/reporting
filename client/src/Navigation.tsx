@@ -16,7 +16,7 @@ const Navigation: React.FC<INavigationProps> = ({clients, activeClient, selectCl
 
     return (
         <Nav tabs fill>
-            {clients.map(c =>
+            {clients && clients.map(c =>
                 <NavItem key={c.name} style={{ cursor: "pointer" }}>
                     <NavLink onClick={() => {selectClient(c.id)}} active={activeClient !== null && c.id === activeClient}>{c.name}</NavLink>
                 </NavItem>

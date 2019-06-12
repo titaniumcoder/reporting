@@ -15,11 +15,11 @@ const Login: React.FC<ILoginProps> = ({ showModal, executeLogin }) => {
     };
 
     return (
-        <Modal isOpen={showModal}>
+        <Modal isOpen={showModal} autoFocus={false}>
             <ModalHeader>Anmeldung</ModalHeader>
             <AvForm onValidSubmit={handleSubmit}>
                 <ModalBody>
-                    <AvField name="username" type="string" label="Benutzername" required/>
+                    <AvField name="username" type="string" label="Benutzername" required autoFocus/>
                     <AvField name="password" type="password" label="Passwort" required/>
                 </ModalBody>
                 <ModalFooter>
