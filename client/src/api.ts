@@ -2,15 +2,13 @@ import axios, { AxiosResponse } from 'axios';
 import { ICashout, IClient, IProject, ITimeEntry } from './model';
 import { Moment } from 'moment';
 
-const API_BASE_URL = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:8080/api';
-
 export interface ITogglClientResponse {
     projects: IProject[];
     timeEntries: ITimeEntry[][];
 }
 
 export interface ITogglReportingApi {
-    saveLogin(username: string, password: string): void;
+    login(username: string, password: string): Promise<boolean>;
 
     fetchClients(): Promise<AxiosResponse<IClient[]>>;
 
@@ -32,15 +30,26 @@ export interface ITogglReportingApi {
 }
 
 export class TogglReportingApi implements ITogglReportingApi {
-    saveLogin(username, password) {
-        axios.defaults.baseURL = API_BASE_URL;
-        axios.defaults.auth = {
-            username, password
-        };
+    constructor() {
+        axios.defaults.baseURL = '/api';
+    }
+
+    async login(username: string, password: string) {
+        delete axios.defaults.headers['Authorization'];
+
+        const login = await axios.post('login', { username: username, password: password });
+        console.log('Login: ', login);
+        if (login.status === 401) {
+            // do nothing
+            return false;
+        } else {
+            axios.defaults.headers['Authorization'] = 'Bearer ' + login.data.token;
+            return true;
+        }
     }
 
     logout() {
-        axios.defaults.auth = undefined;
+        delete axios.defaults.headers['Authorization'];
     }
 
     async fetchClients() {

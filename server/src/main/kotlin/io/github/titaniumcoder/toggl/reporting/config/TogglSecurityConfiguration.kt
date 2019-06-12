@@ -1,49 +1,136 @@
 package io.github.titaniumcoder.toggl.reporting.config
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.security.authentication.ReactiveAuthenticationManager
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.web.server.ServerHttpSecurity
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.context.SecurityContext
+import org.springframework.security.core.context.SecurityContextImpl
+import org.springframework.security.core.userdetails.MapReactiveUserDetailsService
+import org.springframework.security.core.userdetails.User
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.security.web.server.context.ServerSecurityContextRepository
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.reactive.CorsWebFilter
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource
+import org.springframework.web.server.ServerWebExchange
+import reactor.core.publisher.Mono
 
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
 @Configuration
-class TogglSecurityConfiguration {
-    @Bean
-    fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-        http
-                .authorizeExchange()
-                .pathMatchers(HttpMethod.OPTIONS).permitAll()
-                .pathMatchers("/actuator/health").permitAll()
-                .pathMatchers("/api/**").authenticated()
-                .pathMatchers("/actuator/**").authenticated()
-                .anyExchange().permitAll()
-        http
-                .csrf().disable()
-        http
-                .httpBasic()
+class TogglSecurityConfiguration(private val configuration: TogglConfiguration) {
+    private val log: Logger = LoggerFactory.getLogger(TogglSecurityConfiguration::class.java)
 
-        return http.build()
+    @Bean
+    fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
+
+    @Bean
+    fun securityWebFilterChain(
+            http: ServerHttpSecurity,
+            authenticationManager:
+            ReactiveAuthenticationManager,
+            securityContextRepository: ServerSecurityContextRepository
+    ): SecurityWebFilterChain =
+            http
+                    .authorizeExchange()
+                    .anyExchange().permitAll()
+
+                    .and()
+
+                    .exceptionHandling()
+                    .authenticationEntryPoint { exchange, denied ->
+                        Mono.fromRunnable<Void> {
+                            log.warn("Received $exchange / $denied")
+                            exchange.response.statusCode = HttpStatus.UNAUTHORIZED
+                        }
+                    }
+                    .accessDeniedHandler { exchange, denied ->
+                        Mono.fromRunnable<Void> {
+                            log.warn("Denied $exchange / $denied")
+                            exchange.response.statusCode = HttpStatus.UNAUTHORIZED
+                        }
+                    }
+
+                    .and()
+
+                    .csrf().disable()
+                    .httpBasic().disable()
+                    .formLogin().disable()
+                    .logout().disable()
+
+                    .authenticationManager(authenticationManager)
+                    .securityContextRepository(securityContextRepository)
+                    .build()
+
+    @Bean
+    fun userDetailsService(): MapReactiveUserDetailsService {
+        val user = User
+                .withUsername(configuration.username)
+                .password(configuration.password)
+                .roles("USER")
+                .build()
+        return MapReactiveUserDetailsService(user)
     }
 
     @Bean
-    fun corsWebFilter(): CorsWebFilter {
-        val corsConfig = CorsConfiguration()
-        corsConfig.allowedOrigins = mutableListOf("http://localhost:3000")
-        corsConfig.maxAge = 7200L
-        corsConfig.addAllowedHeader("Authorization")
+    fun authenticationManager(jwtUtil: JWTUtil): ReactiveAuthenticationManager =
+            ReactiveAuthenticationManager { authentication ->
+                val authToken = authentication.credentials.toString()
 
-        val source = UrlBasedCorsConfigurationSource()
-        source.registerCorsConfiguration("/api/**", corsConfig)
-        source.registerCorsConfiguration("/actuator/**", corsConfig)
+                val username: String? =
+                        try {
+                            jwtUtil.getUsernameFromToken(authToken)
+                        } catch (e: Exception) {
+                            null
+                        }
 
-        return CorsWebFilter(source)
-    }
+                if (username != null && jwtUtil.validateToken(authToken)) {
+                    val claims = jwtUtil.getAllClaimsFromToken(authToken)
+                    @Suppress("UNCHECKED_CAST")
+                    val rolesMap = claims.get("role", List::class.java) as List<String>
+                    val auth = UsernamePasswordAuthenticationToken(
+                            username, null,
+                            rolesMap.map { SimpleGrantedAuthority(it) }.toList()
+                    )
+                    Mono.just(auth)
+                } else {
+                    Mono.empty()
+                }
+            }
+
+    @Bean
+    fun securityContextRepository(authenticationManager: ReactiveAuthenticationManager) =
+            object : ServerSecurityContextRepository {
+                override fun save(exchange: ServerWebExchange?, context: SecurityContext?): Mono<Void> =
+                        throw UnsupportedOperationException()
+
+                override fun load(swe: ServerWebExchange): Mono<SecurityContext> {
+                    val request = swe.request
+                    val authHeader = request.headers.getFirst(HttpHeaders.AUTHORIZATION)
+
+                    return if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                        val authToken = authHeader.substring("Bearer ".length)
+                        val auth = UsernamePasswordAuthenticationToken(authToken, authToken)
+                        authenticationManager
+                                .authenticate(auth)
+                                .map { SecurityContextImpl(it) }
+                    } else {
+                        Mono.empty()
+                    }
+                }
+
+            }
 }
 

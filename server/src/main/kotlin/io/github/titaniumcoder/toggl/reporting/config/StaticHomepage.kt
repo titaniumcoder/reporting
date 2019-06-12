@@ -12,14 +12,11 @@ import java.net.URI
 class StaticHomepage {
     @Bean
     fun indexRouter(): RouterFunction<ServerResponse> {
-        val redirectToIndex =
+        return router {
+            GET("/") {
                 ServerResponse
                         .temporaryRedirect(URI("/index.html"))
                         .build()
-
-        return router {
-            GET("/") {
-                redirectToIndex // also you can create request here
             }
         }
     }

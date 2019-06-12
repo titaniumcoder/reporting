@@ -1,7 +1,10 @@
-spring.security.user:
-  name: test
-  password: test
-
 application:
   apiToken: 12345
   workspaceId: 98765
+  username: test
+  password: test
+  security:
+    secret: JhGDQ5AuWDdo7HgmMDbMqFFndSCOlccO
+    iteration: 33
+    keylength: 256
+    expiration: 28800

@@ -107,19 +107,22 @@ class App extends React.Component<{}, IAppState> {
             const username = localStorage.getItem('username');
             const password = localStorage.getItem('password');
             if (username && password) {
-                this.setState({ username, password, loggedIn: true });
-                this.api.saveLogin(username, password);
+                this.setState({ username, password });
+                this.api.login(username, password)
+                    .then(loggedIn => {
+                        this.setState({ loggedIn })
+                    });
             }
         }
     }
 
-    login = (username, password) => {
+    login = async (username, password) => {
         localStorage.setItem('username', username);
         localStorage.setItem('password', password);
 
-        this.api.saveLogin(username, password);
+        const loggedIn = await this.api.login(username, password);
 
-        this.setState({ username, password, loggedIn: true });
+        this.setState({ username, password, loggedIn });
     };
 
     fetchClient = async () => {

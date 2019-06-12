@@ -1,10 +1,13 @@
-spring.security.user:
-  name: ${USERNAME}
-  password: ${PASSWORD}
-
 application:
   apiToken: ${API_TOKEN}
   workspaceId: ${WORKSPACE_ID}
+  username: ${USERNAME}
+  password: ${PASSWORD}
+  security:
+    secret: ${TOGGL_SECRET}
+    iteration: 33
+    keylength: 256
+    expiration: 28800
 
 management:
   endpoints:

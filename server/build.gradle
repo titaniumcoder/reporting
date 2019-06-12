@@ -35,7 +35,12 @@ dependencies {
     // Kotlin Stuff
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.1.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.1.1'
+
+    // JWT Tokens
+    implementation 'io.jsonwebtoken:jjwt-api:0.10.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.10.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.10.6'
 
     // Poi for Excel Creation
     implementation 'org.apache.poi:poi-ooxml:4.0.1'
