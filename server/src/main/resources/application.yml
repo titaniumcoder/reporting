@@ -3,8 +3,7 @@ application:
   workspaceId: ${WORKSPACE_ID}
   security:
     username: test
-    password: >-
-      {bcrypt}:$2y$12$NngCoy9yx.Cr4r1IHPGaZ.myAHsIxqzU16V92FUnTtxbPddufzt7
+    password: '{bcrypt}$2a$10$UgRG95WPbEoJlc2jNn93HOS5xINfYYFkjt0F6pk1QfV1tvAgAy1a6'
     secret: ${TOGGL_SECRET}
     expiration: 28800
 

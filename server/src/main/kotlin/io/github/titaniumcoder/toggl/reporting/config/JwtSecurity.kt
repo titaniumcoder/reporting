@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
 import java.util.*
 import javax.crypto.spec.SecretKeySpec
@@ -61,5 +62,12 @@ class JWTUtil(private val configuration: TogglConfiguration) {
 
     fun validateToken(token: String): Boolean {
         return (!isTokenExpired(token))
+    }
+}
+
+object JwtSecurityHelper {
+    @JvmStatic
+    fun main(args: Array<String>) {
+        println(BCryptPasswordEncoder().encode(args[0]))
     }
 }
