@@ -1,11 +1,8 @@
 package io.github.titaniumcoder.toggl.reporting.config
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -21,9 +18,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.context.ServerSecurityContextRepository
-import org.springframework.web.cors.CorsConfiguration
-import org.springframework.web.cors.reactive.CorsWebFilter
-import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
 
@@ -31,7 +25,6 @@ import reactor.core.publisher.Mono
 @EnableReactiveMethodSecurity
 @Configuration
 class TogglSecurityConfiguration(private val configuration: TogglConfiguration) {
-    private val log: Logger = LoggerFactory.getLogger(TogglSecurityConfiguration::class.java)
 
     @Bean
     fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
@@ -50,15 +43,13 @@ class TogglSecurityConfiguration(private val configuration: TogglConfiguration) 
                     .and()
 
                     .exceptionHandling()
-                    .authenticationEntryPoint { exchange, denied ->
+                    .authenticationEntryPoint { exchange, _ ->
                         Mono.fromRunnable<Void> {
-                            log.warn("Received $exchange / $denied")
                             exchange.response.statusCode = HttpStatus.UNAUTHORIZED
                         }
                     }
-                    .accessDeniedHandler { exchange, denied ->
+                    .accessDeniedHandler { exchange, _ ->
                         Mono.fromRunnable<Void> {
-                            log.warn("Denied $exchange / $denied")
                             exchange.response.statusCode = HttpStatus.UNAUTHORIZED
                         }
                     }
@@ -77,8 +68,8 @@ class TogglSecurityConfiguration(private val configuration: TogglConfiguration) 
     @Bean
     fun userDetailsService(): MapReactiveUserDetailsService {
         val user = User
-                .withUsername(configuration.username)
-                .password(configuration.password)
+                .withUsername(configuration.security.username)
+                .password(configuration.security.password)
                 .roles("USER")
                 .build()
         return MapReactiveUserDetailsService(user)

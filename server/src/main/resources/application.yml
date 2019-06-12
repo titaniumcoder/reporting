@@ -5,8 +5,6 @@ application:
   password: ${PASSWORD}
   security:
     secret: ${TOGGL_SECRET}
-    iteration: 33
-    keylength: 256
     expiration: 28800
 
 management:
