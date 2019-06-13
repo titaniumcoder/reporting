@@ -18,6 +18,10 @@ configurations {
     }
 }
 
+springBoot {
+    mainClassName = 'io.github.titaniumcoder.toggl.reporting.TogglReportingApplication'
+}
+
 repositories {
     mavenCentral()
 }
