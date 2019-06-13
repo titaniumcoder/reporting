@@ -3,6 +3,8 @@ package io.github.titaniumcoder.toggl.reporting.reporting
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.reactor.mono
 import org.springframework.format.annotation.DateTimeFormat
+import org.springframework.http.ContentDisposition
+import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
@@ -34,9 +36,15 @@ class ReportingController(val service: ReportingService) {
     ) = GlobalScope.mono {
         val sheet = service.timesheet(clientId, from, to)
 
+        val h = HttpHeaders()
+        h.contentDisposition = ContentDisposition.builder("attachment")
+                .filename("${sheet.name}-${sheet.date.format(DateTimeFormatter.ofPattern("MM-yyyy"))}.xlsx")
+                .size(sheet.excel.size.toLong())
+                .build()
+
         ResponseEntity
                 .ok()
-                .header("Conent-Disposition", "attachment; filename=${sheet.name}-${sheet.date.format(DateTimeFormatter.ofPattern("MM-yyyy"))}.xlsx")
+                .headers(h)
                 .body(sheet.excel)
     }
 }

@@ -10,6 +10,7 @@ import Timesheet from './Timesheet';
 import Login from './Login';
 import { ICashout, IClient, IProject, ITimeEntry } from './model';
 import { ITogglReportingApi, TogglReportingApi } from './api';
+import { saveAs } from 'file-saver';
 
 export interface IAppState {
     username: string | null;
@@ -23,7 +24,6 @@ export interface IAppState {
     totalCashout: number;
     timesheet: ITimeEntry[][];
     regularFetcher: number | null;
-    excel: any | null;
     loggedIn: boolean;
 }
 
@@ -42,12 +42,10 @@ class App extends React.Component<{}, IAppState> {
         regularFetcher: null,
         from: moment().startOf('month'),
         to: moment().endOf('month'),
-        excel: null,
         loggedIn: false
     };
 
     errorHandler = (err) => {
-        console.log('Got fetch error', err);
         this.setState({ loggedIn: false });
         return err;
     };
@@ -78,13 +76,12 @@ class App extends React.Component<{}, IAppState> {
     };
 
     componentDidUpdate(prevProps: Readonly<{}>, prevState: Readonly<IAppState>, snapshot?: any): void {
-        if (prevState.username !== this.state.username || prevState.password !== this.state.password) {
-            if (this.state.username !== null) {
+        if (prevState.loggedIn !== this.state.loggedIn) {
+            if (this.state.loggedIn) {
                 this.startFetching()
                     .then(() => {
                         // ignore result but probably there are better ways...
-                    })
-                ;
+                    });
             } else {
                 this.stopFetching();
             }
@@ -106,8 +103,10 @@ class App extends React.Component<{}, IAppState> {
         if (localStorage) {
             const username = localStorage.getItem('username');
             const password = localStorage.getItem('password');
+
+            this.setState({ username, password });
+
             if (username && password) {
-                this.setState({ username, password });
                 this.api.login(username, password)
                     .then(loggedIn => {
                         this.setState({ loggedIn })
@@ -148,7 +147,16 @@ class App extends React.Component<{}, IAppState> {
     loadExcel = async () => {
         if (this.state.activeClient) {
             const excel = await this.api.fetchExcel(this.state.activeClient, this.state.from, this.state.to).catch(this.errorHandler);
-            this.setState({ excel })
+            const disposition: string = excel.headers["content-disposition"];
+            const filesep = 'filename="';
+            const filesepLength = filesep.length;
+
+            const filename = disposition.split(';')
+                .map((x) => x.trim())
+                .filter((x) => x.startsWith(filesep))
+                .map((x) => x.substr(filesepLength, x.length - filesepLength - 1))[0];
+
+            saveAs(excel.data, filename);
         }
     };
 
@@ -200,8 +208,8 @@ class App extends React.Component<{}, IAppState> {
             <div id="app">
                 <Login showModal={!this.state.username || !this.state.password} executeLogin={this.login}/>
                 <Container fluid={true}>
-                    <Header dateFrom={this.state.from}
-                            excel={this.state.excel}
+                    <Header enabled={!!this.state.activeClient}
+                            dateFrom={this.state.from}
                             dateTo={this.state.to}
                             loadFromTo={this.loadFromTo}
                             createExcel={this.loadExcel}

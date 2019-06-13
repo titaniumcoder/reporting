@@ -38,7 +38,6 @@ export class TogglReportingApi implements ITogglReportingApi {
         delete axios.defaults.headers['Authorization'];
 
         const login = await axios.post('login', { username: username, password: password });
-        console.log('Login: ', login);
         if (login.status === 401) {
             // do nothing
             return false;
@@ -97,7 +96,11 @@ export class TogglReportingApi implements ITogglReportingApi {
     async fetchExcel(id: number, fromM: Moment, toM: Moment) {
         const from = fromM.format('YYYY-MM-DD');
         const to = toM.format('YYYY-MM-DD');
-        return axios.get<any>(`timesheet/${id}`, { params: { from, to }, maxContentLength: 10000000 });
+        return axios.get<any>(`timesheet/${id}`, {
+            params: { from, to },
+            maxContentLength: 10000000,
+            responseType: 'blob',
+        });
     };
 }
 
