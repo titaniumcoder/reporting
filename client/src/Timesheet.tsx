@@ -45,7 +45,7 @@ const Timesheet: React.FC<ITimesheetProps> = ({ timesheet, tagBilled, tagUnbille
                         <td>{formatMinutes(time.minutes)}<br/>{formatDecimal(time.minutes)}</td>
                         <td>{time.project}</td>
                         <td>{time.description}</td>
-                        <td>{time.tags.join(", ")}</td>
+                        <td>{time.tags.map(t => <Tagged key={t} tag={t}/>)}</td>
                         <td>
                             {time.tags.indexOf('billed') === -1 ?
                                 <button className="btn btn-sm" onClick={() => tagBilled(time.id)}>+</button> :
@@ -58,5 +58,9 @@ const Timesheet: React.FC<ITimesheetProps> = ({ timesheet, tagBilled, tagUnbille
             </tbody>
         </table> : <h4>Noch keine Daten geladen...</h4>
     );
+
+const Tagged: React.FC<{tag: string}> = ({tag}) => (
+    <span className="badge badge-info">{tag}</span>
+);
 
 export default Timesheet;
