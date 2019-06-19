@@ -7,8 +7,13 @@ import org.springframework.boot.runApplication
 
 @SpringBootApplication
 @EnableConfigurationProperties(TogglConfiguration::class)
-class TogglReportingApplication
+class TogglReportingApplication {
+    companion object {
 
-fun main(args: Array<String>) {
-    runApplication<TogglReportingApplication>(*args)
+        @JvmStatic
+        fun main(args: Array<String>) {
+            runApplication<TogglReportingApplication>(*args)
+        }
+    }
 }
+
