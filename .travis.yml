@@ -4,5 +4,7 @@ script:
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 deploy:
+  provider: heroku
   api_key:
     secure: hKvrz31YBZzjM7hFwXX6/j1xfw1WRazN4Q5vQY8tfrX3TjQzk+OMyt2Ovz/WKAlGTpX3SWRWYTnmVXTnlg4HJ0KBTEutwwD2WYWP4RSMd7wtUC0i9Hffy3UrsMtD1TeGZEHgU57vSgGgs2spEheVX4IU2uqZfb0vVj6egoJ1l6CtADYFk+Fqvg0TpeSBPywLPmZqCW2w4c4WWqtpNKe1V0IgEkzAHVs0mywiO8z17wzYEyAxDdznc+uZp2Me6/6cr5LX4RTLqkVHn8U3/u0JeY+sJofrMDQsSYeP2p2W4UwIWe/1SaqxPe83d+yLeiosDdA3IWmMzxR1QxmLNuMStu3cWAReDh+CNFnyvoVQTNr+05CWF12Hd9TFuozrXPW+AMULtx1213oLIOf/tzJG4pBRFQe50NOCTEMbmh/I1EiDjuy4vw4roVrJf2bArpjYNjyP1n/MOsz2LbcV/7+gFE6Na/wk0fTCGEc/CLylNld1khbarSByrod51EagvHR99sJl5ZjQiJqMN8wdjn5fyPIle2HEvuhMF4er1TIPrXFQyfX7riq2a0qZfSvxy+Ueq36Bz72Jui6K1HhdXixoVmyVTn6tuaAo2brpvOGbmQCXK3unhUzGNfXXSxhXmOupNXZ5jm0CHmOIpJf7d+H+tL3mJvoHjjUwzkB77d+cAmA=
+  app: kotlin-reporting
