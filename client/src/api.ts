@@ -70,7 +70,7 @@ export class TogglReportingApi implements ITogglReportingApi {
     async untagClient(id: number, fromM: Moment, toM: Moment) {
         const from = fromM.format('YYYY-MM-DD');
         const to = toM.format('YYYY-MM-DD');
-        return await axios.delete<void>(`tag/client/${id}/billed`, {
+        return await axios.delete<void>(`client/${id}/billed`, {
             params: {
                 from, to
             }
@@ -80,7 +80,7 @@ export class TogglReportingApi implements ITogglReportingApi {
     async tagClient(id: number, fromM: Moment, toM: Moment) {
         const from = fromM.format('YYYY-MM-DD');
         const to = toM.format('YYYY-MM-DD');
-        return await axios.put<void>(`tag/client/${id}/billed`, {
+        return await axios.put<void>(`client/${id}/billed`, {}, {
             params: {
                 from, to
             }
