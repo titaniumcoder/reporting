@@ -27,3 +27,5 @@ task clean {
 }
 
 task stage(dependsOn: ['clean', 'assembleServerAndClient'])
+
+task assemble(dependsOn: ['assembleServerAndClient'])
