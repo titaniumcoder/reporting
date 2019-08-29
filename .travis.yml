@@ -7,6 +7,6 @@ script:
 
 deploy:
   provider: script
-  script: bash heroku_deploy.sh
+  script: bash docker_push
   on:
     branch: master
