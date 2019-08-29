@@ -6,11 +6,6 @@ script:
   docker build -t titaniumcoder/kotin-reporting .
 
 publish:
-  script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  provider: script
+  script: heroku_deploy.sh
   on: master
-
-deploy:
-  provider: heroku
-  app: kotlin-reporting
-  api_key:
-    secure: "XybYK7PCC/cFuDPR7qpce9yJlEc7dpDhVgv2QTh/Zg5qYzJZJOwuf/vBeyptdChxcaoUxk00pj3AHXVlZQl58H592hRm7Q/9bOScH130FW6T4sQjrULK2PPpaWOa0NmgsVMBsz12QOBW53RlyELmPnrHFTmvuWltTJ2+WpnV0ARYcj0rYH9Pv/RHlVsveUpvcvhRK+3GrxRK8VTIkgerqCPiqUCByLZ3cHlAkx6SXYicZ3Lu4m2w9TNcjXYScheapVQGnsnt+xwvKjBF4L/YbVQoQ/UlXeb9AibL9mzqDAxwQNW8NHFE0ZdKdPPQCE3H1UMiCZy12im+Vdljy1S1+8h0m9O0rMv/84VKTIxs7/mv5PnbOeWSXYa26M5s1Yi8x/UBkh22h9RlhDu2lc77fBohIRxpQ7Esg1x0fIys2KdHSQ1wVlpQZfLWzETNoI3umCLYKPH1jHscfMMvfTRV0tUBg6M8ts/QtwHWYKUrKMcoJhbx1kO3cT2r8WVwBjxhNjyQoubt9tKLzdWY8MW3kFo7P1Z8sE3/vWHN8HLIifeYiFQac4lpmilz6ztgZSNLkx/6/CWZB4engkp4uRrMsOsSnJ5x6R4IIe+SKFfXJdTtkJvxmFY2MIUlGyHTNwJg8lzfarDZtZi5DNz9A3Sih+uKszumiVJ4SFwaeCFxaJ4="
