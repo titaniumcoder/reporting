@@ -3,7 +3,7 @@ services:
   - docker
 
 script:
-  docker build -t titaniumcoder/kotin-reporting .
+  docker build -t registry.heroku.com/kotin-reporting/web .
 
 deploy:
   provider: script
