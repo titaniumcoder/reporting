@@ -5,7 +5,7 @@ services:
 script:
   docker build -t titaniumcoder/kotin-reporting .
 
-publish:
+deploy:
   provider: script
   script: heroku_deploy.sh
   on: master
