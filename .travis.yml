@@ -1,8 +1,10 @@
-language: java
+language: bash
+services:
+  - docker
+
 script:
-  ./gradlew stage
-after_success:
-- bash <(curl -s https://codecov.io/bash)
+  docker build -t titaniumcoder/kotin-reporting .
+
 deploy:
   provider: heroku
   app: kotlin-reporting

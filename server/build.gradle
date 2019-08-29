@@ -4,8 +4,6 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.spring' version '1.3.21'
 
     id 'jacoco'
-
-    id 'com.bmuschko.docker-spring-boot-application' version '4.10.0'
 }
 
 apply plugin: 'io.spring.dependency-management'
@@ -13,15 +11,6 @@ apply plugin: 'io.spring.dependency-management'
 group = 'io.github.titaniumcoder'
 version = '1.0.0'
 sourceCompatibility = '1.8'
-
-docker {
-    springBootApplication {
-        baseImage = 'openjdk:8-alpine'
-        ports = [8080]
-        tag = 'awesome-spring-boot:1.115'
-        jvmArgs = ['-Dspring.profiles.active=production', '-Xmx2048m']
-    }
-}
 
 configurations {
     compileOnly {
