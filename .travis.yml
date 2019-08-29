@@ -5,6 +5,10 @@ services:
 script:
   docker build -t titaniumcoder/kotin-reporting .
 
+publish:
+  script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  on: master
+
 deploy:
   provider: heroku
   app: kotlin-reporting
