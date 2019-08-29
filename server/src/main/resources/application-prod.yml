@@ -18,4 +18,5 @@ management:
     git:
       enabled: true
       mode: full
-
+server:
+  port: ${PORT}
