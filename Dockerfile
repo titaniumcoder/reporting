@@ -16,5 +16,5 @@ ENV JAVA_OPTS '-Xmx100m'
 ENV PORT 8080
 
 COPY --from=builder /app/server/build/libs/*.jar /app/reporting.jar
-CMD ["java", "-Dspring.profiles.active=prod", "-jar", "/app/reporting.jar", "--server.port=$PORT"]
+CMD ["java", "$JAVA_OPTS", "-Dspring.profiles.active=prod", "-jar", "/app/reporting.jar", "--server.port=$PORT"]
 EXPOSE 8080
