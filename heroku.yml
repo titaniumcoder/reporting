@@ -1,5 +1,3 @@
 build:
   docker:
     web: Dockerfile
-run:
-  web: java -Dspring.profiles.active=production -Xmx128m -cp /app/resources:/app/classes:/app/libs/* io.github.titaniumcoder.toggl.reporting.TogglReportingApplication
