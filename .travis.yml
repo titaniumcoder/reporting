@@ -8,4 +8,5 @@ script:
 deploy:
   provider: script
   script: heroku_deploy.sh
-  on: master
+  on:
+    branch: master
