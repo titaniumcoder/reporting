@@ -3,7 +3,7 @@ WORKDIR /app
 COPY . /app
 RUN gradle stage
 
-FROM openjdk:11-alpine as runtime
+FROM openjdk:11-slim as runtime
 LABEL maintainer=rico
 WORKDIR /app
 
