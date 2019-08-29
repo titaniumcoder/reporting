@@ -5,8 +5,8 @@ services:
 script:
   docker build -t registry.heroku.com/kotin-reporting/web .
 
-#deploy:
-#  provider: script
-#  script: bash docker_push
-#  on:
-#    branch: master
+deploy:
+  provider: script
+  script: bash docker_push
+  on:
+    branch: master
