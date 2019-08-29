@@ -2,8 +2,8 @@ application:
   apiToken: ${API_TOKEN}
   workspaceId: ${WORKSPACE_ID}
   security:
-    username: test
-    password: '$2a$10$UgRG95WPbEoJlc2jNn93HOS5xINfYYFkjt0F6pk1QfV1tvAgAy1a6'
+    username: ${APPLICATION_SECURITY_USERNAME}
+    password: ${APPLICATION_SECURITY_PASSWORD}
     secret: ${TOGGL_SECRET}
     expiration: 28800
 
