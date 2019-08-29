@@ -1,12 +1,9 @@
-task copyClientResources(dependsOn: ':client:build') {
+task copyClientResources(type: Copy, dependsOn: ':client:build') {
     group = 'build'
     description = 'Copy client resources into server'
-}
-copyClientResources.doFirst {
-    copy {
-        from project(':client').buildDir.absolutePath
-        into "${project(':server').buildDir}/resources/main/static"
-    }
+
+    from "${project(':client').buildDir}"
+    into "${project(':server').buildDir}/resources/main/static"
 }
 
 task assembleServerAndClient(dependsOn: ['copyClientResources', ':server:bootJar']) {
