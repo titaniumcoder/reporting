@@ -1,6 +1,5 @@
 import React from 'react';
-import './App.css';
-import { formatDecimal, formatMinutes } from './utils';
+import {formatDecimal, formatMinutes} from './utils';
 
 interface IProjectsProp {
     projects: {
@@ -9,9 +8,11 @@ interface IProjectsProp {
     }[];
 }
 
-const Projects: React.FC<IProjectsProp> = ({ projects }) =>
-    (
-        projects ?
+const Projects: React.FC<IProjectsProp> = ({projects}) => {
+    const total =
+        projects && projects.length > 0 ? projects.map(x => x.minutes).reduce((acc, x) => acc + x) : 0;
+    return (
+        projects && projects.length > 0 ?
             <table className="table table-bordered">{ /* v-if="projects"> */}
                 <thead>
                 <tr>
@@ -29,7 +30,15 @@ const Projects: React.FC<IProjectsProp> = ({ projects }) =>
                     </tr>
                 )}
                 </tbody>
+                <tfoot>
+                <tr>
+                    <th className="text-right">Total:</th>
+                    <td className="text-right">{formatMinutes(total)}</td>
+                    <td className="text-right">{formatDecimal(total)}</td>
+                </tr>
+                </tfoot>
             </table> : null
     );
+};
 
 export default Projects;

@@ -1,5 +1,4 @@
 import React from 'react';
-import './App.css';
 import { Nav, NavItem, NavLink } from 'reactstrap';
 
 interface INavigationProps {

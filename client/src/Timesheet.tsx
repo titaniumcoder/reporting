@@ -1,6 +1,8 @@
 import React from 'react';
-import './App.css';
 import { formatDate, formatDayDecimal, formatDayMinutes, formatDecimal, formatMinutes, formatTime } from './utils';
+import {Table} from "reactstrap";
+
+import './Timesheet.css';
 
 interface ITimesheetProps {
     timesheet: {
@@ -19,8 +21,8 @@ interface ITimesheetProps {
 
 const Timesheet: React.FC<ITimesheetProps> = ({ timesheet, tagBilled, tagUnbilled }) =>
     (
-        timesheet ?
-        <table className="table table-bordered table-sm">
+        timesheet && timesheet.length > 0?
+        <Table bordered size="sm" responsive className="timesheet-table">
             <thead>
             <tr>
                 <th>Datum</th>
@@ -56,7 +58,7 @@ const Timesheet: React.FC<ITimesheetProps> = ({ timesheet, tagBilled, tagUnbille
                 ))
             ))}
             </tbody>
-        </table> : <h4>Noch keine Daten geladen...</h4>
+        </Table> : <h4 className="timesheet-table text-center">Noch keine Daten geladen...</h4>
     );
 
 const Tagged: React.FC<{tag: string}> = ({tag}) => (

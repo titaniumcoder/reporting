@@ -1,7 +1,7 @@
 import React from 'react';
-import { Button, ButtonGroup, Col, Row } from 'reactstrap';
-import moment, { Moment } from 'moment';
-import { AvField, AvForm } from 'availity-reactstrap-validation';
+import {Button, ButtonGroup, Col, Form, FormGroup, Input, Label, Row} from 'reactstrap';
+import moment, {Moment} from 'moment';
+import {Formik} from "formik";
 
 interface IHeaderProps {
     dateFrom: Moment;
@@ -16,7 +16,7 @@ interface IHeaderProps {
     logout: () => void;
 }
 
-const Header: React.FC<IHeaderProps> = ({ enabled, dateFrom, dateTo, loadFromTo, createExcel, setBilled, setUnbilled, logout }) => {
+const Header: React.FC<IHeaderProps> = ({enabled, dateFrom, dateTo, loadFromTo, createExcel, setBilled, setUnbilled, logout}) => {
     const defaultFromTo = {
         dateFrom: dateFrom.format('YYYY-MM-DD'),
         dateTo: dateTo.format('YYYY-MM-DD')
@@ -27,21 +27,69 @@ const Header: React.FC<IHeaderProps> = ({ enabled, dateFrom, dateTo, loadFromTo,
     };
 
     return (
-        <Row style={{ paddingTop: "0.5rem" }}>
+        <Row style={{paddingTop: "0.5rem"}}>
             <Col>
-                <AvForm onValidSubmit={handleSubmit} model={defaultFromTo}>
-                    <Row>
-                        <Col xs="4">
-                            <AvField name="dateFrom" type="date" required/>
-                        </Col>
-                        <Col xs="4">
-                            <AvField name="dateTo" type="date" required/>
-                        </Col>
-                        <Col xs="auto">
-                            <Button type="submit" color="primary">Laden</Button>
-                        </Col>
-                    </Row>
-                </AvForm>
+                <Formik
+                    initialValues={{dateFrom: defaultFromTo.dateFrom, dateTo: defaultFromTo.dateTo}}
+                    validate={values => {
+                        let errors: any = {};
+                        if (!values.dateFrom) {
+                            errors.dateFrom = 'Date From is required';
+                        }
+                        if (!values.dateTo) {
+                            errors.dateTo = 'Date To is required';
+                        }
+                        if (values.dateFrom && values.dateTo && values.dateTo < values.dateFrom) {
+                            errors.dateTo = 'Date To must be after from';
+                        }
+                        return errors;
+                    }}
+                    onSubmit={(values, {setSubmitting}) => {
+                        setSubmitting(true);
+                        handleSubmit(null, values);
+                        setSubmitting(false);
+                    }}>
+                    {({
+                          values,
+                          errors,
+                          touched,
+                          handleChange,
+                          handleBlur,
+                          handleSubmit,
+                          isSubmitting,
+                          /* and other goodies */
+                      }) => (
+                        <Form onSubmit={handleSubmit}>
+                            <Row>
+                                <Col xs="4">
+                                    <FormGroup>
+                                        <Label for="dateFrom">Von</Label>
+                                        <Input
+                                            type="date"
+                                            name="dateFrom"
+                                            value={values.dateFrom}
+                                            onBlur={handleBlur}
+                                            onChange={handleChange}/>
+                                    </FormGroup>
+                                </Col>
+                                <Col xs="4">
+                                    <FormGroup>
+                                        <Label for="dateTo">Bis</Label>
+                                        <Input
+                                            type="date"
+                                            name="dateTo"
+                                            value={values.dateTo}
+                                            onBlur={handleBlur}
+                                            onChange={handleChange}/>
+                                    </FormGroup>
+                                </Col>
+                                <Col xs="auto">
+                                    <Button type="submit" color="primary" disabled={isSubmitting}>Laden</Button>
+                                </Col>
+                            </Row>
+                        </Form>
+                    )}
+                </Formik>
             </Col>
             <Col xs="auto">
                 <ButtonGroup>
@@ -50,7 +98,7 @@ const Header: React.FC<IHeaderProps> = ({ enabled, dateFrom, dateTo, loadFromTo,
                     <Button disabled={!enabled} color="danger" onClick={setUnbilled}>Zurücksetzen</Button>
                 </ButtonGroup>
             </Col>
-            <Col xs="auto" style={{ paddingLeft: "0.4rem" }}>
+            <Col xs="auto" style={{paddingLeft: "0.4rem"}}>
                 <Button color="info" onClick={logout}>Ausloggen</Button>
             </Col>
         </Row>

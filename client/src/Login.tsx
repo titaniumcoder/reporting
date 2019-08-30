@@ -1,34 +1,68 @@
 import React from 'react';
-import './App.css';
-import { Button, Col, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
-import { AvField, AvForm } from "availity-reactstrap-validation";
+import {Button, Col, Container, Form, FormGroup, Input, Label} from 'reactstrap';
+import {Formik} from "formik";
+
+import './Login.css';
 
 interface ILoginProps {
-    showModal: boolean;
-
     executeLogin: (username: string, password: string) => void;
 }
 
-const Login: React.FC<ILoginProps> = ({ showModal, executeLogin }) => {
+const Login: React.FC<ILoginProps> = ({executeLogin}) => {
     const handleSubmit = (event, values) => {
         executeLogin(values.username, values.password);
     };
 
     return (
-        <Modal isOpen={showModal} autoFocus={false}>
-            <ModalHeader>Anmeldung</ModalHeader>
-            <AvForm onValidSubmit={handleSubmit}>
-                <ModalBody>
-                    <AvField name="username" type="string" label="Benutzername" required autoFocus/>
-                    <AvField name="password" type="password" label="Passwort" required/>
-                </ModalBody>
-                <ModalFooter>
-                    <Col xs="auto">
-                        <Button type="submit" color="primary">Anmelden</Button>
-                    </Col>
-                </ModalFooter>
-            </AvForm>
-        </Modal>
+        <div className="login">
+            <Container>
+                <Formik
+                    initialValues={{username: '', password: ''}}
+                    onSubmit={(values, {setSubmitting}) => {
+                        setSubmitting(true);
+                        handleSubmit(null, values);
+                        setSubmitting(false);
+                    }}>
+                    {({
+                          values,
+                          errors,
+                          touched,
+                          handleChange,
+                          handleBlur,
+                          handleSubmit,
+                          isSubmitting,
+                          /* and other goodies */
+                      }) => (
+                        <Form onSubmit={handleSubmit}>
+                            <FormGroup>
+                                <Input
+                                    type="text"
+                                    required
+                                    autoFocus
+                                    name="username"
+                                    placeholder="Benutzername"
+                                    value={values.username}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                />
+                            </FormGroup>
+                            <FormGroup>
+                                <Input
+                                    type="password"
+                                    required
+                                    name="password"
+                                    placeholder="Passwort"
+                                    value={values.password}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                />
+                            </FormGroup>
+                            <Button type="submit" color="primary" block size="lg" className="mt-5 mb-3">Anmelden</Button>
+                        </Form>
+                    )}
+                </Formik>
+            </Container>
+        </div>
     );
 };
 

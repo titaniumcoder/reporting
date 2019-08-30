@@ -1,16 +1,17 @@
 import React from 'react';
-import './App.css';
-import { Container } from 'reactstrap';
-import moment, { Moment } from 'moment';
+import {Container} from 'reactstrap';
+import moment, {Moment} from 'moment';
 import Header from './Header';
 import Cashout from './Cashout';
 import Navigation from './Navigation';
 import Projects from './Projects';
 import Timesheet from './Timesheet';
 import Login from './Login';
-import { ICashout, IClient, IProject, ITimeEntry } from './model';
-import { ITogglReportingApi, TogglReportingApi } from './api';
-import { saveAs } from 'file-saver';
+import {ICashout, IClient, IProject, ITimeEntry} from './model';
+import {ITogglReportingApi, TogglReportingApi} from './api';
+import {saveAs} from 'file-saver';
+
+import './App.css';
 
 export interface IAppState {
     username: string | null;
@@ -46,14 +47,15 @@ class App extends React.Component<{}, IAppState> {
     };
 
     errorHandler = (err) => {
-        this.setState({ loggedIn: false });
+        this.setState({loggedIn: false});
         return err;
     };
 
     loadData = async (withClient) => {
         const clients = await this.api.fetchClients().catch(this.errorHandler);
         const cashout = await this.api.fetchCash().catch(this.errorHandler);
-        this.setState({ clients: clients.data, cashout: cashout.data });
+        const totalCashout = cashout.data.map(x => x.amount).reduce((acc, curr) => acc + curr);
+        this.setState({clients: clients.data, cashout: cashout.data, totalCashout});
         if (withClient && this.state.activeClient !== null) {
             const client = await this.api.fetchClient(this.state.activeClient, this.state.from, this.state.to).catch(this.errorHandler);
             this.setState({
@@ -70,7 +72,7 @@ class App extends React.Component<{}, IAppState> {
         } else if (this.state.regularFetcher === null && this.state.username !== null) {
             const regularFetcher = setInterval(this.loadData, 10000);
             // @ts-ignore
-            this.setState({ regularFetcher });
+            this.setState({regularFetcher});
             await this.loadData(false);
         }
     };
@@ -92,7 +94,7 @@ class App extends React.Component<{}, IAppState> {
         if (this.state.regularFetcher !== null) {
             clearInterval(this.state.regularFetcher);
         }
-        this.setState({ regularFetcher: null });
+        this.setState({regularFetcher: null});
     };
 
     componentWillUnmount(): void {
@@ -104,12 +106,12 @@ class App extends React.Component<{}, IAppState> {
             const username = localStorage.getItem('username');
             const password = localStorage.getItem('password');
 
-            this.setState({ username, password });
+            this.setState({username, password});
 
             if (username && password) {
                 this.api.login(username, password)
                     .then(loggedIn => {
-                        this.setState({ loggedIn })
+                        this.setState({loggedIn})
                     });
             }
         }
@@ -121,7 +123,7 @@ class App extends React.Component<{}, IAppState> {
 
         const loggedIn = await this.api.login(username, password);
 
-        this.setState({ username, password, loggedIn });
+        this.setState({username, password, loggedIn});
     };
 
     fetchClient = async () => {
@@ -135,12 +137,12 @@ class App extends React.Component<{}, IAppState> {
     };
 
     selectClient = async (id) => {
-        this.setState({ activeClient: id });
+        this.setState({activeClient: id});
         setTimeout(async () => await this.fetchClient().catch(this.errorHandler), 100);
     };
 
     loadFromTo = (from: Moment, to: Moment) => {
-        this.setState({ from, to });
+        this.setState({from, to});
         setTimeout(async () => await this.fetchClient().catch(this.errorHandler), 100);
     };
 
@@ -192,7 +194,7 @@ class App extends React.Component<{}, IAppState> {
 
         this.api.logout();
 
-        this.setState({ loggedIn: false, username: null, password: null })
+        this.setState({loggedIn: false, username: null, password: null})
     };
 
     render() {
@@ -204,25 +206,32 @@ class App extends React.Component<{}, IAppState> {
 
         const timesheet = this.state.timesheet;
 
+        const showModal = !this.state.username || !this.state.password;
+
+        const internal = showModal ?
+            <Login executeLogin={this.login}/> :
+            <Container fluid={true}>
+                <Header enabled={!!this.state.activeClient}
+                        dateFrom={this.state.from}
+                        dateTo={this.state.to}
+                        loadFromTo={this.loadFromTo}
+                        createExcel={this.loadExcel}
+                        setBilled={this.tagClient}
+                        setUnbilled={this.untagClient}
+                        logout={this.logout}/>
+                <Cashout cashout={cashout} totalCashout={totalCashout}/>
+                <hr/>
+                <Navigation clients={clients} activeClient={activeClient} selectClient={this.selectClient}/>
+
+                <Projects projects={projects}/>
+
+                <Timesheet timesheet={timesheet} tagBilled={(id) => this.tagEntry(id)}
+                           tagUnbilled={(id) => this.untagEntry(id)}/>
+            </Container>;
+
         return (
             <div id="app">
-                <Login showModal={!this.state.username || !this.state.password} executeLogin={this.login}/>
-                <Container fluid={true}>
-                    <Header enabled={!!this.state.activeClient}
-                            dateFrom={this.state.from}
-                            dateTo={this.state.to}
-                            loadFromTo={this.loadFromTo}
-                            createExcel={this.loadExcel}
-                            setBilled={this.tagClient}
-                            setUnbilled={this.untagClient}
-                            logout={this.logout}/>
-                    <Cashout cashout={cashout} totalCashout={totalCashout}/>
-                    <hr/>
-                    <Navigation clients={clients} activeClient={activeClient} selectClient={this.selectClient}/>
-                    <Projects projects={projects}/>
-
-                    <Timesheet timesheet={timesheet} tagBilled={(id) => this.tagEntry(id)} tagUnbilled={(id) => this.untagEntry(id)}/>
-                </Container>
+                {internal}
             </div>
         );
     }
