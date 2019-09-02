@@ -263,7 +263,11 @@ class ReportingService(val service: TogglService, val transformer: TransformerSe
 
 
     suspend fun timesheet(clientId: Long, from: LocalDate, to: LocalDate): ExcelSheet {
-        val entries = service.entries(clientId, from, to)
+        val originalEntries = service.entries(clientId, from, to)
+
+        val entries =
+                originalEntries
+                        .copy(data = originalEntries.data.filter { x -> x.isBillable && !x.tags.contains("billed") })
 
         val name = entries.data.firstOrNull()?.client?.toLowerCase() ?: "unbekannt"
 

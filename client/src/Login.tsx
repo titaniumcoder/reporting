@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Col, Container, Form, FormGroup, Input, Label} from 'reactstrap';
+import {Button, Container, Form, FormGroup, Input} from 'reactstrap';
 import {Formik} from "formik";
 
 import './Login.css';

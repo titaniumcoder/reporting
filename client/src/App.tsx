@@ -143,7 +143,7 @@ class App extends React.Component<{}, IAppState> {
 
     loadFromTo = (from: Moment, to: Moment) => {
         this.setState({from, to});
-        setTimeout(async () => await this.fetchClient().catch(this.errorHandler), 100);
+        setTimeout(async() => await this.loadData(true), 100);
     };
 
     loadExcel = async () => {
