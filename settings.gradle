@@ -1,4 +1,0 @@
-include 'server'
-include 'client'
-
-rootProject.name = 'toggl-reporting'

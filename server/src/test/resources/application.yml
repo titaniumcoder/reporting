@@ -1,8 +1,0 @@
-application:
-  apiToken: 12345
-  workspaceId: 98765
-  security:
-    secret: JhGDQ5AuWDdo7HgmMDbMqFFndSCOlccO
-    username: test
-    password: test
-    expiration: 28800
