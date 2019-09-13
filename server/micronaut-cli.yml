@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: toggl.reporting.micronaut
+---
+testFramework: junit
+sourceLanguage: java
