@@ -1,7 +1,7 @@
 FROM gradle as builder
 WORKDIR /app
 COPY . /app
-RUN gradle stage
+RUN gradle assembleServerAndClient
 
 FROM adoptopenjdk/openjdk11-openj9:jdk-11.0.1.13-alpine-slim as runtie
 LABEL maintainer=rico

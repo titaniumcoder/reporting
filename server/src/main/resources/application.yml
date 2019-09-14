@@ -1,3 +1,39 @@
 micronaut:
   application:
-    name: toggl-reporting-micronaut
+    name: toggl-reporting
+  server:
+    cors:
+      enabled: true
+  router:
+    static-resources:
+      default:
+        enabled: true
+        mapping: "/**"
+        paths: "classpath:public"
+  security:
+    enabled: true
+    endpoints:
+      login:
+        enabled: true
+        path: /api/login
+    token:
+      jwt:
+        enabled: true
+        signatures:
+          secret:
+            generator:
+              secret: ${TOGGL_SECRET}
+  io:
+    watch:
+      paths: src/main
+      restart: true
+---
+application:
+  apiToken: ${API_TOKEN}
+  workspaceId: ${WORKSPACE_ID}
+  security:
+    username: ${APPLICATION_SECURITY_USERNAME}
+    password: ${APPLICATION_SECURITY_PASSWORD}
+    secret: ${TOGGL_SECRET}
+    expiration: 28800
+

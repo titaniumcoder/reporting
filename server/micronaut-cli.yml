@@ -1,5 +1,5 @@
 profile: service
-defaultPackage: toggl.reporting.micronaut
+defaultPackage: io.github.titaniumcoder.toggl.reporting
 ---
 testFramework: junit
 sourceLanguage: java
