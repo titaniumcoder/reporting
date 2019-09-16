@@ -120,13 +120,13 @@ class Sheet(val name: String) {
 
         cells.forEach { it.render(sheet, styles) }
 
-        sheet.columnHelper.setColWidth(0, 15.0)
-        sheet.columnHelper.setColWidth(1, 15.0)
-        sheet.columnHelper.setColWidth(2, 10.5)
-        sheet.columnHelper.setColWidth(3, 10.5)
+        sheet.columnHelper.setColWidth(0, 10.5)
+        sheet.columnHelper.setColWidth(1, 11.0)
+        sheet.columnHelper.setColWidth(2, 10.0)
+        sheet.columnHelper.setColWidth(3, 10.0)
         sheet.columnHelper.setColWidth(4, 10.5)
-        sheet.columnHelper.setColWidth(5, 42.0)
-        sheet.columnHelper.setColWidth(6, 42.0)
+        sheet.columnHelper.setColWidth(5, 31.0)
+        sheet.columnHelper.setColWidth(6, 31.0)
 
         // printing setup
         sheet.autobreaks = true
