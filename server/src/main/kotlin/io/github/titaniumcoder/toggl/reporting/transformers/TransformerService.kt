@@ -1,11 +1,11 @@
 package io.github.titaniumcoder.toggl.reporting.transformers
 
 import io.github.titaniumcoder.toggl.reporting.toggl.TogglModel
-import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
+import javax.inject.Singleton
 
-@Service
+@Singleton
 class TransformerService {
     fun cash(summary: TogglModel.TogglSummary): List<ViewModel.Cashout> =
             summary.data.map { x ->

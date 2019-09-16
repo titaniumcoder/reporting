@@ -3,80 +3,51 @@ package io.github.titaniumcoder.toggl.reporting.toggl
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import io.github.titaniumcoder.toggl.reporting.config.TogglConfiguration
+import io.micronaut.core.convert.format.Format
+import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import io.micronaut.http.MutableHttpRequest
+import io.micronaut.http.annotation.*
+import io.micronaut.http.client.annotation.Client
+import io.micronaut.http.filter.ClientFilterChain
+import io.micronaut.http.filter.HttpClientFilter
+import org.reactivestreams.Publisher
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import javax.inject.Singleton
 
-@Singleton
-class TogglWebClient(config: TogglConfiguration) {
-    private val apiToken = config.apiToken
-    private val workspaceId = config.workspaceId
+@Client("https://toggl.com/")
+interface TogglWebClient {
+    companion object {
+        const val userAgent = "https://github.com/titaniumcoder/toggl-reporting"
+    }
 
-    private val log: Logger = LoggerFactory.getLogger(TogglWebClient::class.java)
+    @Get("https://www.toggl.com/api/v8/clients")
+    fun clients(): List<TogglModel.Client>
 
-    private val userAgent = "https://github.com/titaniumcoder/toggl-reporting"
+    @Get("https://toggl.com/reports/api/v2/summary?user_agent={userAgent}&since={since}&until={until}&tag_ids=0&grouping=clients&subgrouping=projects&subgrouping_ids=false&workspace_id={workspaceId}")
+    fun summary(
+            @Format("yyyy-MM-dd") @PathVariable("since") from: LocalDate,
+            @Format("yyyy-MM-dd") @PathVariable("until") to: LocalDate,
+            @PathVariable("workspaceId") workspaceId: Long,
+            @PathVariable("userAgent") userAgent: String = TogglWebClient.userAgent
+    ): TogglModel.TogglSummary
+//                                    "since" to from.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
 
-    val client = WebClient
-            .builder()
-            .baseUrl("https://toggl.com/")
-            .filter(ExchangeFilterFunctions.basicAuthentication(apiToken, "api_token"))
-            .filter(logRequest()) // here is the magic
-            .build()
+    @Get("https://toggl.com/reports/api/v2/details?user_agent={userAgent}&since={since}&until={until}&workspace_id={workspaceId}&client_ids={clientIds}&display_hours=minutes&page={page}")
+    fun entries(
+            @PathVariable("clientIds") clientId: Long,
+            @Format("yyyy-MM-dd") @PathVariable("since") from: LocalDate,
+            @Format("yyyy-MM-dd") @PathVariable("until") to: LocalDate,
+            @PathVariable("page") pageNo: Int,
+            @PathVariable("workspaceId") workspaceId: Long,
+            @PathVariable("userAgent") userAgent: String = TogglWebClient.userAgent
+    ): TogglModel.TogglReporting
 
-     fun clients(): List<TogglModel.Client> =
-            client
-                    .get()
-                    .uri("https://www.toggl.com/api/v8/clients")
-                    .retrieve()
-                    .bodyToMono(object : ParameterizedTypeReference<List<TogglModel.Client>>() {})
-                    .awaitFirst()
+    @Put("https://www.toggl.com/api/v8/time_entries/{ids}")
+    fun tagId(@PathVariable("ids") ids: String, @Body body: ObjectNode): HttpStatus
+}
 
-
-     fun summary(from: LocalDate, to: LocalDate): TogglModel.TogglSummary =
-            client
-                    .get()
-                    .uri("https://toggl.com/reports/api/v2/summary?user_agent={userAgent}&since={since}&until={until}&tag_ids=0&grouping=clients&subgrouping=projects&subgrouping_ids=false&workspace_id={workspaceId}",
-                            mapOf(
-                                    "userAgent" to userAgent,
-                                    "workspaceId" to workspaceId.toString(),
-                                    "since" to from.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-                                    "until" to to.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                            )
-                    )
-                    .retrieve()
-                    .bodyToMono(TogglModel.TogglSummary::class.java)
-                    .awaitFirst()
-
-     fun entries(clientId: Long, from: LocalDate, to: LocalDate, pageNo: Int): TogglModel.TogglReporting =
-            client
-                    .get()
-                    .uri("https://toggl.com/reports/api/v2/details?user_agent={userAgent}&since={since}&until={until}&workspace_id={workspaceId}&client_ids={clientIds}&display_hours=minutes&page={page}",
-                            mapOf(
-                                    "userAgent" to userAgent,
-                                    "workspaceId" to workspaceId.toString(),
-                                    "since" to from.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-                                    "until" to to.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-                                    "clientIds" to clientId.toString(),
-                                    "page" to pageNo.toString()
-                            )
-                    )
-                    .retrieve()
-                    .bodyToMono(TogglModel.TogglReporting::class.java)
-                    .awaitFirst()
-
-     fun tagId(ids: List<String>, billed: Boolean): HttpStatus =
-            client
-                    .put()
-                    .uri("https://www.toggl.com/api/v8/time_entries/${ids.joinToString(",")}")
-                    .syncBody(tagbody(billed))
-                    .exchange()
-                    .map { it.statusCode() }
-                    .awaitFirst()
-
-    private fun tagbody(billed: Boolean): ObjectNode {
+object TagCreator {
+    fun tagbody(billed: Boolean): ObjectNode {
         val om = ObjectMapper()
         val tags = om.createArrayNode()
         if (billed) {
@@ -91,12 +62,11 @@ class TogglWebClient(config: TogglConfiguration) {
 
         return on
     }
+}
 
-    // This method returns filter function which will log request data
-    private fun logRequest(): ExchangeFilterFunction {
-        return ExchangeFilterFunction.ofRequestProcessor { clientRequest ->
-            log.info("Request: {} {}", clientRequest.method(), clientRequest.url())
-            Mono.just<ClientRequest>(clientRequest)
-        }
-    }
+@Filter("/**")
+class TogglFilter(private val config: TogglConfiguration) : HttpClientFilter {
+    override fun doFilter(request: MutableHttpRequest<*>, chain: ClientFilterChain): Publisher<out HttpResponse<*>> =
+            chain.proceed(request.basicAuth(config.apiToken, "api_token"))
+
 }

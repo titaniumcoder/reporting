@@ -18,7 +18,7 @@ export const formatDate = (d) => {
 };
 
 export const formatTime = (d) => {
-    return moment(d).format('HH:mm');
+    return moment.unix(d).format('HH:mm');
 };
 
 export const formatDayMinutes = (day) => {

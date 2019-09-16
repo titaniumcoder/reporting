@@ -47,9 +47,9 @@ const Timesheet: React.FC<ITimesheetProps> = ({ timesheet, tagBilled, tagUnbille
                         <td>{formatMinutes(time.minutes)}<br/>{formatDecimal(time.minutes)}</td>
                         <td>{time.project}</td>
                         <td>{time.description}</td>
-                        <td>{time.tags.map(t => <Tagged key={t} tag={t}/>)}</td>
+                        <td>{(time.tags || []).map(t => <Tagged key={t} tag={t}/>)}</td>
                         <td>
-                            {time.tags.indexOf('billed') === -1 ?
+                            {(time.tags || []).indexOf('billed') === -1 ?
                                 <button className="btn btn-sm" onClick={() => tagBilled(time.id)}>+</button> :
                                 <button className="btn btn-sm" onClick={() => tagUnbilled(time.id)}>-</button>
                             }

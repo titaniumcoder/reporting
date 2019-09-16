@@ -1,23 +1,16 @@
-package io.github.titaniumcoder.toggl.reporting.reporting;
+package io.github.titaniumcoder.toggl.reporting.reporting
 
-import io.github.titaniumcoder.toggl.reporting.transformers.ReportingModel;
-import lombok.Data;
+import io.github.titaniumcoder.toggl.reporting.toggl.TogglService
+import io.github.titaniumcoder.toggl.reporting.transformers.TransformerService
+import io.github.titaniumcoder.toggl.reporting.transformers.ViewModel
+import java.time.LocalDate
+import javax.inject.Singleton
 
-import javax.inject.Singleton;
-import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
+class ExcelSheet(val name: String, val date: LocalDate, val excel: ByteArray)
 
 @Singleton
-public class ReportingService {
-    // TODO
-    // private final TogglService service;
-    // private final TransformerService transformer;
-
-    private byte[] generateExcel(String name, ReportingModel model) {
-        throw new UnsupportedOperationException("not yet implemented");
-
-        /*
-         {
+class ReportingService(val service: TogglService, val transformer: TransformerService) {
+    private fun generateExcel(name: String, model: ViewModel.ReportingModel): ByteArray {
         fun tableheader(cell: Cell) {
             cell.apply {
                 bold = true
@@ -267,14 +260,9 @@ public class ReportingService {
         }
                 .render()
     }
-         */
-    }
 
-    public ExcelSheet timesheet(long clientId, @NotNull LocalDate from, @NotNull LocalDate to) {
-        throw new UnsupportedOperationException("not yet implemented");
 
-        /*
-        {
+    fun timesheet(clientId: Long, from: LocalDate, to: LocalDate): ExcelSheet {
         val originalEntries = service.entries(clientId, from, to)
 
         val entries =
@@ -286,39 +274,17 @@ public class ReportingService {
         val body = generateExcel(name, transformer.transformInput(entries, from, to, clientId))
 
         return ExcelSheet(name, from, body)
-        }
-         */
     }
 
-    public ReportingModel entries(long clientId, LocalDate from, LocalDate to) {
-        throw new UnsupportedOperationException("not yet implemented");
-
-        /*
-         val definiteTo = to ?: (LocalDate.now().plusMonths(1).withDayOfMonth(1).minusDays(1))
+    fun entries(clientId: Long, from: LocalDate?, to: LocalDate?): ViewModel.ReportingModel {
+        val definiteTo = to ?: (LocalDate.now().plusMonths(1).withDayOfMonth(1).minusDays(1))
         val definiteFrom = from ?: (definiteTo.withDayOfMonth(1))
 
         val entries = service.entries(clientId, definiteFrom, definiteTo)
         return transformer.transformInput(entries, definiteFrom, definiteTo, clientId)
-         */
     }
 
-    private double formatTime(int minutes) {
-        return (double) minutes / 1440;
-    }
+    private fun formatTime(minutes: Int): Double = minutes.toDouble() / 1440
 
-    private double formatNumeric(int minutes) {
-        return (double) minutes / 60;
-    }
-
-
-    @Data
-    public static class ExcelSheet{
-        @NotNull
-        private String name;
-        @NotNull
-        private LocalDate date;
-
-        @NotNull
-        private byte[] excel;
-    }
+    private fun formatNumeric(minutes: Int): Double = minutes.toDouble() / 60
 }

@@ -1,5 +1,5 @@
 profile: service
 defaultPackage: io.github.titaniumcoder.toggl.reporting
 ---
-testFramework: junit
-sourceLanguage: java
+testFramework: kotlintest
+sourceLanguage: kotlin

@@ -36,4 +36,26 @@ application:
     password: ${APPLICATION_SECURITY_PASSWORD}
     secret: ${TOGGL_SECRET}
     expiration: 28800
+---
+jackson:
+  dateFormat: 'yyyy-MM-dd'
+  locale: 'de-CH'
+  timeZone: 'Europe/Zurich'
+  serializationInclusion: ALWAYS
+  serialization:
+    writeDatesAsTimestamps: true
 
+---
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  info:
+    build:
+      enabled: true
+    git:
+      enabled: true
+      mode: full
+server:
+  port: ${PORT:8080}
