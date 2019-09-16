@@ -124,9 +124,9 @@ class Sheet(val name: String) {
         sheet.columnHelper.setColWidth(1, 15.0)
         sheet.columnHelper.setColWidth(2, 10.5)
         sheet.columnHelper.setColWidth(3, 10.5)
-        sheet.columnHelper.setColWidth(4, 9.0)
+        sheet.columnHelper.setColWidth(4, 10.5)
         sheet.columnHelper.setColWidth(5, 42.0)
-        sheet.columnHelper.setColWidth(6, 25.0)
+        sheet.columnHelper.setColWidth(6, 42.0)
 
         // printing setup
         sheet.autobreaks = true
@@ -145,10 +145,6 @@ class Sheet(val name: String) {
         ps.fitWidth = 1
         ps.fitHeight = 100
         ps.orientation = PrintOrientation.PORTRAIT
-
-        // TODO this should be moved to the model too but for now it's fine for the demo effect...
-        sheet.autoSizeColumn(5)
-        sheet.autoSizeColumn(6)
 
         sheet.repeatingRows = CellRangeAddress.valueOf("1:3")
 
