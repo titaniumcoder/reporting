@@ -12,6 +12,20 @@ micronaut:
         paths: "classpath:public"
   security:
     enabled: true
+    intercept-url-map:
+      -
+        pattern: /api/login
+        access:
+          - isAnonymous()
+      -
+        pattern: /api/**
+        access:
+          - isAuthenticated()
+      -
+        pattern: /**
+        http-method: GET
+        access:
+          - isAnonymous()
     endpoints:
       login:
         enabled: true
