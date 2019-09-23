@@ -52,12 +52,12 @@ application:
     expiration: 28800
 ---
 jackson:
-  dateFormat: 'yyyy-MM-dd'
   locale: 'de-CH'
+  dateFormat: 'yyyy-MM-dd'
   timeZone: 'Europe/Zurich'
   serializationInclusion: ALWAYS
   serialization:
-    writeDatesAsTimestamps: true
+    writeDatesAsTimestamps: false
 
 ---
 management:

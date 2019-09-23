@@ -1,6 +1,9 @@
 package io.github.titaniumcoder.toggl.reporting.transformers
 
+import io.micronaut.core.convert.format.Format
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.time.ZonedDateTime
 
 // Application ViewModel
@@ -17,10 +20,10 @@ object ViewModel {
 
     data class TimeEntry(
             val id: Long,
-            val day: LocalDate,
+            val day: OffsetDateTime,
             val project: String?,
-            val startdate: ZonedDateTime,
-            val enddate: ZonedDateTime,
+            val startdate: OffsetDateTime,
+            val enddate: OffsetDateTime,
             val minutes: Int,
             val description: String?,
             val tags: List<String>
