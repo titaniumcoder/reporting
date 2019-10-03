@@ -10,3 +10,4 @@ spring:
   resources:
     static-locations:
       - classpath:static/**
+  jackson.serialization.write-dates-as-timestamps: false
