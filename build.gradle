@@ -3,7 +3,7 @@ task copyClientResources(type: Copy, dependsOn: ':client:build') {
     description = 'Copy client resources into server'
 
     from "${project(':client').buildDir}"
-    into "${project(':server-new').buildDir}/resources/static"
+    into "${project(':server-new').buildDir}/resources/main/static"
 }
 
 task assembleServerAndClient(dependsOn: ['copyClientResources', ':server-new:assemble']) {

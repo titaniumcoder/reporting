@@ -4,6 +4,12 @@ application:
   security:
     username: test
     password: test
+
+spring:
+  webflux.static-path-pattern: "/**"
+  resources:
+    static-locations:
+      - classpath:static/**
 #  router:
 #    static-resources:
 #      default:

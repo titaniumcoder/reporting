@@ -17,9 +17,9 @@ import org.springframework.security.core.userdetails.User
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.context.ServerSecurityContextRepository
 import org.springframework.stereotype.Component
+import org.springframework.web.reactive.config.EnableWebFlux
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
-
 
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
@@ -55,7 +55,8 @@ class WebfluxSecurityConfiguration(
                 .authorizeExchange()
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/login").permitAll()
-                .pathMatchers("/**").authenticated()
+                .pathMatchers("/api/**").authenticated()
+                .pathMatchers("/**").permitAll()
                 .and()
                 .formLogin().disable()
                 .httpBasic().disable()
