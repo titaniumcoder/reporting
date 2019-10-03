@@ -10,9 +10,3 @@ spring:
   resources:
     static-locations:
       - classpath:static/**
-#  router:
-#    static-resources:
-#      default:
-#        enabled: true
-#        mapping: "/**"
-#        paths: "classpath:public"
