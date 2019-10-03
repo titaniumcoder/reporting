@@ -16,7 +16,7 @@ class CorsGlobalConfiguration {
         corsConfig.allowedOrigins = listOf("http://localhost:3000", "https://kotlin-reporting.herokuapp.com/")
         corsConfig.maxAge = 8000L
         corsConfig.addAllowedMethod("*")
-        // corsConfig.addAllowedHeader("Baeldung-Allowed")
+        corsConfig.addAllowedHeader("*")
 
         val source = UrlBasedCorsConfigurationSource()
         source.registerCorsConfiguration("/**", corsConfig)

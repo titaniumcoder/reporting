@@ -1,4 +1,3 @@
-include("server")
 include("client")
 include("server-new")
 

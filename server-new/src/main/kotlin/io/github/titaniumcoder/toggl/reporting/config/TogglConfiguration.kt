@@ -1,9 +1,9 @@
 package io.github.titaniumcoder.toggl.reporting.config
 
-import io.micronaut.context.annotation.ConfigurationProperties
+import org.springframework.boot.context.properties.ConfigurationProperties
 import javax.validation.constraints.NotBlank
 
-@ConfigurationProperties("application")
+@ConfigurationProperties(prefix = "application")
 class TogglConfiguration {
     @NotBlank
     lateinit var apiToken: String
@@ -11,20 +11,14 @@ class TogglConfiguration {
     @NotBlank
     var workspaceId: Long = -1L
 
-    lateinit var security: SecurityEncodingConfiguration
+    var security: SecurityEncodingConfiguration = SecurityEncodingConfiguration()
 
-    @ConfigurationProperties("security")
     class SecurityEncodingConfiguration {
-        @NotBlank
-        lateinit var secret: String
-
         @NotBlank
         lateinit var username: String
 
         @NotBlank
         lateinit var password: String
-
-        var expiration: Long = -1L
     }
 }
 

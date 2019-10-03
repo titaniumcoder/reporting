@@ -1,29 +1,29 @@
 package io.github.titaniumcoder.toggl.reporting.toggl
 
-import io.github.titaniumcoder.toggl.reporting.config.TogglConfiguration
 import io.github.titaniumcoder.toggl.reporting.toggl.TagCreator.tagbody
 import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalDateTime
-import javax.inject.Singleton
+import kotlin.math.ceil
 
-@Singleton
-class TogglService(val webClient: TogglWebClient, val config: TogglConfiguration) {
+@Service
+class TogglService(val webClient: TogglWebClient) {
     private val log = LoggerFactory.getLogger(TogglService::class.java)
 
-    fun clients(): List<TogglModel.Client> = webClient.clients()
+    suspend fun clients(): List<TogglModel.Client> = webClient.clients()
 
-    fun summary(from: LocalDate, to: LocalDate): TogglModel.TogglSummary {
-        val summary = webClient.summary(from, to, config.workspaceId)
+    suspend fun summary(from: LocalDate, to: LocalDate): TogglModel.TogglSummary {
+        val summary = webClient.summary(from, to)
         return summary.copy(data = summary.data.filter { it.time > 0 })
     }
 
-    fun entries(clientId: Long, from: LocalDate, to: LocalDate): TogglModel.TogglReporting {
-        val firstPage = webClient.entries(clientId, from, to, 1, config.workspaceId)
+    suspend fun entries(clientId: Long, from: LocalDate, to: LocalDate): TogglModel.TogglReporting {
+        val firstPage = webClient.entries(clientId, from, to, 1)
         val range = 2.rangeTo(
-                Math.ceil(firstPage.totalCount.toDouble() / firstPage.perPage).toInt()
+                ceil(firstPage.totalCount.toDouble() / firstPage.perPage).toInt()
         )
-                .map { webClient.entries(clientId, from, to, it, config.workspaceId) }
+                .map { webClient.entries(clientId, from, to, it) }
 
         data class ClientSort(val client: String, val start: LocalDateTime) : Comparable<ClientSort> {
             override fun compareTo(other: ClientSort): Int =
@@ -41,23 +41,23 @@ class TogglService(val webClient: TogglWebClient, val config: TogglConfiguration
         )
     }
 
-    fun tagBilled(clientId: Long, from: LocalDate, to: LocalDate) {
+    suspend fun tagBilled(clientId: Long, from: LocalDate, to: LocalDate) {
         tagRange(clientId, from, to, true)
     }
 
-    fun untagBilled(clientId: Long, from: LocalDate, to: LocalDate) {
+    suspend fun untagBilled(clientId: Long, from: LocalDate, to: LocalDate) {
         tagRange(clientId, from, to, false)
     }
 
-    fun tagBilled(entryId: Long) {
+    suspend fun tagBilled(entryId: Long) {
         webClient.tagId(listOf(entryId.toString()).joinToString(","), tagbody(true))
     }
 
-    fun untagBilled(entryId: Long) {
+    suspend fun untagBilled(entryId: Long) {
         webClient.tagId(listOf(entryId.toString()).joinToString(","), tagbody(false))
     }
 
-    private fun tagRange(clientId: Long, from: LocalDate, to: LocalDate, billed: Boolean) {
+    private suspend fun tagRange(clientId: Long, from: LocalDate, to: LocalDate, billed: Boolean) {
         val entriesMatched = entries(
                 clientId = clientId,
                 from = from,
@@ -67,7 +67,7 @@ class TogglService(val webClient: TogglWebClient, val config: TogglConfiguration
         val ids = entriesMatched.data.map { it.id.toString() }.sorted().chunked(50)
 
         val completeResult = ids.map { webClient.tagId(it.joinToString(","), tagbody(billed)) }
-        if (completeResult.any { it.code != 200 }) {
+        if (!completeResult.all { it.is2xxSuccessful }) {
             log.warn("Could not update the ids, got an error from the Toggl API")
         }
     }

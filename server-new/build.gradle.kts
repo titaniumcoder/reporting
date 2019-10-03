@@ -37,6 +37,11 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+
+    implementation("io.jsonwebtoken:jjwt-api:0.10.7")
+    runtime("io.jsonwebtoken:jjwt-impl:0.10.7")
+    runtime("io.jsonwebtoken:jjwt-jackson:0.10.7")
+
     implementation("org.apache.poi:poi-ooxml:4.1.0")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")

@@ -42,7 +42,7 @@ export class TogglReportingApi implements ITogglReportingApi {
             // do nothing
             return false;
         } else {
-            axios.defaults.headers['Authorization'] = 'Bearer ' + login.data.access_token;
+            axios.defaults.headers['Authorization'] = 'Bearer ' + login.data.token;
             return true;
         }
     }

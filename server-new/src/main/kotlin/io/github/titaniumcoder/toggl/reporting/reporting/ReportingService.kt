@@ -3,12 +3,12 @@ package io.github.titaniumcoder.toggl.reporting.reporting
 import io.github.titaniumcoder.toggl.reporting.toggl.TogglService
 import io.github.titaniumcoder.toggl.reporting.transformers.TransformerService
 import io.github.titaniumcoder.toggl.reporting.transformers.ViewModel
+import org.springframework.stereotype.Service
 import java.time.LocalDate
-import javax.inject.Singleton
 
 class ExcelSheet(val name: String, val date: LocalDate, val excel: ByteArray)
 
-@Singleton
+@Service
 class ReportingService(val service: TogglService, val transformer: TransformerService) {
     private fun generateExcel(name: String, model: ViewModel.ReportingModel): ByteArray {
         fun tableheader(cell: Cell) {
@@ -262,7 +262,7 @@ class ReportingService(val service: TogglService, val transformer: TransformerSe
     }
 
 
-    fun timesheet(clientId: Long, from: LocalDate, to: LocalDate): ExcelSheet {
+    suspend fun timesheet(clientId: Long, from: LocalDate, to: LocalDate): ExcelSheet {
         val originalEntries = service.entries(clientId, from, to)
 
         val entries =
@@ -276,7 +276,7 @@ class ReportingService(val service: TogglService, val transformer: TransformerSe
         return ExcelSheet(name, from, body)
     }
 
-    fun entries(clientId: Long, from: LocalDate?, to: LocalDate?): ViewModel.ReportingModel {
+    suspend fun entries(clientId: Long, from: LocalDate?, to: LocalDate?): ViewModel.ReportingModel {
         val definiteTo = to ?: (LocalDate.now().plusMonths(1).withDayOfMonth(1).minusDays(1))
         val definiteFrom = from ?: (definiteTo.withDayOfMonth(1))
 

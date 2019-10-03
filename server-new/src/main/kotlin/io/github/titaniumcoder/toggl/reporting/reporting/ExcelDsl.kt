@@ -7,10 +7,7 @@ import org.apache.poi.xssf.usermodel.XSSFCellStyle
 import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.ByteArrayOutputStream
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import java.time.*
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -157,6 +154,7 @@ val zurichZone = ZoneId.of("Europe/Zurich")
 fun toDate(t: LocalDateTime): Date = Date.from(t.atZone(zurichZone).toInstant())
 fun toDate(t: LocalDate): Date = Date.from(t.atStartOfDay(zurichZone).toInstant())
 fun toDate(t: ZonedDateTime): Date =Date.from(t.toInstant())
+fun toDate(t: OffsetDateTime): Date =Date.from(t.toInstant())
 
 class Cell(private val row: Int, private val col: Int) {
     internal var style: Style = Style()
@@ -226,6 +224,7 @@ class Cell(private val row: Int, private val col: Int) {
             is LocalDateTime -> c.setCellValue(toDate(currentContent))
             is LocalDate -> c.setCellValue(toDate(currentContent))
             is ZonedDateTime -> c.setCellValue(toDate(currentContent))
+            is OffsetDateTime -> c.setCellValue(toDate(currentContent))
             null -> c.setCellValue("")
             else -> throw UnsupportedOperationException("unknown value type $currentContent (${currentContent.javaClass}) for cell $row / $col")
         }
