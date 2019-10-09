@@ -1,6 +1,6 @@
 branch-defaults:
   master:
-    environment: null
+    environment: reporting
 deploy:
   artifact: server/build/libs/server.jar
 environment-defaults:
