@@ -1,1 +1,1 @@
-build: ./gradlew stage
+build: ./gradlew stage --no-daemon
