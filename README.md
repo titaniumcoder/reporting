@@ -13,7 +13,7 @@ if you find any problems, please open an issue on [github](https://github.com/ti
 #### Frontend
 The front-end is more a "sample" than a real-world application. It's one html page together with a javascript
 file, no workflow, no ci-cd, code-style quite bad (disadvantage of using plain javascript). It's more kind of a demonstration
-how to call the API than something that should be used like this. It uses Vue, has no UX and really nothing in direction
+how to call the API than something that should be used like this. It uses React, has no UX and really nothing in direction
 of tests. I normally would say **never do it like that** &smile;.
 
 ## Features
