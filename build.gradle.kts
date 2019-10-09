@@ -12,32 +12,45 @@ plugins {
     kotlin("plugin.spring") version "1.3.50" apply false
 }
 
-tasks.register<Copy>("copyClientResources"/* , dependsOn: ":client:build" */) {
-    group = "build"
-    description = "Copy client resources into server"
 
-    // from("${project(':client').buildDir}")
-    // into("${project(':server').buildDir}/resources/main/static")
+
+tasks {
+    val test by registering(Task::class) {
+
+    }
+
+    val check by registering(Task::class) {
+
+    }
+
+    val clean by registering(Task::class) {
+
+    }
+
+    val copyClientResources by registering(Copy::class) {
+        group = "build"
+        description = "Copy client resources into server"
+
+        from("${project(":client").buildDir}")
+        into("${project(":server").buildDir}/resources/main/static")
+
+        dependsOn(":client:build")
+    }
+
+
+    val assembleServerAndClient by registering(Task::class/* , dependsOn:["copyClientResources", ":server:assemble"] */) {
+        group = "build"
+        description = "Build combined server & client JAR"
+
+        dependsOn(copyClientResources, ":server:assemble")
+    }
+
+    val stage by registering {
+        dependsOn(assembleServerAndClient)
+    }
 }
 
-val assembleServerAndClient = tasks.register<Task>("assembleServerAndClient"/* , dependsOn:["copyClientResources", ":server:assemble"] */) {
-    group = "build"
-    description = "Build combined server & client JAR"
-}
-
-tasks.register<Task>("test") {
-
-}
-
-tasks.register<Task>("check") {
-
-}
-
-tasks.register<Task>("clean") {
-
-}
-
-tasks.register<Task>("stage")/* (dependsOn: ["assembleServerAndClient"]) */ {
+subprojects {
 }
 
 project(":client") {
@@ -51,28 +64,34 @@ project(":client") {
     }
 
     tasks {
+
+        val npmInstall by existing
+
         register<Task>("clean") {
             delete(project.buildDir)
         }
         register<NpmTask>("start") {
-            /* , dependsOn: 'npm_install'*  */
             group = "application"
             description = "Run the client app"
-            // args = listOf("run", "start")
+            setArgs(listOf("run", "start"))
+
+            dependsOn(npmInstall)
         }
 
         register<NpmTask>("build") {
-            /* , dependsOn: 'npm_install'*  */
             group = "build"
             description = "Build the client bundle"
-            // args = listOf("run", "build")
+            setArgs(listOf("run", "build"))
+
+            dependsOn(npmInstall)
         }
 
-        register<NpmTask>("test") {
-            /* , dependsOn: 'npm_install'*  */
+        val test by registering(NpmTask::class) {
             group = "verification"
             description = "Run the client tests"
-            // args = listOf("run", "test")
+            setArgs(listOf("run", "test"))
+
+            dependsOn(npmInstall)
         }
     }
 }

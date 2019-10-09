@@ -20,4 +20,5 @@ global:
   sc: git
   workspace_type: Application
 deploy:
-  artifact: server/build/libs/server
+  artifact: server/build/libs/server.jar
+

@@ -1,14 +1,13 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "2.2.0.M6"
-    id("io.spring.dependency-management") version "1.0.8.RELEASE"
-    kotlin("jvm") version "1.3.50"
-    kotlin("plugin.spring") version "1.3.50"
+    id("org.springframework.boot")
+    id("io.spring.dependency-management")
+    kotlin("jvm")
+    kotlin("plugin.spring")
 }
 
 group = "toggl.reporting.spring"
-version = "0.0.1"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 
@@ -68,6 +67,6 @@ tasks.withType<KotlinCompile> {
     }
 }
 
-tasks.withType<Jar> {
-    archiveName = "reporting"
+tasks.jar {
+    archiveName = "reporting.jar"
 }
