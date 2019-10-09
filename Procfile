@@ -1,1 +1,1 @@
-web: java -Duser.timezone=Europe/Zurich -jar server.jar --server-port=5000
+web: java -Duser.timezone=Europe/Zurich -jar server.jar --server.port=5000
