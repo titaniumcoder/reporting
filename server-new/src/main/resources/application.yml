@@ -6,7 +6,8 @@ application:
     password: test
 
 spring:
-  webflux.static-path-pattern: "/**"
+  webflux:
+    static-path-pattern: "/**"
   resources:
     static-locations:
       - classpath:static/**
