@@ -1,1 +1,1 @@
-build: gradle stage
+build: ./gradlew stage
