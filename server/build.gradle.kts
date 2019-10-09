@@ -11,6 +11,7 @@ group = "toggl.reporting.spring"
 version = "0.0.1"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
+
 val developmentOnly by configurations.creating
 configurations {
     runtimeClasspath {
@@ -65,4 +66,8 @@ tasks.withType<KotlinCompile> {
         freeCompilerArgs = listOf("-Xjsr305=strict")
         jvmTarget = "1.8"
     }
+}
+
+tasks.withType<Jar> {
+    archiveName = "reporting"
 }
