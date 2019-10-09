@@ -1,6 +1,5 @@
 # Toggl Reporting Sample App
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 [![Build Status](https://travis-ci.com/titaniumcoder/toggl-reporting.svg?branch=master)](https://travis-ci.com/titaniumcoder/toggl-reporting)
 [![codecov](https://codecov.io/gh/titaniumcoder/toggl-reporting/branch/master/graph/badge.svg)](https://codecov.io/gh/titaniumcoder/toggl-reporting)
 
@@ -21,9 +20,8 @@ of tests. I normally would say **never do it like that** &smile;.
 
 - [Kotlin](https://kotlinlang.org/) and there especially:
   - Custom Typesafe DSL for [Apache Poi](https://poi.apache.org/index.html) Excel Files. Find documentation on this
-    Kotlin Feature here: https://kotlinlang.org/docs/reference/type-safe-builders.html
+    Kotlin Feature here: [https://kotlinlang.org/docs/reference/type-safe-builders.html]()
   - [Coroutines](https://kotlinlang.org/docs/reference/coroutines-overview.html) for handling the fetching of the data via Toggl Api above.
-- Deployment to [Heroku](https://heroku.com) - one button deployment
 - CI/CD with [Travis](https://travis-ci.com) 
 
 ---
