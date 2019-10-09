@@ -1,5 +1,5 @@
 include("client")
-include("server-new")
+include("server")
 
 pluginManagement {
     repositories {

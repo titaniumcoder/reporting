@@ -3,10 +3,10 @@ task copyClientResources(type: Copy, dependsOn: ':client:build') {
     description = 'Copy client resources into server'
 
     from "${project(':client').buildDir}"
-    into "${project(':server-new').buildDir}/resources/main/static"
+    into "${project(':server').buildDir}/resources/main/static"
 }
 
-task assembleServerAndClient(dependsOn: ['copyClientResources', ':server-new:assemble']) {
+task assembleServerAndClient(dependsOn: ['copyClientResources', ':server:assemble']) {
     group = 'build'
     description = 'Build combined server & client JAR'
 }

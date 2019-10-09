@@ -55,6 +55,7 @@ class WebfluxSecurityConfiguration(
                 .authorizeExchange()
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/login").permitAll()
+                .pathMatchers(HttpMethod.POST, "/api/health").permitAll()
                 .pathMatchers("/api/**").authenticated()
                 .pathMatchers("/**").permitAll()
                 .and()
