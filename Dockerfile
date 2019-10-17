@@ -38,7 +38,7 @@ VOLUME $APP_HOME/config
 
 WORKDIR $APP_HOME
 
-COPY --from=builder /app/build/libs/*.jar toggl-reporting.jar
+COPY --from=builder /app/server/build/libs/*.jar toggl-reporting.jar
 
 ENTRYPOINT [ "sh", "-c", "echo $JAVA_OPTS; java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -Dspring.profiles.active=prod -jar /app/toggl-reporting.jar" ]
 CMD ''
