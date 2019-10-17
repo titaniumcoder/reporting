@@ -20,7 +20,7 @@ RUN gradle -Pprod clean bootJar -x test
 
 # base image (test whether it works with jre too)
 FROM azul/zulu-openjdk-alpine:11 as runtime
-EXPOSE 8080
+EXPOSE 5000
 
 RUN apk add fontconfig --no-progress -q
 
