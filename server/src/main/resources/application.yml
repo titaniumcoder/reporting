@@ -13,4 +13,4 @@ spring:
       - classpath:static/**
   jackson.serialization.write-dates-as-timestamps: false
 server:
-  port: 5000
+  port: 8080
