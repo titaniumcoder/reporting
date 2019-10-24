@@ -1,5 +1,6 @@
 package io.github.titaniumcoder.toggl.reporting.transformers
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import java.time.LocalDate
 import java.time.OffsetDateTime
 
@@ -17,9 +18,12 @@ object ViewModel {
 
     data class TimeEntry(
             val id: Long,
+            @JsonFormat(pattern = "yyyy-MM-dd", locale = "Europe/Zurich")
             val day: OffsetDateTime,
             val project: String?,
+            @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", locale = "Europe/Zurich")
             val startdate: OffsetDateTime,
+            @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", locale = "Europe/Zurich")
             val enddate: OffsetDateTime,
             val minutes: Int,
             val description: String?,
@@ -29,7 +33,9 @@ object ViewModel {
     data class ReportingModel(
             val client: String,
             val clientId: Long,
+            @JsonFormat(pattern = "yyyy-MM-dd", locale = "Europe/Zurich")
             val from: LocalDate,
+            @JsonFormat(pattern = "yyyy-MM-dd", locale = "Europe/Zurich")
             val to: LocalDate,
             val projects: List<Project>,
             val timeEntries: List<List<TimeEntry>>
