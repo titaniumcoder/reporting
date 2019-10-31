@@ -32,7 +32,7 @@ class ReportingController(val service: ReportingService) {
     ): ResponseEntity<ByteArray> {
         val sheet = service.timesheet(clientId, from, to)
 
-        val filename = "${sheet.name}-${sheet.date.format(DateTimeFormatter.ofPattern("MM-yyyy"))}.xlsx"
+        val filename = "${sheet.name.toUpperCase()}-${sheet.date.format(DateTimeFormatter.ofPattern("yyyy-MM"))}.xlsx"
 
         return ResponseEntity
                 .ok()
