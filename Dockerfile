@@ -20,9 +20,11 @@ RUN gradle assembleServerAndClient
 
 # base image (test whether it works with jre too)
 FROM azul/zulu-openjdk-alpine:11 as runtime
-EXPOSE 8080
+EXPOSE 5000
 
 ENV APP_HOME /app
+
+ENV API_TOKEN=""
 
 ENV JAVA_OPTS=""
 
@@ -37,5 +39,5 @@ WORKDIR $APP_HOME
 
 COPY --from=builder /app/server/build/libs/*.jar reporting.jar
 
-ENTRYPOINT [ "sh", "-c", "echo $JAVA_OPTS; java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -Dspring.profiles.active=prod -jar /app/reporting.jar" ]
+ENTRYPOINT [ "sh", "-c", "echo $JAVA_OPTS; java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -Dspring.profiles.active=prod -jar /app/reporting.jar --server.port=5000" ]
 CMD ''
