@@ -9,7 +9,7 @@ spec:
       paths:
       - backend:
           serviceName: reporting
-          servicePort: 8080
+          servicePort: 5000
   tls:
   - hosts:
     - reporting.titaniumcoder.com
