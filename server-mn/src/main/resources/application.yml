@@ -1,0 +1,24 @@
+micronaut:
+  application:
+    name: toggl-reporting
+  server:
+    cors:
+      enabled: true
+  router:
+    static-resources:
+      default:
+        enabled: true
+        mapping: "/**"
+        paths: "classpath:public"
+
+toggl:
+  apiToken: ${API_TOKEN}
+  workspaceId: 2131925
+  security:
+    username: test
+    password: test
+
+#spring:
+#  jackson.serialization.write-dates-as-timestamps: false
+#server:
+#  port: 8080

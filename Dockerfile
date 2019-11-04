@@ -20,7 +20,7 @@ RUN gradle assembleServerAndClient
 
 # base image (test whether it works with jre too)
 FROM azul/zulu-openjdk-alpine:11 as runtime
-EXPOSE 5000
+EXPOSE 8080
 
 ENV APP_HOME /app
 
@@ -31,7 +31,6 @@ RUN mkdir $APP_HOME
 
 WORKDIR $APP_HOME
 
-COPY --from=builder /app/server/build/libs/*.jar reporting.jar
+COPY --from=builder /app/server/build/libs/server-mn-*-all.jar reporting.jar
 
-ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -Dspring.profiles.active=prod -jar /app/reporting.jar --server.port=5000" ]
-CMD ''
+CMD java -Dcom.sun.management.jmxremote -noverify ${JAVA_OPTS} -jar reporting.jar

@@ -6,13 +6,14 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("com.moowork.node") version "1.3.1" apply false
 
-    id("org.springframework.boot") version "2.2.0.M6" apply false
-    id("io.spring.dependency-management") version "1.0.8.RELEASE" apply false
+//    id("org.springframework.boot") version "2.2.0.M6" apply false
+//    id("io.spring.dependency-management") version "1.0.8.RELEASE" apply false
     kotlin("jvm") version "1.3.50" apply false
-    kotlin("plugin.spring") version "1.3.50" apply false
+    kotlin("kapt") version "1.3.50" apply false
+    kotlin("plugin.allopen") version "1.3.50" apply false
+
+    id("com.github.johnrengelman.shadow") version "5.0.0" apply false
 }
-
-
 
 tasks {
     val test by registering(Task::class) {
@@ -32,7 +33,8 @@ tasks {
         description = "Copy client resources into server"
 
         from("${project(":client").buildDir}")
-        into("${project(":server").buildDir}/resources/main/static")
+        into("${project(":server-mn").buildDir}/resources/main/public")
+
 
         dependsOn(":client:build")
     }
@@ -42,7 +44,7 @@ tasks {
         group = "build"
         description = "Build combined server & client JAR"
 
-        dependsOn(copyClientResources, ":server:assemble")
+        dependsOn(copyClientResources, ":server-mn:assemble")
     }
 
     val stage by registering {
