@@ -13,4 +13,4 @@ spec:
   tls:
   - hosts:
     - reporting.titaniumcoder.com
-    secretName: titaniumcoder-tls
+    secretName: reporting-titaniumcoder-tls
