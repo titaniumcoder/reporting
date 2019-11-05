@@ -1,3 +1,9 @@
+buildscript {
+    dependencies {
+        classpath "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.4.21"
+    }
+}
+
 plugins {
     id "org.jetbrains.kotlin.jvm"
     id "org.jetbrains.kotlin.kapt"
@@ -7,6 +13,9 @@ plugins {
 }
 
 group "toggl.reporting.micronaut"
+
+// TODO refactor this to use the plugins above
+apply plugin: "com.gorylenko.gradle-git-properties"
 
 repositories {
     mavenCentral()
@@ -22,9 +31,12 @@ dependencies {
     implementation platform("io.micronaut:micronaut-bom:$micronautVersion")
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}"
     implementation "org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"
+
     implementation "io.micronaut:micronaut-runtime"
     implementation "io.micronaut:micronaut-http-server-netty"
     implementation "io.micronaut:micronaut-http-client"
+    implementation "io.micronaut:micronaut-management"
+
     implementation("org.apache.poi:poi-ooxml:4.1.0")
 
     kapt platform("io.micronaut:micronaut-bom:$micronautVersion")
@@ -40,7 +52,7 @@ dependencies {
     testImplementation platform("io.micronaut:micronaut-bom:$micronautVersion")
     testImplementation "io.micronaut.test:micronaut-test-kotlintest"
     testImplementation "io.mockk:mockk:1.9.3"
-    testImplementation "io.kotlintest:kotlintest-runner-junit5:3.3.2"
+    testImplementation "io.kotlintest:kotlintest-runner-junit5:3.4.2"
 }
 
 test.classpath += configurations.developmentOnly
@@ -48,7 +60,9 @@ test.classpath += configurations.developmentOnly
 mainClassName = "io.github.titaniumcoder.toggl.reporting.Application"
 
 test {
-    useJUnitPlatform()
+    useJUnitPlatform() /*  {
+        includeEngines 'spek2'
+    } */
 }
 
 allOpen {

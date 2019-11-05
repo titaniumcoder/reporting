@@ -1,6 +1,5 @@
 package io.github.titaniumcoder.toggl.reporting.reporting
 
-import io.micronaut.http.annotation.PathVariable
 import java.time.LocalDate
 
 //@RestController
@@ -9,7 +8,7 @@ class ReportingController(val service: ReportingService) {
     //    @GetMapping("/client/{clientId}")
 //    @Secured("isAuthenticated()")
     suspend fun entries(
-            @PathVariable clientId: Long,
+            /*@PathVariable */ clientId: Long,
             /* @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("from") */ from: LocalDate?,
             /* @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("to") */ to: LocalDate?
     ) =
@@ -21,7 +20,7 @@ class ReportingController(val service: ReportingService) {
 //    )
 //    @Secured("isAuthenticated()")
     suspend fun timesheet(
-            @PathVariable clientId: Long,
+            /* @PathVariable */ clientId: Long,
             /* @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("from") */ from: LocalDate,
             /* @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("to") */ to: LocalDate
     ): ByteArray = TODO()

@@ -37,7 +37,6 @@ class Excel {
         }
     }
 
-
     private fun calculateCellstyles(workbook: XSSFWorkbook, sheets: List<Sheet>): Map<Style, XSSFCellStyle> {
         val defaultFontSize = 12
 

@@ -1,6 +1,5 @@
 package io.github.titaniumcoder.toggl.reporting.toggl
 
-import io.micronaut.http.annotation.PathVariable
 import java.time.LocalDate
 
 //@RestController
@@ -13,7 +12,7 @@ class TogglController(val service: TogglService) {
     //    @PutMapping("/client/{clientId}/billed")
 //    @Secured("isAuthenticated()")
     suspend fun tagBilled(
-            @PathVariable clientId: Long,
+            /* @PathVariable */ clientId: Long,
             /* @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("from") */ from: LocalDate,
             /* @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("to") */ to: LocalDate
     ) =
@@ -22,7 +21,7 @@ class TogglController(val service: TogglService) {
     //    @DeleteMapping("/client/{clientId}/billed")
 //    @Secured("isAuthenticated()")
     suspend fun untagBilled(
-            @PathVariable clientId: Long,
+            /* @PathVariable */ clientId: Long,
             /* @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("from") */ from: LocalDate,
             /* @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("to") */ to: LocalDate
     ) =
@@ -30,11 +29,11 @@ class TogglController(val service: TogglService) {
 
     //    @PutMapping("/tag/{entry}")
 //    @Secured("isAuthenticated()")
-    suspend fun tagEntry(@PathVariable entry: Long) =
+    suspend fun tagEntry(/* @PathVariable */ entry: Long) =
             service.tagBilled(entry)
 
     //    @DeleteMapping("/tag/{entry}")
 //    @Secured("isAuthenticated()")
-    suspend fun untagEntry(@PathVariable entry: Long) =
+    suspend fun untagEntry(/* @PathVariable */ entry: Long) =
             service.untagBilled(entry)
 }

@@ -10,6 +10,10 @@ micronaut:
         enabled: true
         mapping: "/**"
         paths: "classpath:public"
+endpoints:
+  info:
+    enabled: true
+    sensitive: false
 
 toggl:
   apiToken: ${API_TOKEN}
