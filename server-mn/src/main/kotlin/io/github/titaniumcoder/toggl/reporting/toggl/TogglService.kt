@@ -4,9 +4,10 @@ import io.github.titaniumcoder.toggl.reporting.toggl.TagCreator.tagbody
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
+import javax.inject.Singleton
 import kotlin.math.ceil
 
-//@Service
+@Singleton
 class TogglService(val webClient: TogglWebClient) {
     private val log = LoggerFactory.getLogger(TogglService::class.java)
 

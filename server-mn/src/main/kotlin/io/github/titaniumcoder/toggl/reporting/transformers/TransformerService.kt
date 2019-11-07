@@ -4,8 +4,9 @@ import io.github.titaniumcoder.toggl.reporting.toggl.TogglModel
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
+import javax.inject.Singleton
 
-//@Service // TODO right?
+@Singleton
 class TransformerService {
     fun cash(summary: TogglModel.TogglSummary): List<ViewModel.Cashout> =
             summary.data.map { x ->

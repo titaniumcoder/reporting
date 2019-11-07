@@ -1,41 +1,43 @@
 package io.github.titaniumcoder.toggl.reporting
 
-import io.kotlintest.shouldBe
-import io.kotlintest.specs.WordSpec
 import io.micronaut.context.ApplicationContext
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.HttpClient
 import io.micronaut.runtime.server.EmbeddedServer
+import org.spekframework.spek2.Spek
+import org.spekframework.spek2.style.specification.describe
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
-object InfoTest : WordSpec() {
-    init {
-        "info endpoint" should {
-            "make git commit info appear in json" {
-                val embeddedServer: EmbeddedServer = autoClose(ApplicationContext.run(EmbeddedServer::class.java))
-                val client: HttpClient = autoClose(HttpClient.create(embeddedServer.url))
+object InfoTest : Spek({
+    describe("info endpoint") {
+        val embeddedServer: EmbeddedServer = ApplicationContext.run(EmbeddedServer::class.java)
+        val client: HttpClient = HttpClient.create(embeddedServer.url)
 
-                val request: HttpRequest<Any> = HttpRequest.GET("/info")
-                val rsp = client.toBlocking().exchange(request, Map::class.java)
+        it("make git commit info appear in json") {
 
-                rsp.status().shouldBe(HttpStatus.OK)
+            val request: HttpRequest<Any> = HttpRequest.GET("/info")
+            val rsp = client.toBlocking().exchange(request, Map::class.java)
 
-                /*
+            assertEquals(HttpStatus.OK, rsp.status)
 
-                val json: Map<String, Any> = rsp.body() as Map<String, Any>
+            val json: Map<String, Any> = rsp.body() as Map<String, Any>
 
-                json["git"].shouldNotBeNull()
+            assertNotNull(json["git"])
 
-                val mapCommit = (json["git"] as Map<String, Any>)["commit"] as Map<String, Any>
-                mapCommit.shouldNotBeNull()
-                mapCommit["message"].shouldNotBeNull()
-                mapCommit["time"].shouldNotBeNull()
-                mapCommit["id"].shouldNotBeNull()
-                mapCommit["user"].shouldNotBeNull()
-                (json["git"] as Map<String, Any>)["branch"].shouldNotBeNull()
+            val mapCommit = (json["git"] as Map<String, Any>)["commit"] as Map<String, Any>
+            assertNotNull(mapCommit)
+            assertNotNull(mapCommit["message"])
+            assertNotNull(mapCommit["time"])
+            assertNotNull(mapCommit["id"])
+            assertNotNull(mapCommit["user"])
+            assertNotNull((json["git"] as Map<String, Any>)["branch"])
+        }
 
-                 */
-            }
+        afterGroup {
+            client.close()
+            embeddedServer.close()
         }
     }
-}
+})

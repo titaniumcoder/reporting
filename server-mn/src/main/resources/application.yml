@@ -1,15 +1,56 @@
 micronaut:
   application:
     name: toggl-reporting
+
   server:
     cors:
       enabled: true
+
   router:
     static-resources:
       default:
         enabled: true
         mapping: "/**"
         paths: "classpath:public"
+
+  security:
+    enabled: true
+    intercept-url-map:
+#      -
+#        pattern: /api/login
+#        http-method: POST
+#        access:
+#          - isAnonymous()
+      -
+        pattern: /api/*
+        access:
+          - isAuthenticated()
+      -
+        pattern: /*
+        http-method: GET
+        access:
+          - isAnonymous()
+    endpoints:
+      login:
+        enabled: true
+        path: "/api/login"
+      oauth:
+        enabled: true
+    token:
+      basic-auth:
+        enabled: false
+      jwt:
+        enabled: true
+        signature:
+          secret:
+            generator:
+              secret: justSomeThingForLater
+
+  io:
+    watch:
+      paths: src/main
+      restart: true
+
 endpoints:
   info:
     enabled: true
@@ -18,11 +59,8 @@ endpoints:
 toggl:
   apiToken: ${API_TOKEN}
   workspaceId: 2131925
-  security:
-    username: test
-    password: test
+  username: test
+  password: test
 
 #spring:
 #  jackson.serialization.write-dates-as-timestamps: false
-#server:
-#  port: 8080

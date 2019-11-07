@@ -4,10 +4,11 @@ import io.github.titaniumcoder.toggl.reporting.toggl.TogglService
 import io.github.titaniumcoder.toggl.reporting.transformers.TransformerService
 import io.github.titaniumcoder.toggl.reporting.transformers.ViewModel
 import java.time.LocalDate
+import javax.inject.Singleton
 
 class ExcelSheet(val name: String, val date: LocalDate, val excel: ByteArray)
 
-//@Service
+@Singleton
 class ReportingService(private val service: TogglService, private val transformer: TransformerService) {
     private fun generateExcel(name: String, model: ViewModel.ReportingModel): ByteArray {
         fun tableheader(cell: Cell) {

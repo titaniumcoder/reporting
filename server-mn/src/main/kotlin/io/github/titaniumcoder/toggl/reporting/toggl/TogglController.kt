@@ -1,39 +1,40 @@
 package io.github.titaniumcoder.toggl.reporting.toggl
 
+import io.micronaut.http.annotation.*
+import io.micronaut.security.annotation.Secured
 import java.time.LocalDate
 
-//@RestController
-//@RequestMapping("/api")
+@Controller("/api")
 class TogglController(val service: TogglService) {
-    //    @GetMapping("/clients")
-//    @Secured("isAuthenticated()")
+    @Secured("isAuthenticated()")
+    @Get("/clients")
     suspend fun clients() = service.clients()
 
-    //    @PutMapping("/client/{clientId}/billed")
-//    @Secured("isAuthenticated()")
+    @Secured("isAuthenticated()")
+    @Put("/client/{clientId}/billed")
     suspend fun tagBilled(
-            /* @PathVariable */ clientId: Long,
+            @PathVariable("clientId") clientId: Long,
             /* @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("from") */ from: LocalDate,
             /* @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("to") */ to: LocalDate
     ) =
             service.tagBilled(clientId, from, to)
 
-    //    @DeleteMapping("/client/{clientId}/billed")
-//    @Secured("isAuthenticated()")
+    @Secured("isAuthenticated()")
+    @Delete("/client/{clientId}/billed")
     suspend fun untagBilled(
-            /* @PathVariable */ clientId: Long,
+            @PathVariable("clientId") clientId: Long,
             /* @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("from") */ from: LocalDate,
             /* @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("to") */ to: LocalDate
     ) =
             service.untagBilled(clientId, from, to)
 
-    //    @PutMapping("/tag/{entry}")
-//    @Secured("isAuthenticated()")
-    suspend fun tagEntry(/* @PathVariable */ entry: Long) =
+    @Secured("isAuthenticated()")
+    @Put("/tag/{entry}")
+    suspend fun tagEntry(@PathVariable("entry") entry: Long) =
             service.tagBilled(entry)
 
-    //    @DeleteMapping("/tag/{entry}")
-//    @Secured("isAuthenticated()")
-    suspend fun untagEntry(/* @PathVariable */ entry: Long) =
+    @Secured("isAuthenticated()")
+    @Delete("/tag/{entry}")
+    suspend fun untagEntry(@PathVariable("entry") entry: Long) =
             service.untagBilled(entry)
 }

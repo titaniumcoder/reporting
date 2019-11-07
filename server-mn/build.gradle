@@ -36,12 +36,14 @@ dependencies {
     implementation "io.micronaut:micronaut-http-server-netty"
     implementation "io.micronaut:micronaut-http-client"
     implementation "io.micronaut:micronaut-management"
+    implementation "io.micronaut:micronaut-security-jwt"
 
     implementation("org.apache.poi:poi-ooxml:4.1.0")
 
     kapt platform("io.micronaut:micronaut-bom:$micronautVersion")
     kapt "io.micronaut:micronaut-inject-java"
     kapt "io.micronaut:micronaut-validation"
+    kapt "io.micronaut:micronaut-security"
 
     kaptTest platform("io.micronaut:micronaut-bom:$micronautVersion")
     kaptTest "io.micronaut:micronaut-inject-java"
@@ -50,9 +52,19 @@ dependencies {
     runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
 
     testImplementation platform("io.micronaut:micronaut-bom:$micronautVersion")
-    testImplementation "io.micronaut.test:micronaut-test-kotlintest"
     testImplementation "io.mockk:mockk:1.9.3"
-    testImplementation "io.kotlintest:kotlintest-runner-junit5:3.4.2"
+
+    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
+    testImplementation "org.spekframework.spek2:spek-dsl-jvm:$spekVersion"
+    testRuntimeOnly "org.spekframework.spek2:spek-runner-junit5:$spekVersion"
+    testRuntimeOnly "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+
+    // Fast Restarts on Mac
+    developmentOnly "io.micronaut:micronaut-runtime-osx:$micronautVersion"
+
+    // TODO shouldn't that be in the micronaut platform?
+    developmentOnly "net.java.dev.jna:jna:5.5.0"
+    developmentOnly "io.methvin:directory-watcher:0.9.6"
 }
 
 test.classpath += configurations.developmentOnly
@@ -60,9 +72,9 @@ test.classpath += configurations.developmentOnly
 mainClassName = "io.github.titaniumcoder.toggl.reporting.Application"
 
 test {
-    useJUnitPlatform() /*  {
+    useJUnitPlatform()  {
         includeEngines 'spek2'
-    } */
+    }
 }
 
 allOpen {
