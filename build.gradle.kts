@@ -1,13 +1,10 @@
 import com.moowork.gradle.node.NodeExtension
 import com.moowork.gradle.node.NodePlugin
 import com.moowork.gradle.node.npm.NpmTask
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("com.moowork.node") version "1.3.1" apply false
 
-//    id("org.springframework.boot") version "2.2.0.M6" apply false
-//    id("io.spring.dependency-management") version "1.0.8.RELEASE" apply false
     kotlin("jvm") version "1.3.50" apply false
     kotlin("kapt") version "1.3.50" apply false
     kotlin("plugin.allopen") version "1.3.50" apply false

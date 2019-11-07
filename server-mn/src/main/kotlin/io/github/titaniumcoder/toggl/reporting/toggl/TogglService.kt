@@ -8,17 +8,17 @@ import javax.inject.Singleton
 import kotlin.math.ceil
 
 @Singleton
-class TogglService(val webClient: TogglWebClient) {
+class TogglService(private val webClient: TogglWebClient) {
     private val log = LoggerFactory.getLogger(TogglService::class.java)
 
-    suspend fun clients(): List<TogglModel.Client> = webClient.clients()
+    fun clients(): List<TogglModel.Client> = webClient.clients()
 
-    suspend fun summary(from: LocalDate, to: LocalDate): TogglModel.TogglSummary {
+    fun summary(from: LocalDate, to: LocalDate): TogglModel.TogglSummary {
         val summary = webClient.summary(from, to)
         return summary.copy(data = summary.data.filter { it.time > 0 })
     }
 
-    suspend fun entries(clientId: Long, from: LocalDate, to: LocalDate): TogglModel.TogglReporting {
+    fun entries(clientId: Long, from: LocalDate, to: LocalDate): TogglModel.TogglReporting {
         val firstPage = webClient.entries(clientId, from, to, 1)
         val range = 2.rangeTo(
                 ceil(firstPage.totalCount.toDouble() / firstPage.perPage).toInt()
@@ -41,23 +41,23 @@ class TogglService(val webClient: TogglWebClient) {
         )
     }
 
-    suspend fun tagBilled(clientId: Long, from: LocalDate, to: LocalDate) {
+    fun tagBilled(clientId: Long, from: LocalDate, to: LocalDate) {
         tagRange(clientId, from, to, true)
     }
 
-    suspend fun untagBilled(clientId: Long, from: LocalDate, to: LocalDate) {
+    fun untagBilled(clientId: Long, from: LocalDate, to: LocalDate) {
         tagRange(clientId, from, to, false)
     }
 
-    suspend fun tagBilled(entryId: Long) {
+    fun tagBilled(entryId: Long) {
         webClient.tagId(listOf(entryId.toString()).joinToString(","), tagbody(true))
     }
 
-    suspend fun untagBilled(entryId: Long) {
+    fun untagBilled(entryId: Long) {
         webClient.tagId(listOf(entryId.toString()).joinToString(","), tagbody(false))
     }
 
-    private suspend fun tagRange(clientId: Long, from: LocalDate, to: LocalDate, billed: Boolean) {
+    private fun tagRange(clientId: Long, from: LocalDate, to: LocalDate, billed: Boolean) {
         val entriesMatched = entries(
                 clientId = clientId,
                 from = from,

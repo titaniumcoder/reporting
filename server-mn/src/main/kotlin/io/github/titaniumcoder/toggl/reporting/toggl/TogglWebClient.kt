@@ -25,14 +25,14 @@ class TogglWebClient(configuration: TogglConfiguration) {
 //            .defaultHeaders { it.setBasicAuth(configuration.apiToken, "api_token") }
 //            .build()
 
-    suspend fun clients(): List<TogglModel.Client> = TODO()
+    fun clients(): List<TogglModel.Client> = TODO()
 //            client
 //                    .get()
 //                    .uri("https://www.toggl.com/api/v8/clients")
 //                    .awaitExchange()
 //                    .awaitBody()
 
-    suspend fun summary(from: LocalDate, to: LocalDate): TogglModel.TogglSummary = TODO()
+    fun summary(from: LocalDate, to: LocalDate): TogglModel.TogglSummary = TODO()
 //            client
 //                    .get()
 //                    .uri("https://toggl.com/reports/api/v2/summary?user_agent={userAgent}&since={since}&until={until}&tag_ids=0&grouping=clients&subgrouping=projects&subgrouping_ids=false&workspace_id={workspaceId}",
@@ -43,7 +43,7 @@ class TogglWebClient(configuration: TogglConfiguration) {
 //                    .awaitExchange()
 //                    .awaitBody()
 
-    suspend fun entries(clientId: Long, from: LocalDate, to: LocalDate, pageNo: Int): TogglModel.TogglReporting = TODO()
+    fun entries(clientId: Long, from: LocalDate, to: LocalDate, pageNo: Int): TogglModel.TogglReporting = TODO()
 //            client
 //                    .get()
 //                    .uri("https://toggl.com/reports/api/v2/details?user_agent={userAgent}&since={since}&until={until}&workspace_id={workspaceId}&client_ids={clientIds}&display_hours=minutes&page={page}",
@@ -58,7 +58,7 @@ class TogglWebClient(configuration: TogglConfiguration) {
 //                    .awaitBody()
 
     // @Put()
-    suspend fun tagId(/* @PathVariable("ids") */ ids: String, body: ObjectNode): HttpStatus = TODO()
+    fun tagId(/* @PathVariable("ids") */ ids: String, body: ObjectNode): HttpStatus = TODO()
 //            client
 //                    .put()
 //                    .uri("https://www.toggl.com/api/v8/time_entries/{ids}",

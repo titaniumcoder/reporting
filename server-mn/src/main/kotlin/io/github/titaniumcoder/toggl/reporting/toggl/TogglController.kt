@@ -8,33 +8,33 @@ import java.time.LocalDate
 class TogglController(val service: TogglService) {
     @Secured("isAuthenticated()")
     @Get("/clients")
-    suspend fun clients() = service.clients()
+    fun clients() = service.clients()
 
     @Secured("isAuthenticated()")
     @Put("/client/{clientId}/billed")
-    suspend fun tagBilled(
+    fun tagBilled(
             @PathVariable("clientId") clientId: Long,
-            /* @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("from") */ from: LocalDate,
-            /* @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("to") */ to: LocalDate
+            @QueryValue("from") from: LocalDate,
+            @QueryValue("from") to: LocalDate
     ) =
             service.tagBilled(clientId, from, to)
 
     @Secured("isAuthenticated()")
     @Delete("/client/{clientId}/billed")
-    suspend fun untagBilled(
+    fun untagBilled(
             @PathVariable("clientId") clientId: Long,
-            /* @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("from") */ from: LocalDate,
-            /* @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("to") */ to: LocalDate
+            @QueryValue("from") from: LocalDate,
+            @QueryValue("from") to: LocalDate
     ) =
             service.untagBilled(clientId, from, to)
 
     @Secured("isAuthenticated()")
     @Put("/tag/{entry}")
-    suspend fun tagEntry(@PathVariable("entry") entry: Long) =
+    fun tagEntry(@PathVariable("entry") entry: Long) =
             service.tagBilled(entry)
 
     @Secured("isAuthenticated()")
     @Delete("/tag/{entry}")
-    suspend fun untagEntry(@PathVariable("entry") entry: Long) =
+    fun untagEntry(@PathVariable("entry") entry: Long) =
             service.untagBilled(entry)
 }

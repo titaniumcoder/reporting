@@ -1,9 +1,11 @@
 package io.github.titaniumcoder.toggl.reporting.reporting
 
 import io.micronaut.http.HttpHeaders
+import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.PathVariable
+import io.micronaut.http.annotation.QueryValue
 import io.micronaut.security.annotation.Secured
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -12,30 +14,26 @@ import java.time.format.DateTimeFormatter
 class ReportingController(val service: ReportingService) {
     @Secured("isAuthenticated()")
     @Get("/client/{clientId}")
-    suspend fun entries(
+    fun entries(
             @PathVariable("clientId") clientId: Long,
-            /* @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("from") */ from: LocalDate?,
-            /* @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("to") */ to: LocalDate?
+            @QueryValue("from") from: LocalDate?,
+            @QueryValue("to") to: LocalDate?
     ) =
             service.entries(clientId, from, to)
 
     @Secured("isAuthenticated()")
     @Get("/timesheet/{clientId}", produces = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"])
-    suspend fun timesheet(
+    fun timesheet(
             @PathVariable("clientId") clientId: Long,
-            /* @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("from") */ from: LocalDate,
-            /* @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("to") */ to: LocalDate
-    ): ByteArray {
+            @QueryValue("from") from: LocalDate,
+            @QueryValue("to") to: LocalDate
+    ): HttpResponse<ByteArray> {
         val sheet = service.timesheet(clientId, from, to)
 
         val filename = "${sheet.name.toUpperCase()}-${sheet.date.format(DateTimeFormatter.ofPattern("yyyy-MM"))}.xlsx"
 
-        TODO()
-        /*
-            return ResponseEntity
-                    .ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"$filename\"")
-                    .body(sheet.excel)
-         */
+        return HttpResponse
+                .ok(sheet.excel)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"$filename\"")
     }
 }

@@ -262,7 +262,7 @@ class ReportingService(private val service: TogglService, private val transforme
     }
 
 
-    suspend fun timesheet(clientId: Long, from: LocalDate, to: LocalDate): ExcelSheet {
+    fun timesheet(clientId: Long, from: LocalDate, to: LocalDate): ExcelSheet {
         val originalEntries = service.entries(clientId, from, to)
 
         val entries =
@@ -276,7 +276,7 @@ class ReportingService(private val service: TogglService, private val transforme
         return ExcelSheet(name, from, body)
     }
 
-    suspend fun entries(clientId: Long, from: LocalDate?, to: LocalDate?): ViewModel.ReportingModel {
+    fun entries(clientId: Long, from: LocalDate?, to: LocalDate?): ViewModel.ReportingModel {
         val definiteTo = to ?: (LocalDate.now().plusMonths(1).withDayOfMonth(1).minusDays(1))
         val definiteFrom = from ?: (definiteTo.withDayOfMonth(1))
 

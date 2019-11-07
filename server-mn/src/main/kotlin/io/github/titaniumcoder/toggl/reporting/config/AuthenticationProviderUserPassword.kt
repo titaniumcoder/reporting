@@ -7,7 +7,6 @@ import javax.inject.Singleton
 
 @Singleton
 class AuthenticationProviderUserPassword(private val configuration: TogglConfiguration) : AuthenticationProvider {
-
     override fun authenticate(authenticationRequest: AuthenticationRequest<*, *>?): Publisher<AuthenticationResponse> {
         if (authenticationRequest != null && authenticationRequest.identity != null && authenticationRequest.secret != null) {
             if (authenticationRequest.identity == configuration.username && authenticationRequest.secret == configuration.password) {
