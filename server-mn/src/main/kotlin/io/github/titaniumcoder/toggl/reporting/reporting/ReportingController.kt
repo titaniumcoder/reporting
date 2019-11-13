@@ -1,5 +1,6 @@
 package io.github.titaniumcoder.toggl.reporting.reporting
 
+import io.micronaut.core.convert.format.Format
 import io.micronaut.http.HttpHeaders
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Controller
@@ -16,8 +17,8 @@ class ReportingController(val service: ReportingService) {
     @Get("/client/{clientId}")
     fun entries(
             @PathVariable("clientId") clientId: Long,
-            @QueryValue("from") from: LocalDate?,
-            @QueryValue("to") to: LocalDate?
+            @QueryValue("from") @Format("yyyy-MM-dd") from: LocalDate?,
+            @QueryValue("to") @Format("yyyy-MM-dd") to: LocalDate?
     ) =
             service.entries(clientId, from, to)
 
@@ -25,8 +26,8 @@ class ReportingController(val service: ReportingService) {
     @Get("/timesheet/{clientId}", produces = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"])
     fun timesheet(
             @PathVariable("clientId") clientId: Long,
-            @QueryValue("from") from: LocalDate,
-            @QueryValue("to") to: LocalDate
+            @QueryValue("from") @Format("yyyy-MM-dd") from: LocalDate,
+            @QueryValue("to") @Format("yyyy-MM-dd") to: LocalDate
     ): HttpResponse<ByteArray> {
         val sheet = service.timesheet(clientId, from, to)
 

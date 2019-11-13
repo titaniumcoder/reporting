@@ -1,5 +1,6 @@
 package io.github.titaniumcoder.toggl.reporting.toggl
 
+import io.micronaut.core.convert.format.Format
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import java.time.LocalDate
@@ -14,8 +15,8 @@ class TogglController(val service: TogglService) {
     @Put("/client/{clientId}/billed")
     fun tagBilled(
             @PathVariable("clientId") clientId: Long,
-            @QueryValue("from") from: LocalDate,
-            @QueryValue("from") to: LocalDate
+            @QueryValue("from") @Format("yyyy-MM-dd") from: LocalDate,
+            @QueryValue("to") @Format("yyyy-MM-dd") to: LocalDate
     ) =
             service.tagBilled(clientId, from, to)
 
@@ -23,8 +24,8 @@ class TogglController(val service: TogglService) {
     @Delete("/client/{clientId}/billed")
     fun untagBilled(
             @PathVariable("clientId") clientId: Long,
-            @QueryValue("from") from: LocalDate,
-            @QueryValue("from") to: LocalDate
+            @QueryValue("from") @Format("yyyy-MM-dd") from: LocalDate,
+            @QueryValue("to") @Format("yyyy-MM-dd") to: LocalDate
     ) =
             service.untagBilled(clientId, from, to)
 

@@ -3,72 +3,52 @@ package io.github.titaniumcoder.toggl.reporting.toggl
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import io.github.titaniumcoder.toggl.reporting.config.TogglConfiguration
-import io.micronaut.http.HttpStatus
+import io.github.titaniumcoder.toggl.reporting.toggl.TogglWebClient.Companion.userAgent
+import io.micronaut.core.convert.format.Format
+import io.micronaut.http.*
+import io.micronaut.http.annotation.Body
+import io.micronaut.http.annotation.Filter
+import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.Put
+import io.micronaut.http.client.annotation.Client
+import io.micronaut.http.filter.ClientFilterChain
+import io.micronaut.http.filter.HttpClientFilter
+import org.reactivestreams.Publisher
 import java.time.LocalDate
 
-//@Service
-class TogglWebClient(configuration: TogglConfiguration) {
+@Filter()
+class TogglWebFilter(val configuration: TogglConfiguration) : HttpClientFilter {
+
+    override fun doFilter(request: MutableHttpRequest<*>, chain: ClientFilterChain): Publisher<out HttpResponse<*>> {
+        return chain.proceed(
+                request
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.USER_AGENT, userAgent)
+                        .basicAuth(configuration.apiToken, "api_token")
+        )
+    }
+}
+
+@Client("https://www.toggl.com")
+interface TogglWebClient {
+    // TODO is there a better way for the workspace id?
+    @Get("/api/v8/clients")
+    fun clients(): List<TogglModel.Client>
+
+    @Get("https://toggl.com/reports/api/v2/summary?user_agent=${userAgent}&since={since}&until={until}&tag_ids=0&grouping=clients&subgrouping=projects&subgrouping_ids=false&workspace_id={workspaceId}")
+    fun summary(@Format("yyyy-MM-dd") since: LocalDate, @Format("yyyy-MM-dd") until: LocalDate, workspaceId: Long): TogglModel.TogglSummary
+
+    @Get("https://toggl.com/reports/api/v2/details?user_agent=${userAgent}&since={since}&until={until}&workspace_id={workspaceId}&client_ids={clientId}&display_hours=minutes&page={pageNo}")
+    fun entries(clientId: Long, @Format("yyyy-MM-dd") since: LocalDate, @Format("yyyy-MM-dd") until: LocalDate, pageNo: Int, workspaceId: Long): TogglModel.TogglReporting
+//                                    "since" to from.format(DateTimeFormatter.ISO_DATE),
+//                                    "until" to to.format(DateTimeFormatter.ISO_DATE),
+
+    @Put("/api/v8/time_entries/{ids}")
+    fun tagId(ids: String, @Body body: ObjectNode): HttpStatus
+
     companion object {
         const val userAgent = "https://github.com/titaniumcoder/toggl-reporting"
     }
-
-//    val client = WebClient
-//            .builder()
-//            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-//            .defaultHeader(HttpHeaders.USER_AGENT, userAgent)
-//            .defaultUriVariables(
-//                    mapOf(
-//                            "userAgent" to userAgent,
-//                            "workspaceId" to configuration.workspaceId
-//                    )
-//            )
-//            .defaultHeaders { it.setBasicAuth(configuration.apiToken, "api_token") }
-//            .build()
-
-    fun clients(): List<TogglModel.Client> = TODO()
-//            client
-//                    .get()
-//                    .uri("https://www.toggl.com/api/v8/clients")
-//                    .awaitExchange()
-//                    .awaitBody()
-
-    fun summary(from: LocalDate, to: LocalDate): TogglModel.TogglSummary = TODO()
-//            client
-//                    .get()
-//                    .uri("https://toggl.com/reports/api/v2/summary?user_agent={userAgent}&since={since}&until={until}&tag_ids=0&grouping=clients&subgrouping=projects&subgrouping_ids=false&workspace_id={workspaceId}",
-//                            mapOf(
-//                                    "since" to from.format(DateTimeFormatter.ISO_DATE),
-//                                    "until" to to.format(DateTimeFormatter.ISO_DATE)
-//                            ))
-//                    .awaitExchange()
-//                    .awaitBody()
-
-    fun entries(clientId: Long, from: LocalDate, to: LocalDate, pageNo: Int): TogglModel.TogglReporting = TODO()
-//            client
-//                    .get()
-//                    .uri("https://toggl.com/reports/api/v2/details?user_agent={userAgent}&since={since}&until={until}&workspace_id={workspaceId}&client_ids={clientIds}&display_hours=minutes&page={page}",
-//                            mapOf(
-//                                    "since" to from.format(DateTimeFormatter.ISO_DATE),
-//                                    "until" to to.format(DateTimeFormatter.ISO_DATE),
-//                                    "clientIds" to clientId,
-//                                    "page" to pageNo
-//                            )
-//                    )
-//                    .awaitExchange()
-//                    .awaitBody()
-
-    // @Put()
-    fun tagId(/* @PathVariable("ids") */ ids: String, body: ObjectNode): HttpStatus = TODO()
-//            client
-//                    .put()
-//                    .uri("https://www.toggl.com/api/v8/time_entries/{ids}",
-//                            mapOf(
-//                                    "ids" to ids
-//                            )
-//                    )
-//                    .bodyValue(body)
-//                    .awaitExchange()
-//                    .statusCode()
 }
 
 object TagCreator {
@@ -79,12 +59,12 @@ object TagCreator {
             tags.add("billed")
         }
 
-        val te = om.createObjectNode()
-        te.set("tags", tags)
+        val entry = om.createObjectNode()
+        entry.set("tags", tags)
 
-        val on = om.createObjectNode()
-        on.set("time_entry", te)
+        val tagging = om.createObjectNode()
+        tagging.set("time_entry", entry)
 
-        return on
+        return tagging
     }
 }

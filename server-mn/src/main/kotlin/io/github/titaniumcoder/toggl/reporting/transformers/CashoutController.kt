@@ -1,6 +1,7 @@
 package io.github.titaniumcoder.toggl.reporting.transformers
 
 import io.github.titaniumcoder.toggl.reporting.toggl.TogglService
+import io.micronaut.core.convert.format.Format
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.QueryValue
@@ -12,8 +13,8 @@ class CashoutController(private val service: TogglService, private val transform
     @Secured("isAuthenticated()")
     @Get("/cash")
     fun cash(
-            @QueryValue("from") from: LocalDate?,
-            @QueryValue("to") to: LocalDate?
+            @QueryValue("from") @Format("yyyy-MM-dd") from: LocalDate?,
+            @QueryValue("to") @Format("yyyy-MM-dd") to: LocalDate?
     ): List<ViewModel.Cashout> {
         val finalFrom = from ?: LocalDate.now().minusMonths(3).withDayOfMonth(1)
         val finalTo = to ?: LocalDate.now().plusMonths(1).withDayOfMonth(1).minusDays(1)
