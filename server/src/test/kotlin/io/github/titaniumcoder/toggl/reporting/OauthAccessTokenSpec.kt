@@ -24,8 +24,8 @@ class OauthAccessTokenSpec : WordSpec() {
             val client: RxHttpClient = autoClose(RxHttpClient.create(embeddedServer.url))
 
             "you can refresh JWT access token with /oauth/access_token endpoint" {
-                val creds = UsernamePasswordCredentials("sherlock", "password")
-                val request = HttpRequest.POST("/login", creds)
+                val creds = UsernamePasswordCredentials("test", "test")
+                val request = HttpRequest.POST("/api/login", creds)
 
                 val rsp: HttpResponse<BearerAccessRefreshToken> = client.toBlocking().exchange(request,
                         BearerAccessRefreshToken::class.java)

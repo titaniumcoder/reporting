@@ -11,7 +11,7 @@ import io.micronaut.runtime.server.EmbeddedServer
 import io.micronaut.test.annotation.MicronautTest
 
 @MicronautTest
-object InfoTest : WordSpec() {
+object InfoTestSpec : WordSpec() {
     init {
         "info endpoint".should {
             val embeddedServer: EmbeddedServer = autoClose(ApplicationContext.run(EmbeddedServer::class.java))

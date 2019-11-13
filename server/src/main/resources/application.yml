@@ -20,6 +20,10 @@ micronaut:
         pattern: /api/*
         access:
           - isAuthenticated()
+      -
+        pattern: /info
+        access:
+          - isAuthenticated()
     endpoints:
       login:
         enabled: true
@@ -44,7 +48,7 @@ micronaut:
 endpoints:
   info:
     enabled: true
-    sensitive: false
+    sensitive: true
   beans:
     enabled: true
     sensitive: true
@@ -62,7 +66,7 @@ endpoints:
     sensitive: true
 
 toggl:
-  apiToken: ${API_TOKEN}
+  apiToken: ${API_TOKEN:api-token}
   workspaceId: 2131925
   username: test
   password: test

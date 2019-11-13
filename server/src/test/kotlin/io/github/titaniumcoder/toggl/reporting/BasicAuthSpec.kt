@@ -1,12 +1,12 @@
 package io.github.titaniumcoder.toggl.reporting
 
 import com.nimbusds.jwt.JWTParser
-import com.nimbusds.jwt.SignedJWT
+import com.nimbusds.jwt.PlainJWT
+import io.kotlintest.matchers.string.shouldNotBeEmpty
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import io.kotlintest.shouldThrow
-import io.kotlintest.shouldThrowAny
 import io.kotlintest.specs.WordSpec
 import io.micronaut.context.ApplicationContext
 import io.micronaut.http.HttpHeaders
@@ -35,24 +35,24 @@ class BasicAuthSpec : WordSpec() {
             }
 
             "the endpoint can be access with JWT obtained when Login endpoint is called with valid credentials" {
-                val creds = UsernamePasswordCredentials("sherlock", "password")
-                val request = HttpRequest.POST("/login", creds)
+                val creds = UsernamePasswordCredentials("test", "test")
+                val request = HttpRequest.POST("/api/login", creds)
 
                 val rsp: HttpResponse<BearerAccessRefreshToken> = client.toBlocking().exchange(request,
                         BearerAccessRefreshToken::class.java)
 
                 rsp.status() shouldBe HttpStatus.OK
                 rsp.body()?.accessToken shouldNotBe null
-                (JWTParser.parse(rsp.body()?.accessToken!!)!!).shouldBeInstanceOf<SignedJWT>()
+                (JWTParser.parse(rsp.body()?.accessToken!!)!!).shouldBeInstanceOf<PlainJWT>()
                 rsp.body()?.refreshToken shouldNotBe null
-                (JWTParser.parse(rsp.body()?.refreshToken!!)!!).shouldBeInstanceOf<SignedJWT>()
+                (JWTParser.parse(rsp.body()?.refreshToken!!)!!).shouldBeInstanceOf<PlainJWT>()
 
                 val accessToken: String = rsp.body()!!.accessToken
-                val requestWithAuthorization = HttpRequest.GET<Any>("/").header(HttpHeaders.AUTHORIZATION, "Bearer $accessToken")
+                val requestWithAuthorization = HttpRequest.GET<Any>("/info").header(HttpHeaders.AUTHORIZATION, "Bearer $accessToken")
                 val response: HttpResponse<String> = client.toBlocking().exchange(requestWithAuthorization, String::class.java)
 
                 response.status() shouldBe HttpStatus.OK
-                response.body() shouldBe "sherlock"
+                response.body().shouldNotBeEmpty()
             }
         }
     }
