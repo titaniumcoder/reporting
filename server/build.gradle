@@ -14,9 +14,6 @@ plugins {
 
 group "toggl.reporting.micronaut"
 
-// TODO refactor this to use the plugins above
-apply plugin: "com.gorylenko.gradle-git-properties"
-
 repositories {
     mavenCentral()
     maven { url "https://jcenter.bintray.com" }
