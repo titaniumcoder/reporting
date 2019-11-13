@@ -1,5 +1,7 @@
 package io.github.titaniumcoder.toggl.reporting
 
+import io.kotlintest.shouldBe
+import io.kotlintest.shouldNotBe
 import io.kotlintest.specs.WordSpec
 import io.micronaut.context.ApplicationContext
 import io.micronaut.http.HttpRequest
@@ -13,9 +15,6 @@ import io.micronaut.security.token.jwt.render.AccessRefreshToken
 import io.micronaut.security.token.jwt.render.BearerAccessRefreshToken
 import io.micronaut.test.annotation.MicronautTest
 import java.lang.Thread.sleep
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 @MicronautTest
 class OauthAccessTokenSpec : WordSpec() {
@@ -31,7 +30,7 @@ class OauthAccessTokenSpec : WordSpec() {
                 val rsp: HttpResponse<BearerAccessRefreshToken> = client.toBlocking().exchange(request,
                         BearerAccessRefreshToken::class.java)
 
-                assertEquals(rsp.status()!!, HttpStatus.OK)
+                rsp.status shouldBe HttpStatus.OK
 
                 val refreshToken: String = rsp.body()!!.refreshToken
                 val accessToken: String = rsp.body()!!.accessToken
@@ -43,9 +42,9 @@ class OauthAccessTokenSpec : WordSpec() {
                         TokenRefreshRequest("refresh_token", refreshToken))
                 val response: HttpResponse<AccessRefreshToken> = client.toBlocking().exchange(refreshTokenRequest, AccessRefreshToken::class.java)
 
-                assertEquals(response.status()!!, HttpStatus.OK)
-                assertNotNull(response.body()!!.accessToken)
-                assertTrue(response.body()!!.accessToken != accessToken)
+                response.status shouldBe HttpStatus.OK
+                response.body()?.accessToken shouldNotBe null
+                response.body()?.accessToken shouldNotBe accessToken
             }
         }
     }

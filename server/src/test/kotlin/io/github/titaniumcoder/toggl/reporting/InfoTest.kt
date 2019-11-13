@@ -1,5 +1,7 @@
 package io.github.titaniumcoder.toggl.reporting
 
+import io.kotlintest.shouldBe
+import io.kotlintest.shouldNotBe
 import io.kotlintest.specs.WordSpec
 import io.micronaut.context.ApplicationContext
 import io.micronaut.http.HttpRequest
@@ -7,8 +9,6 @@ import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.HttpClient
 import io.micronaut.runtime.server.EmbeddedServer
 import io.micronaut.test.annotation.MicronautTest
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 @MicronautTest
 object InfoTest : WordSpec() {
@@ -22,19 +22,19 @@ object InfoTest : WordSpec() {
                 val request: HttpRequest<Any> = HttpRequest.GET("/info")
                 val rsp = client.toBlocking().exchange(request, Map::class.java)
 
-                assertEquals(HttpStatus.OK, rsp.status)
+                rsp.status shouldBe HttpStatus.OK
 
                 val json: Map<String, Any> = rsp.body().castToMap()
 
-                assertNotNull(json["git"])
+                json["git"] shouldNotBe null
 
                 val mapCommit = json["git"].castToMap()["commit"].castToMap()
-                assertNotNull(mapCommit)
-                assertNotNull(mapCommit["message"])
-                assertNotNull(mapCommit["time"])
-                assertNotNull(mapCommit["id"])
-                assertNotNull(mapCommit["user"])
-                assertNotNull(json["git"].castToMap()["branch"])
+                mapCommit shouldNotBe  null
+                mapCommit["message"] shouldNotBe null
+                mapCommit["time"] shouldNotBe null
+                mapCommit["id"] shouldNotBe null
+                mapCommit["user"] shouldNotBe null
+                json["git"].castToMap()["branch"] shouldNotBe null
             }
         }
     }

@@ -52,7 +52,6 @@ dependencies {
     kaptTest "io.micronaut:micronaut-inject-java"
 
     testImplementation platform("io.micronaut:micronaut-bom:$micronautVersion")
-    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
     testImplementation "io.micronaut.test:micronaut-test-kotlintest"
     testImplementation "io.mockk:mockk:1.9.3"
     testImplementation "io.kotlintest:kotlintest-runner-junit5:3.3.2"
@@ -69,9 +68,7 @@ test.classpath += configurations.developmentOnly
 mainClassName = "io.github.titaniumcoder.toggl.reporting.Application"
 
 test {
-    useJUnitPlatform()  {
-        includeEngines 'spek2'
-    }
+    useJUnitPlatform()
 }
 
 allOpen {
