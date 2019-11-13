@@ -11,16 +11,14 @@ import io.micronaut.runtime.server.EmbeddedServer
 import io.micronaut.test.annotation.MicronautTest
 
 @MicronautTest
-class InfoTestSpec : WordSpec(), TestSupport {
+class InfoTestSpec : WordSpec() {
     init {
         "info endpoint".should {
             val embeddedServer: EmbeddedServer = autoClose(ApplicationContext.run(EmbeddedServer::class.java))
             val client: HttpClient = autoClose(HttpClient.create(embeddedServer.url))
 
             "make git commit info appear in json" {
-                val accessToken = loginToken(client, "test", "test")
-
-                val request = HttpRequest.GET<Any>("/info").withToken(accessToken)
+                val request = HttpRequest.GET<Any>("/info")
                 val rsp = client.toBlocking().exchange(request, Map::class.java)
 
                 rsp.status shouldBe HttpStatus.OK

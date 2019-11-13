@@ -20,10 +20,6 @@ micronaut:
         pattern: /api/*
         access:
           - isAuthenticated()
-      -
-        pattern: /info
-        access:
-          - isAuthenticated()
     endpoints:
       login:
         enabled: true
@@ -48,7 +44,7 @@ micronaut:
 endpoints:
   info:
     enabled: true
-    sensitive: true
+    sensitive: false
   beans:
     enabled: true
     sensitive: true

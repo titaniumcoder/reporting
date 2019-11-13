@@ -2,7 +2,7 @@ package io.github.titaniumcoder.toggl.reporting
 
 import com.nimbusds.jwt.JWTParser
 import com.nimbusds.jwt.PlainJWT
-import io.kotlintest.matchers.string.shouldNotBeEmpty
+import io.kotlintest.assertions.json.shouldContainJsonKey
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -48,11 +48,12 @@ class BasicAuthSpec : WordSpec() {
                 (JWTParser.parse(rsp.body()?.refreshToken!!)!!).shouldBeInstanceOf<PlainJWT>()
 
                 val accessToken: String = rsp.body()!!.accessToken
-                val requestWithAuthorization = HttpRequest.GET<Any>("/info").header(HttpHeaders.AUTHORIZATION, "Bearer $accessToken")
+                val requestWithAuthorization = HttpRequest.GET<Any>("/health").header(HttpHeaders.AUTHORIZATION, "Bearer $accessToken")
                 val response: HttpResponse<String> = client.toBlocking().exchange(requestWithAuthorization, String::class.java)
 
                 response.status() shouldBe HttpStatus.OK
-                response.body().shouldNotBeEmpty()
+
+                (response.body()!!).shouldContainJsonKey("$.name")
             }
         }
     }

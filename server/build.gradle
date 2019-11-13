@@ -54,7 +54,10 @@ dependencies {
     testImplementation platform("io.micronaut:micronaut-bom:$micronautVersion")
     testImplementation "io.micronaut.test:micronaut-test-kotlintest"
     testImplementation "io.mockk:mockk:1.9.3"
+
     testImplementation "io.kotlintest:kotlintest-runner-junit5:3.3.2"
+
+    testImplementation "io.kotlintest:kotlintest-assertions-json:3.3.2"
 
     // Fast Restarts on Mac
     developmentOnly "io.micronaut:micronaut-runtime-osx:$micronautVersion"
