@@ -1,6 +1,6 @@
 include("client")
 // include("server")
-include("server-mn")
+include("server")
 
 pluginManagement {
     repositories {

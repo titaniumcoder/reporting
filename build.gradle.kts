@@ -30,18 +30,17 @@ tasks {
         description = "Copy client resources into server"
 
         from("${project(":client").buildDir}")
-        into("${project(":server-mn").buildDir}/resources/main/public")
-
+        into("${project(":server").buildDir}/resources/main/public")
 
         dependsOn(":client:build")
     }
 
 
-    val assembleServerAndClient by registering(Task::class/* , dependsOn:["copyClientResources", ":server:assemble"] */) {
+    val assembleServerAndClient by registering(Task::class) {
         group = "build"
         description = "Build combined server & client JAR"
 
-        dependsOn(copyClientResources, ":server-mn:assemble")
+        dependsOn(copyClientResources, ":server:assemble")
     }
 
     val stage by registering {

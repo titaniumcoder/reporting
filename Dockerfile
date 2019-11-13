@@ -31,6 +31,6 @@ RUN mkdir $APP_HOME
 
 WORKDIR $APP_HOME
 
-COPY --from=builder /app/server/build/libs/server-mn-*-all.jar reporting.jar
+COPY --from=builder /app/server/build/libs/server-*-all.jar reporting.jar
 
 CMD java -Dcom.sun.management.jmxremote -noverify ${JAVA_OPTS} -jar reporting.jar
