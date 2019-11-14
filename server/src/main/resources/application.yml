@@ -20,6 +20,9 @@ micronaut:
         pattern: /api/*
         access:
           - isAuthenticated()
+      - pattern: /**
+        access:
+          - isAnonymous()
     endpoints:
       login:
         enabled: true
