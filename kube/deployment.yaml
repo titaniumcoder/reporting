@@ -24,6 +24,8 @@ spec:
               secretKeyRef:
                 name: reporting
                 key: apiToken
+          - name: "JAVA_OPTS"
+            value: "-Xms64m -Xmx64m"
         resources:
           requests:
             cpu: "200m"
