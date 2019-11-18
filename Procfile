@@ -1,1 +1,1 @@
-web: java -Duser.timezone=Europe/Zurich -jar server.jar --server.port=8080
+web: java -Duser.timezone=Europe/Zurich -jar server/build/libs/server-all.jar --server.port=$PORT
