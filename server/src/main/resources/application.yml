@@ -66,9 +66,9 @@ endpoints:
 
 toggl:
   apiToken: ${API_TOKEN:api-token}
-  workspaceId: 2131925
-  username: test
-  password: test
+  workspaceId: ${WORKSPACE_ID:2131925}
+  username: ${TOGGL_USER:test}
+  password: ${TOGGL_PASSWORD:test}
 
 #spring:
 #  jackson.serialization.write-dates-as-timestamps: false
