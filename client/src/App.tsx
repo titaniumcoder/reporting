@@ -20,6 +20,7 @@ export interface IAppState {
     to: Moment;
     clients: IClient[];
     projects: IProject[];
+    total: IProject;
     activeClient: number | null;
     headerInfo: IHeaderInfo;
     timesheet: ITimeEntry[][];
@@ -37,6 +38,7 @@ class App extends React.Component<{}, IAppState> {
         activeClient: null,
         headerInfo: {cashouts: [], clientLimits: [], projectLimits: [], totalCashout: 0},
         projects: [],
+        total: {minutesWorked: 0},
         timesheet: [],
         regularFetcher: null,
         from: moment().startOf('month'),
@@ -197,6 +199,7 @@ class App extends React.Component<{}, IAppState> {
     render() {
         const clients = this.state.clients;
         const projects = this.state.projects;
+        const total = this.state.total;
         const activeClient = this.state.activeClient;
         const headerInfo = this.state.headerInfo;
 
@@ -219,7 +222,7 @@ class App extends React.Component<{}, IAppState> {
                 <hr/>
                 <Navigation clients={clients} activeClient={activeClient} selectClient={this.selectClient}/>
 
-                <Projects projects={projects}/>
+                <Projects projects={projects} total={total}/>
 
                 <Timesheet timesheet={timesheet} tagBilled={(id) => this.tagEntry(id)}
                            tagUnbilled={(id) => this.untagEntry(id)}/>

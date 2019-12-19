@@ -1,16 +1,24 @@
 import moment from 'moment';
 
 export const formatMinutes = (minutes) => {
-    const hours = Math.floor(minutes / 60);
-    const remaining = minutes % 60;
-    return hours + ':' + remaining.toLocaleString('de-CH', { minimumIntegerDigits: 2, maximumFractionDigits: 0 })
+    if (minutes !== undefined) {
+        const hours = Math.floor(minutes / 60);
+        const remaining = minutes % 60;
+        return hours + ':' + remaining.toLocaleString('de-CH', {minimumIntegerDigits: 2, maximumFractionDigits: 0})
+    } else {
+        return ''
+    }
 };
 
 export const formatDecimal = (minutes) => {
-    return (minutes / 60.0).toLocaleString('de-CH', {
-        maximumFractionDigits: 2,
-        minimumFractionDigits: 2
-    })
+    if (minutes !== undefined) {
+        return (minutes / 60.0).toLocaleString('de-CH', {
+            maximumFractionDigits: 2,
+            minimumFractionDigits: 2
+        })
+    } else {
+        return ''
+    }
 };
 
 export const formatDate = (d) => {

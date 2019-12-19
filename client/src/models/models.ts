@@ -2,26 +2,9 @@ export interface IHeaderInfo {
     cashouts: {
         client: string;
         amount: number;
-    }[];
-    projectLimits: {
-        id: number;
-        project: string;
-        year: number;
-        maxHours: number;
-        totalHoursBilled: number;
-        totalHoursOpen: number;
-        totalHoursUsed: number;
-        percentage: number;
-    }[];
-    clientLimits: {
-        id: number;
-        client: string;
-        year: number;
-        maxHours: number;
-        totalHoursBilled: number;
-        totalHoursOpen: number;
-        totalHoursUsed: number;
-        percentage: number;
+        minutesTotal?: number;
+        minutesWorked: number;
+        percentage?: number;
     }[];
     totalCashout: number;
 }
@@ -29,17 +12,20 @@ export interface IHeaderInfo {
 export interface IClient {
     name: string;
     id: number;
+
+    minutesTotal?: number;
+    minutesWorked: number;
+
+    percentage?: number;
 }
 
 export interface IProject {
-    name: string;
-    minutesInRange: number;
+    name?: string;
 
-    minutesTotal: number;
-    minutesBilled: number;
-    minutesOpen: number;
+    minutesWorked: number;
+    minutesTotal?: number;
 
-    percentage: number;
+    percentage?: number;
 }
 
 export interface ITimeEntry {

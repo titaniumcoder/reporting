@@ -3,27 +3,27 @@ import {formatDecimal, formatMinutes} from './utils';
 
 interface IProjectsProp {
     projects: {
-        name: string;
-        minutesInRange: number;
-        minutesOpen: number;
-        minutesTotal: number;
-        minutesBilled: number;
-        percentage: number;
+        name?: string;
+        minutesWorked: number;
+        minutesTotal?: number;
+        percentage?: number;
     }[];
+    total: {
+        name?: string;
+        minutesWorked: number;
+        minutesTotal?: number;
+        percentage?: number;
+    }
 }
 
-const Projects: React.FC<IProjectsProp> = ({projects}) => {
-    const total =
-        projects && projects.length > 0 ? projects.map(x => x.minutesInRange).reduce((acc, x) => acc + x) : 0;
+const Projects: React.FC<IProjectsProp> = ({projects, total}) => {
     return (
         projects && projects.length > 0 ?
             <table className="table table-bordered">{ /* v-if="projects"> */}
                 <thead>
                 <tr>
                     <th>Projekt</th>
-                    <th className="text-right">in Range</th>
-                    <th className="text-right">Open</th>
-                    <th className="text-right">Billed</th>
+                    <th className="text-right">Worked</th>
                     <th className="text-right">Total</th>
                 </tr>
                 </thead>
@@ -32,16 +32,8 @@ const Projects: React.FC<IProjectsProp> = ({projects}) => {
                     <tr key={idx}>
                         <td>{project.name}</td>
                         <td className="text-right">
-                            {formatMinutes(project.minutesInRange)}<br/>
-                            {formatDecimal(project.minutesInRange)}
-                        </td>
-                        <td className="text-right">
-                            {formatMinutes(project.minutesOpen)}<br/>
-                            {formatDecimal(project.minutesOpen)}
-                        </td>
-                        <td className="text-right">
-                            {formatMinutes(project.minutesBilled)}<br/>
-                            {formatDecimal(project.minutesBilled)}
+                            {formatMinutes(project.minutesWorked)}<br/>
+                            {formatDecimal(project.minutesWorked)}
                         </td>
                         <td className="text-right">
                             {formatMinutes(project.minutesTotal)}<br/>
@@ -53,8 +45,14 @@ const Projects: React.FC<IProjectsProp> = ({projects}) => {
                 <tfoot>
                 <tr>
                     <th className="text-right">Total:</th>
-                    <td className="text-right">{formatMinutes(total)}</td>
-                    <td className="text-right">{formatDecimal(total)}</td>
+                    <th className="text-right">
+                        {formatMinutes(total.minutesWorked)}<br/>
+                        {formatDecimal(total.minutesWorked)}
+                    </th>
+                    <th className="text-right">
+                        {formatMinutes(total.minutesTotal)}<br/>
+                        {formatDecimal(total.percentage)} %
+                    </th>
                 </tr>
                 </tfoot>
             </table> : null

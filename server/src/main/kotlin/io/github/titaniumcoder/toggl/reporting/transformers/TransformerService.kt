@@ -12,15 +12,17 @@ import kotlin.random.Random
 class TransformerService {
     fun cash(summary: TogglModel.TogglSummary): ViewModel.HeaderInfo {
         val cashouts = summary.data.map { x ->
-            ViewModel.Cashout(x.title?.name ?: "unbekannt", x.totalCurrencies.map { c ->
-                c.amount ?: 0.0
-            }.sum())
+            ViewModel.Cashout(
+                    client = x.title?.name ?: "unbekannt",
+                    amount = x.totalCurrencies.map { c -> c.amount ?: 0.0 }.sum(),
+                    minutesWorked = (x.time / 1000 / 60).toInt(),
+                    percentage = null,
+                    minutesTotal = null
+            )
         }.sortedBy { it.client }
 
         return ViewModel.HeaderInfo(
                 cashouts = cashouts,
-                clientLimits = listOf(), // TODO implement this
-                projectLimits = listOf(), // TODO implement this
                 totalCashout = cashouts.sumByDouble { it.amount }
         )
     }
@@ -41,10 +43,8 @@ class TransformerService {
 
                                 ViewModel.Project(
                                         name = it.key,
-                                        minutesInRange = (it.value.map { reporting -> reporting.duration }.sum() / 60000),
-                                        minutesBilled = billedMinutes,
-                                        minutesOpen = openMinutes,
-                                        minutesTotal = totalMinutes,
+                                        minutesWorked = (it.value.map { reporting -> reporting.duration }.sum() / 60000), // TODO fix this
+                                        minutesTotal = totalMinutes, // TODO fix this
                                         percentage = if (totalMinutes != 0) {
                                             (billedMinutes.toDouble() + openMinutes) / totalMinutes * 100
                                         } else {

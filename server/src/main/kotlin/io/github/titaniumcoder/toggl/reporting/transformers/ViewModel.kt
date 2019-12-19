@@ -8,8 +8,6 @@ import java.time.OffsetDateTime
 object ViewModel {
     data class HeaderInfo(
             val cashouts: List<Cashout>,
-            val projectLimits: List<ProjectLimit>,
-            val clientLimits: List<ClientLimit>,
             val totalCashout: Double
     )
 
@@ -37,17 +35,19 @@ object ViewModel {
 
     data class Cashout(
             val client: String,
-            val amount: Double
+            val amount: Double,
+
+            val minutesTotal: Int?,
+            val minutesWorked: Int,
+
+            val percentage: Double?
     )
 
     data class Project(
             val name: String,
-            val minutesInRange: Int,
 
-
-            val minutesTotal: Int,
-            val minutesBilled: Int,
-            val minutesOpen: Int,
+            val minutesTotal: Int?,
+            val minutesWorked: Int,
 
             val percentage: Double?
     )
