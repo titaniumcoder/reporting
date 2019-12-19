@@ -64,7 +64,11 @@ export class TogglReportingApi implements ITogglReportingApi {
     }
 
     async fetchCash() {
-        return await axios.get<IHeaderInfo>('cash');
+        return await axios.get<IHeaderInfo>('headerinfo');
+    }
+
+    async recalculateLimits() {
+        return await axios.post<IHeaderInfo>('headerinfo');
     }
 
     async tagEntry(id: number) {

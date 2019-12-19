@@ -72,4 +72,8 @@ class TogglService(private val webClient: TogglWebClient, private val config: To
             log.warn("Could not update the ids, got an error from the Toggl API")
         }
     }
+
+    fun recalculateLimits(year: Int) {
+        TODO("not implemented: $year")
+    }
 }

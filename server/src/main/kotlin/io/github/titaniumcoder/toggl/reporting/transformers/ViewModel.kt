@@ -6,7 +6,7 @@ import java.time.OffsetDateTime
 
 // Application ViewModel
 object ViewModel {
-    data class CashoutInfo(
+    data class HeaderInfo(
             val cashouts: List<Cashout>,
             val projectLimits: List<ProjectLimit>,
             val clientLimits: List<ClientLimit>,

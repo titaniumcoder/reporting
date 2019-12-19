@@ -9,14 +9,14 @@ import javax.inject.Singleton
 
 @Singleton
 class TransformerService {
-    fun cash(summary: TogglModel.TogglSummary): ViewModel.CashoutInfo {
+    fun cash(summary: TogglModel.TogglSummary): ViewModel.HeaderInfo {
         val cashouts = summary.data.map { x ->
             ViewModel.Cashout(x.title?.name ?: "unbekannt", x.totalCurrencies.map { c ->
                 c.amount ?: 0.0
             }.sum())
         }.sortedBy { it.client }
 
-        return ViewModel.CashoutInfo(
+        return ViewModel.HeaderInfo(
                 cashouts = cashouts,
                 clientLimits = listOf(), // TODO implement this
                 projectLimits = listOf(), // TODO implement this
