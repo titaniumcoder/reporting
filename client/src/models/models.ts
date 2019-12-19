@@ -13,7 +13,9 @@ export interface IHeaderInfo {
             month: number;
             usage: number;
         }[];
-        totalHoursUsed: number;
+        totalHoursBilled: number;
+        totalHoursNonBilled: number;
+        totalHours: number;
         percentage: number;
     }[];
     clientLimits: {
@@ -26,7 +28,9 @@ export interface IHeaderInfo {
             month: number;
             usage: number;
         }[];
-        totalHoursUsed: number;
+        totalHoursBilled: number;
+        totalHoursNonBilled: number;
+        totalHours: number;
         percentage: number;
     }[];
     totalCashout: number;

@@ -21,7 +21,9 @@ object ViewModel {
             @JsonFormat(pattern = "yyyy-MM-dd", locale = "Europe/Zurich")
             val enddate: OffsetDateTime,
             val maxHours: Double,
-            val totalHoursUsed: Double,
+            val totalHoursBilled: Double,
+            val totalHoursNonBilled: Double,
+            val totalHours: Double,
             val percentage: Double,
             val usagePerMonth: List<UsagePerMonth>
     )
@@ -34,7 +36,9 @@ object ViewModel {
             @JsonFormat(pattern = "yyyy-MM-dd", locale = "Europe/Zurich")
             val enddate: OffsetDateTime,
             val maxHours: Double,
-            val totalHoursUsed: Double,
+            val totalHoursBilled: Double,
+            val totalHoursNonBilled: Double,
+            val totalHours: Double,
             val percentage: Double,
             val usagePerMonth: List<UsagePerMonth>
     )
