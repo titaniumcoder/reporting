@@ -2,7 +2,7 @@ import React from 'react';
 import {Container} from 'reactstrap';
 import moment, {Moment} from 'moment';
 import Header from './Header';
-import Cashout from './Cashout';
+import HeaderInfo from './HeaderInfo';
 import Navigation from './Navigation';
 import Projects from './Projects';
 import Timesheet from './Timesheet';
@@ -11,7 +11,7 @@ import {ITogglReportingApi, TogglReportingApi} from './api';
 import {saveAs} from 'file-saver';
 
 import './App.css';
-import {ICashoutInfo, IClient, IProject, ITimeEntry} from "./models/models";
+import {IHeaderInfo, IClient, IProject, ITimeEntry} from "./models/models";
 
 export interface IAppState {
     username: string | null;
@@ -21,7 +21,7 @@ export interface IAppState {
     clients: IClient[];
     projects: IProject[];
     activeClient: number | null;
-    cashout: ICashoutInfo;
+    headerInfo: IHeaderInfo;
     timesheet: ITimeEntry[][];
     regularFetcher: number | null;
     loggedIn: boolean;
@@ -35,7 +35,7 @@ class App extends React.Component<{}, IAppState> {
         password: null,
         clients: [],
         activeClient: null,
-        cashout: {cashouts: [], clientLimits: [], projectLimits: [], totalCashout: 0},
+        headerInfo: {cashouts: [], clientLimits: [], projectLimits: [], totalCashout: 0},
         projects: [],
         timesheet: [],
         regularFetcher: null,
@@ -52,7 +52,7 @@ class App extends React.Component<{}, IAppState> {
     loadData = async (withClient) => {
         const clients = await this.api.fetchClients().catch(this.errorHandler);
         const cashout = await this.api.fetchCash().catch(this.errorHandler);
-        this.setState({clients: clients.data, cashout: cashout.data});
+        this.setState({clients: clients.data, headerInfo: cashout.data});
         if (withClient && this.state.activeClient !== null) {
             const client = await this.api.fetchClient(this.state.activeClient, this.state.from, this.state.to).catch(this.errorHandler);
             this.setState({
@@ -198,7 +198,7 @@ class App extends React.Component<{}, IAppState> {
         const clients = this.state.clients;
         const projects = this.state.projects;
         const activeClient = this.state.activeClient;
-        const cashout = this.state.cashout;
+        const headerInfo = this.state.headerInfo;
 
         const timesheet = this.state.timesheet;
 
@@ -215,7 +215,7 @@ class App extends React.Component<{}, IAppState> {
                         setBilled={this.tagClient}
                         setUnbilled={this.untagClient}
                         logout={this.logout}/>
-                <Cashout cashout={cashout}/>
+                <HeaderInfo headerInfo={headerInfo}/>
                 <hr/>
                 <Navigation clients={clients} activeClient={activeClient} selectClient={this.selectClient}/>
 

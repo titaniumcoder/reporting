@@ -1,4 +1,4 @@
-export interface ICashoutInfo {
+export interface IHeaderInfo {
     cashouts: {
         client: string;
         amount: number;

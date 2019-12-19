@@ -1,6 +1,6 @@
 import axios, {AxiosResponse} from 'axios';
 import {Moment} from 'moment';
-import {ICashoutInfo, IClient, IProject, ITimeEntry} from "./models/models";
+import {IHeaderInfo, IClient, IProject, ITimeEntry} from "./models/models";
 
 export interface ITogglClientResponse {
     projects: IProject[];
@@ -12,7 +12,7 @@ export interface ITogglReportingApi {
 
     fetchClients(): Promise<AxiosResponse<IClient[]>>;
 
-    fetchCash(): Promise<AxiosResponse<ICashoutInfo>>;
+    fetchCash(): Promise<AxiosResponse<IHeaderInfo>>;
 
     fetchClient(id: number, from: Moment, to: Moment): Promise<AxiosResponse<ITogglClientResponse>>;
 
@@ -64,7 +64,7 @@ export class TogglReportingApi implements ITogglReportingApi {
     }
 
     async fetchCash() {
-        return await axios.get<ICashoutInfo>('cash');
+        return await axios.get<IHeaderInfo>('cash');
     }
 
     async tagEntry(id: number) {
