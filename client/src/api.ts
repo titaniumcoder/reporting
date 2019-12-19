@@ -37,13 +37,6 @@ export class TogglReportingApi implements ITogglReportingApi {
     async login(username: string, password: string) {
         delete axios.defaults.headers['Authorization'];
 
-        /*
-        access_token: "eyJhbGciOiJub25lIn0.eyJzdWIiOiJ0ZXN0IiwibmJmIjoxNTczNTUxNzA0LCJyb2xlcyI6W10sImlzcyI6InRvZ2dsLXJlcG9ydGluZyIsImV4cCI6MTU3MzU1NTMwNCwiaWF0IjoxNTczNTUxNzA0fQ."
-        expires_in: 3600
-        refresh_token: "eyJhbGciOiJub25lIn0.eyJzdWIiOiJ0ZXN0IiwibmJmIjoxNTczNTUxNzA0LCJyb2xlcyI6W10sImlzcyI6InRvZ2dsLXJlcG9ydGluZyIsImlhdCI6MTU3MzU1MTcwNH0."
-        token_type: "Bearer"
-        username: "test"
-         */
         const login = await axios.post('login', { username: username, password: password });
         if (login.status === 401) {
             // do nothing

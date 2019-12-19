@@ -56,3 +56,12 @@ export interface ITimeEntry {
     description: string;
     tags: string[];
 }
+
+export interface IAuthentication {
+    username?: string;
+    password?: string;
+    accessToken?: string;
+    refreshToken?: string;
+    expiration?: number; // TODO may be timestamp?
+    refreshExpiration?: number; // TODO may be timestamp?
+}
