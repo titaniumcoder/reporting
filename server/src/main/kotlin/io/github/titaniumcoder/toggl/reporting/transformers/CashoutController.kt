@@ -15,7 +15,7 @@ class CashoutController(private val service: TogglService, private val transform
     fun cash(
             @QueryValue("from") @Format("yyyy-MM-dd") from: LocalDate?,
             @QueryValue("to") @Format("yyyy-MM-dd") to: LocalDate?
-    ): List<ViewModel.Cashout> {
+    ): ViewModel.CashoutInfo {
         val finalFrom = from ?: LocalDate.now().minusMonths(3).withDayOfMonth(1)
         val finalTo = to ?: LocalDate.now().plusMonths(1).withDayOfMonth(1).minusDays(1)
 

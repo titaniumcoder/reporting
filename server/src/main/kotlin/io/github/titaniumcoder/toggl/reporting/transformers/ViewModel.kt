@@ -6,6 +6,45 @@ import java.time.OffsetDateTime
 
 // Application ViewModel
 object ViewModel {
+    data class CashoutInfo(
+            val cashouts: List<Cashout>,
+            val projectLimits: List<ProjectLimit>,
+            val clientLimits: List<ClientLimit>,
+            val totalCashout: Double
+    )
+
+    data class ProjectLimit(
+            val id: Long,
+            val project: String,
+            @JsonFormat(pattern = "yyyy-MM-dd", locale = "Europe/Zurich")
+            val startdate: OffsetDateTime,
+            @JsonFormat(pattern = "yyyy-MM-dd", locale = "Europe/Zurich")
+            val enddate: OffsetDateTime,
+            val maxHours: Double,
+            val totalHoursUsed: Double,
+            val percentage: Double,
+            val usagePerMonth: List<UsagePerMonth>
+    )
+
+    data class ClientLimit(
+            val id: Long,
+            val client: String,
+            @JsonFormat(pattern = "yyyy-MM-dd", locale = "Europe/Zurich")
+            val startdate: OffsetDateTime,
+            @JsonFormat(pattern = "yyyy-MM-dd", locale = "Europe/Zurich")
+            val enddate: OffsetDateTime,
+            val maxHours: Double,
+            val totalHoursUsed: Double,
+            val percentage: Double,
+            val usagePerMonth: List<UsagePerMonth>
+    )
+
+    data class UsagePerMonth(
+            val year: Int,
+            val month: Int,
+            val usage: Double
+    )
+
     data class Cashout(
             val client: String,
             val amount: Double

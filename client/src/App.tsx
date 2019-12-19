@@ -7,11 +7,11 @@ import Navigation from './Navigation';
 import Projects from './Projects';
 import Timesheet from './Timesheet';
 import Login from './Login';
-import {ICashout, IClient, IProject, ITimeEntry} from './model';
 import {ITogglReportingApi, TogglReportingApi} from './api';
 import {saveAs} from 'file-saver';
 
 import './App.css';
+import {ICashoutInfo, IClient, IProject, ITimeEntry} from "./models/models";
 
 export interface IAppState {
     username: string | null;
@@ -21,8 +21,7 @@ export interface IAppState {
     clients: IClient[];
     projects: IProject[];
     activeClient: number | null;
-    cashout: ICashout[];
-    totalCashout: number;
+    cashout: ICashoutInfo;
     timesheet: ITimeEntry[][];
     regularFetcher: number | null;
     loggedIn: boolean;
@@ -36,8 +35,7 @@ class App extends React.Component<{}, IAppState> {
         password: null,
         clients: [],
         activeClient: null,
-        cashout: [],
-        totalCashout: 0,
+        cashout: {cashouts: [], clientLimits: [], projectLimits: [], totalCashout: 0},
         projects: [],
         timesheet: [],
         regularFetcher: null,
@@ -54,8 +52,7 @@ class App extends React.Component<{}, IAppState> {
     loadData = async (withClient) => {
         const clients = await this.api.fetchClients().catch(this.errorHandler);
         const cashout = await this.api.fetchCash().catch(this.errorHandler);
-        const totalCashout = cashout.data.map(x => x.amount).reduce((acc, curr) => acc + curr);
-        this.setState({clients: clients.data, cashout: cashout.data, totalCashout});
+        this.setState({clients: clients.data, cashout: cashout.data});
         if (withClient && this.state.activeClient !== null) {
             const client = await this.api.fetchClient(this.state.activeClient, this.state.from, this.state.to).catch(this.errorHandler);
             this.setState({
@@ -143,7 +140,7 @@ class App extends React.Component<{}, IAppState> {
 
     loadFromTo = (from: Moment, to: Moment) => {
         this.setState({from, to});
-        setTimeout(async() => await this.loadData(true), 100);
+        setTimeout(async () => await this.loadData(true), 100);
     };
 
     loadExcel = async () => {
@@ -198,7 +195,6 @@ class App extends React.Component<{}, IAppState> {
     };
 
     render() {
-        const totalCashout = this.state.totalCashout;
         const clients = this.state.clients;
         const projects = this.state.projects;
         const activeClient = this.state.activeClient;
@@ -219,7 +215,7 @@ class App extends React.Component<{}, IAppState> {
                         setBilled={this.tagClient}
                         setUnbilled={this.untagClient}
                         logout={this.logout}/>
-                <Cashout cashout={cashout} totalCashout={totalCashout}/>
+                <Cashout cashout={cashout}/>
                 <hr/>
                 <Navigation clients={clients} activeClient={activeClient} selectClient={this.selectClient}/>
 
