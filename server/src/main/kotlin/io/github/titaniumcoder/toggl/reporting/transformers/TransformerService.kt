@@ -6,6 +6,7 @@ import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import javax.inject.Singleton
+import kotlin.random.Random
 
 @Singleton
 class TransformerService {
@@ -20,7 +21,7 @@ class TransformerService {
                 cashouts = cashouts,
                 clientLimits = listOf(), // TODO implement this
                 projectLimits = listOf(), // TODO implement this
-                totalCashout =cashouts.sumByDouble { it.amount }
+                totalCashout = cashouts.sumByDouble { it.amount }
         )
     }
 
@@ -33,7 +34,24 @@ class TransformerService {
                     projects = input.data.groupBy {
                         it.project ?: "???"
                     }
-                            .map { ViewModel.Project(it.key, (it.value.map { reporting -> reporting.duration }.sum() / 60000)) }
+                            .map {
+                                val totalMinutes = Random.nextInt(5000)
+                                val openMinutes = Random.nextInt(3000)
+                                val billedMinutes = Random.nextInt(2000)
+
+                                ViewModel.Project(
+                                        name = it.key,
+                                        minutesInRange = (it.value.map { reporting -> reporting.duration }.sum() / 60000),
+                                        minutesBilled = billedMinutes,
+                                        minutesOpen = openMinutes,
+                                        minutesTotal = totalMinutes,
+                                        percentage = if (totalMinutes != 0) {
+                                            (billedMinutes.toDouble() + openMinutes) / totalMinutes * 100
+                                        } else {
+                                            null
+                                        }
+                                )
+                            }
                             .sortedBy { it.name },
                     timeEntries = input.data
                             .groupBy { it.start.withZoneSameInstant(zone).toLocalDate() }

@@ -15,28 +15,15 @@ class HeaderinfoController(private val service: TogglService, private val transf
     @Get("/headerinfo")
     fun cash(
             @QueryValue("from") @Format("yyyy-MM-dd") from: LocalDate?,
-            @QueryValue("to") @Format("yyyy-MM-dd") to: LocalDate?
+            @QueryValue("to") @Format("yyyy-MM-dd") to: LocalDate?,
+            @QueryValue("year") year: Int?,
+            @QueryValue("withCalc", defaultValue = "false") withCalc: Boolean
     ): ViewModel.HeaderInfo {
         val finalFrom = from ?: LocalDate.now().minusMonths(3).withDayOfMonth(1)
         val finalTo = to ?: LocalDate.now().plusMonths(1).withDayOfMonth(1).minusDays(1)
+        val finalYear = year ?: LocalDate.now().year
 
-        val summary = service.summary(finalFrom, finalTo)
-
-        return transformer.cash(summary)
-    }
-
-    @Secured("isAuthenticated()")
-    @Post("/headerinfo")
-    fun calculateHeader(
-            @QueryValue("from") @Format("yyyy-MM-dd") from: LocalDate?,
-            @QueryValue("to") @Format("yyyy-MM-dd") to: LocalDate?
-    ): ViewModel.HeaderInfo {
-        val finalFrom = from ?: LocalDate.now().minusMonths(3).withDayOfMonth(1)
-        val finalTo = to ?: LocalDate.now().plusMonths(1).withDayOfMonth(1).minusDays(1)
-
-        service.recalculateLimits(finalTo.year)
-
-        val summary = service.summary(finalFrom, finalTo)
+        val summary = service.summary(finalFrom, finalTo, finalYear, withCalc)
 
         return transformer.cash(summary)
     }

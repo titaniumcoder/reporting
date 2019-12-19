@@ -5,6 +5,7 @@ import io.github.titaniumcoder.toggl.reporting.toggl.TagCreator.tagbody
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.Month
 import javax.inject.Singleton
 import kotlin.math.ceil
 
@@ -14,9 +15,19 @@ class TogglService(private val webClient: TogglWebClient, private val config: To
 
     fun clients(): List<TogglModel.Client> = webClient.clients()
 
-    fun summary(from: LocalDate, to: LocalDate): TogglModel.TogglSummary {
+    fun summary(from: LocalDate, to: LocalDate, year: Int, doCalc: Boolean): TogglModel.TogglSummary {
+        if (doCalc) {
+            log.info("Need to do the whole calculation for the full year first")
+            val calculatedSummary = webClient.summary(LocalDate.of(year, Month.JANUARY, 1), LocalDate.of(year, Month.DECEMBER, 31), config.workspaceId)
+            updateSummary(calculatedSummary)
+        }
         val summary = webClient.summary(from, to, config.workspaceId)
         return summary.copy(data = summary.data.filter { it.time > 0 })
+    }
+
+    private fun updateSummary(calculatedSummary: TogglModel.TogglSummary) {
+        log.info("Entered updateSummary with {}", calculatedSummary)
+        TODO("update the DB for all clients and projects according to this summary")
     }
 
     fun entries(clientId: Long, from: LocalDate, to: LocalDate): TogglModel.TogglReporting {
@@ -71,9 +82,5 @@ class TogglService(private val webClient: TogglWebClient, private val config: To
         if (!completeResult.all { it.code == 200 }) {
             log.warn("Could not update the ids, got an error from the Toggl API")
         }
-    }
-
-    fun recalculateLimits(year: Int) {
-        TODO("not implemented: $year")
     }
 }

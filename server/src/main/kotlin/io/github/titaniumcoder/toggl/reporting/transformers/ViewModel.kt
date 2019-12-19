@@ -16,37 +16,23 @@ object ViewModel {
     data class ProjectLimit(
             val id: Long,
             val project: String,
-            @JsonFormat(pattern = "yyyy-MM-dd", locale = "Europe/Zurich")
-            val startdate: OffsetDateTime,
-            @JsonFormat(pattern = "yyyy-MM-dd", locale = "Europe/Zurich")
-            val enddate: OffsetDateTime,
+            val year: Int,
             val maxHours: Double,
             val totalHoursBilled: Double,
-            val totalHoursNonBilled: Double,
-            val totalHours: Double,
-            val percentage: Double,
-            val usagePerMonth: List<UsagePerMonth>
+            val totalHoursOpen: Double,
+            val totalHoursUsed: Double,
+            val percentage: Double
     )
 
     data class ClientLimit(
             val id: Long,
             val client: String,
-            @JsonFormat(pattern = "yyyy-MM-dd", locale = "Europe/Zurich")
-            val startdate: OffsetDateTime,
-            @JsonFormat(pattern = "yyyy-MM-dd", locale = "Europe/Zurich")
-            val enddate: OffsetDateTime,
+            val year: Int,
             val maxHours: Double,
             val totalHoursBilled: Double,
-            val totalHoursNonBilled: Double,
-            val totalHours: Double,
-            val percentage: Double,
-            val usagePerMonth: List<UsagePerMonth>
-    )
-
-    data class UsagePerMonth(
-            val year: Int,
-            val month: Int,
-            val usage: Double
+            val totalHoursOpen: Double,
+            val totalHoursUsed: Double,
+            val percentage: Double
     )
 
     data class Cashout(
@@ -56,7 +42,14 @@ object ViewModel {
 
     data class Project(
             val name: String,
-            val minutes: Int
+            val minutesInRange: Int,
+
+
+            val minutesTotal: Int,
+            val minutesBilled: Int,
+            val minutesOpen: Int,
+
+            val percentage: Double?
     )
 
     data class TimeEntry(

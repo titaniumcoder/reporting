@@ -6,31 +6,21 @@ export interface IHeaderInfo {
     projectLimits: {
         id: number;
         project: string;
-        startdate: string;
-        enddate: string;
+        year: number;
         maxHours: number;
-        usagePerMonth: {
-            month: number;
-            usage: number;
-        }[];
         totalHoursBilled: number;
-        totalHoursNonBilled: number;
-        totalHours: number;
+        totalHoursOpen: number;
+        totalHoursUsed: number;
         percentage: number;
     }[];
     clientLimits: {
         id: number;
         client: string;
-        startdate: string;
-        enddate: string;
+        year: number;
         maxHours: number;
-        usagePerMonth: {
-            month: number;
-            usage: number;
-        }[];
         totalHoursBilled: number;
-        totalHoursNonBilled: number;
-        totalHours: number;
+        totalHoursOpen: number;
+        totalHoursUsed: number;
         percentage: number;
     }[];
     totalCashout: number;
@@ -43,7 +33,13 @@ export interface IClient {
 
 export interface IProject {
     name: string;
-    minutes: number;
+    minutesInRange: number;
+
+    minutesTotal: number;
+    minutesBilled: number;
+    minutesOpen: number;
+
+    percentage: number;
 }
 
 export interface ITimeEntry {

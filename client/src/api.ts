@@ -4,6 +4,7 @@ import {IHeaderInfo, IClient, IProject, ITimeEntry} from "./models/models";
 
 export interface ITogglClientResponse {
     projects: IProject[];
+    total: IProject;
     timeEntries: ITimeEntry[][];
 }
 
@@ -37,7 +38,7 @@ export class TogglReportingApi implements ITogglReportingApi {
     async login(username: string, password: string) {
         delete axios.defaults.headers['Authorization'];
 
-        const login = await axios.post('login', { username: username, password: password });
+        const login = await axios.post('login', {username: username, password: password});
         if (login.status === 401) {
             // do nothing
             return false;
@@ -58,10 +59,6 @@ export class TogglReportingApi implements ITogglReportingApi {
 
     async fetchCash() {
         return await axios.get<IHeaderInfo>('headerinfo');
-    }
-
-    async recalculateLimits() {
-        return await axios.post<IHeaderInfo>('headerinfo');
     }
 
     async tagEntry(id: number) {
@@ -95,14 +92,14 @@ export class TogglReportingApi implements ITogglReportingApi {
     async fetchClient(id: number, fromM: Moment, toM: Moment) {
         const from = fromM.format('YYYY-MM-DD');
         const to = toM.format('YYYY-MM-DD');
-        return axios.get<ITogglClientResponse>(`client/${id}`, { params: { from, to } });
+        return axios.get<ITogglClientResponse>(`client/${id}`, {params: {from, to}});
     };
 
     async fetchExcel(id: number, fromM: Moment, toM: Moment) {
         const from = fromM.format('YYYY-MM-DD');
         const to = toM.format('YYYY-MM-DD');
         return axios.get<any>(`timesheet/${id}`, {
-            params: { from, to },
+            params: {from, to},
             maxContentLength: 10000000,
             responseType: 'blob',
         });

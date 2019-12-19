@@ -6,12 +6,12 @@ import HeaderInfo from './HeaderInfo';
 import Navigation from './Navigation';
 import Projects from './Projects';
 import Timesheet from './Timesheet';
-import Login from './Login';
 import {ITogglReportingApi, TogglReportingApi} from './api';
 import {saveAs} from 'file-saver';
 
 import './App.css';
 import {IHeaderInfo, IClient, IProject, ITimeEntry} from "./models/models";
+import Login from "./auth/Login";
 
 export interface IAppState {
     username: string | null;
