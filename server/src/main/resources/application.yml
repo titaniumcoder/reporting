@@ -51,6 +51,9 @@ endpoints:
   beans:
     enabled: true
     sensitive: true
+  flyway:
+    enabled: true
+    sensitive: false
   health:
     enabled: true
     sensitive: false
@@ -63,12 +66,6 @@ endpoints:
   stop:
     enabled: true
     sensitive: true
-
-toggl:
-  apiToken: ${API_TOKEN:api-token}
-  workspaceId: ${WORKSPACE_ID:2131925}
-  username: ${TOGGL_USER:test}
-  password: ${TOGGL_PASSWORD:test}
 
 #spring:
 #  jackson.serialization.write-dates-as-timestamps: false

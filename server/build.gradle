@@ -47,7 +47,7 @@ dependencies {
     runtime 'io.micronaut.configuration:micronaut-jdbc-hikari'
 
     runtime "org.postgresql:postgresql:$postgresqlVersion"
-    jooqRuntime "postgresql:postgresql:$postgresqlVersion"
+    jooqRuntime "org.postgresql:postgresql:$postgresqlVersion"
 
     implementation "io.swagger.core.v3:swagger-annotations"
 
@@ -136,8 +136,9 @@ jooq {
                 relations = true
                 deprecated = false
                 records = true
-                immutablePojos = true
+                immutablePojos = false
                 fluentSetters = true
+                javaTimeTypes = true
             }
             target {
                 packageName = 'io.github.titaniumcoder.reporting'
@@ -150,3 +151,4 @@ run.classpath += configurations.developmentOnly
 run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
 
 generateReportingJooqSchemaSource.dependsOn(flywayMigrate)
+compileKotlin.dependsOn(generateReportingJooqSchemaSource)
