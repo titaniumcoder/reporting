@@ -1,4 +1,4 @@
-package io.github.titaniumcoder.toggl.reporting
+package io.github.titaniumcoder.reporting
 
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe

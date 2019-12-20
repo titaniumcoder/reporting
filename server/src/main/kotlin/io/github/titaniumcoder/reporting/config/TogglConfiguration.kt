@@ -1,4 +1,4 @@
-package io.github.titaniumcoder.toggl.reporting.config
+package io.github.titaniumcoder.reporting.config
 
 import io.micronaut.context.annotation.ConfigurationProperties
 import javax.validation.constraints.NotBlank

@@ -1,4 +1,4 @@
-package io.github.titaniumcoder.toggl.reporting.reporting
+package io.github.titaniumcoder.reporting.reporting
 
 import org.apache.poi.ss.usermodel.*
 import org.apache.poi.ss.util.CellRangeAddress

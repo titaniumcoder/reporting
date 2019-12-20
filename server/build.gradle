@@ -10,9 +10,16 @@ plugins {
     id "org.jetbrains.kotlin.plugin.allopen"
     id "com.github.johnrengelman.shadow"
     id "application"
+
+    id 'nu.studer.jooq' version '3.0.3'
+    id "org.flywaydb.flyway" version "6.1.3"
 }
 
 group "toggl.reporting.micronaut"
+
+ext {
+    postgresqlVersion = '42.2.9'
+}
 
 repositories {
     mavenCentral()
@@ -21,7 +28,7 @@ repositories {
 
 configurations {
     // for dependencies that are needed for development only
-    developmentOnly 
+    developmentOnly
 }
 
 dependencies {
@@ -34,6 +41,15 @@ dependencies {
     implementation "io.micronaut:micronaut-http-client"
     implementation "io.micronaut:micronaut-management"
     implementation "io.micronaut:micronaut-security-jwt"
+    implementation 'io.micronaut.configuration:micronaut-flyway'
+    implementation 'io.micronaut.configuration:micronaut-jooq'
+
+    runtime 'io.micronaut.configuration:micronaut-jdbc-hikari'
+
+    runtime "org.postgresql:postgresql:$postgresqlVersion"
+    jooqRuntime "postgresql:postgresql:$postgresqlVersion"
+
+    implementation "io.swagger.core.v3:swagger-annotations"
 
     implementation("org.apache.poi:poi-ooxml:4.1.0")
 
@@ -41,6 +57,7 @@ dependencies {
     kapt "io.micronaut:micronaut-inject-java"
     kapt "io.micronaut:micronaut-validation"
     kapt "io.micronaut:micronaut-security"
+    kapt "io.micronaut.configuration:micronaut-openapi"
 
     runtimeOnly "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.8"
     runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
@@ -72,27 +89,64 @@ test {
 }
 
 allOpen {
-	annotation("io.micronaut.aop.Around")
+    annotation("io.micronaut.aop.Around")
 }
 
 compileKotlin {
-	kotlinOptions {
-	    jvmTarget = '1.8' 
-	    //Will retain parameter names for Java reflection
-	    javaParameters = true 
-	}
+    kotlinOptions {
+        jvmTarget = '1.8'
+        //Will retain parameter names for Java reflection
+        javaParameters = true
+    }
 }
 
 compileTestKotlin {
-	kotlinOptions {
-	    jvmTarget = '1.8' 
-	    javaParameters = true 
-	}
+    kotlinOptions {
+        jvmTarget = '1.8'
+        javaParameters = true
+    }
 }
 
 shadowJar {
     mergeServiceFiles()
 }
 
+flyway {
+    url = 'jdbc:postgresql://db:5432/reporting'
+    user = 'reporting'
+}
+
+jooq {
+    reporting(sourceSets.main) {
+        jdbc {
+            driver = 'org.postgresql.Driver'
+            url = 'jdbc:postgresql://db:5432/reporting'
+            user = 'reporting'
+        }
+
+        generator {
+            database {
+                name = 'org.jooq.meta.postgres.PostgresDatabase'
+                inputSchema = 'public'
+                forcedTypes {
+
+                }
+            }
+            generate {
+                relations = true
+                deprecated = false
+                records = true
+                immutablePojos = true
+                fluentSetters = true
+            }
+            target {
+                packageName = 'io.github.titaniumcoder.reporting'
+            }
+        }
+    }
+}
+
 run.classpath += configurations.developmentOnly
 run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
+
+generateReportingJooqSchemaSource.dependsOn(flywayMigrate)

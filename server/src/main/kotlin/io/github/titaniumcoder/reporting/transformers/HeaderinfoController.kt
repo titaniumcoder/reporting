@@ -1,6 +1,6 @@
-package io.github.titaniumcoder.toggl.reporting.transformers
+package io.github.titaniumcoder.reporting.transformers
 
-import io.github.titaniumcoder.toggl.reporting.toggl.TogglService
+import io.github.titaniumcoder.reporting.toggl.TogglService
 import io.micronaut.core.convert.format.Format
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get

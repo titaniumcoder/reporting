@@ -1,4 +1,4 @@
-package io.github.titaniumcoder.toggl.reporting.config
+package io.github.titaniumcoder.reporting.config
 
 import io.micronaut.security.authentication.*
 import io.reactivex.Flowable

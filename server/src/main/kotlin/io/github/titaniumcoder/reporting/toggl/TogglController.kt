@@ -1,4 +1,4 @@
-package io.github.titaniumcoder.toggl.reporting.toggl
+package io.github.titaniumcoder.reporting.toggl
 
 import io.micronaut.core.convert.format.Format
 import io.micronaut.http.annotation.*

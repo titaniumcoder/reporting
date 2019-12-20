@@ -1,7 +1,7 @@
-package io.github.titaniumcoder.toggl.reporting.toggl
+package io.github.titaniumcoder.reporting.toggl
 
-import io.github.titaniumcoder.toggl.reporting.config.TogglConfiguration
-import io.github.titaniumcoder.toggl.reporting.toggl.TagCreator.tagbody
+import io.github.titaniumcoder.reporting.config.TogglConfiguration
+import io.github.titaniumcoder.reporting.toggl.TagCreator.tagbody
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.LocalDateTime

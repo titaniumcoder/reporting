@@ -1,6 +1,6 @@
-package io.github.titaniumcoder.toggl.reporting.transformers
+package io.github.titaniumcoder.reporting.transformers
 
-import io.github.titaniumcoder.toggl.reporting.toggl.TogglModel
+import io.github.titaniumcoder.reporting.toggl.TogglModel
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneId

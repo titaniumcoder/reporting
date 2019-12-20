@@ -1,4 +1,4 @@
-package io.github.titaniumcoder.toggl.reporting.transformers
+package io.github.titaniumcoder.reporting.transformers
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import java.time.LocalDate

@@ -1,4 +1,4 @@
-package io.github.titaniumcoder.toggl.reporting.toggl
+package io.github.titaniumcoder.reporting.toggl
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.ZonedDateTime

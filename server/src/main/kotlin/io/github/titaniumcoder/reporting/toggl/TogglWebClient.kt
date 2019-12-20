@@ -1,9 +1,9 @@
-package io.github.titaniumcoder.toggl.reporting.toggl
+package io.github.titaniumcoder.reporting.toggl
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
-import io.github.titaniumcoder.toggl.reporting.config.TogglConfiguration
-import io.github.titaniumcoder.toggl.reporting.toggl.TogglWebClient.Companion.userAgent
+import io.github.titaniumcoder.reporting.config.TogglConfiguration
+import io.github.titaniumcoder.reporting.toggl.TogglWebClient.Companion.userAgent
 import io.micronaut.core.convert.format.Format
 import io.micronaut.http.*
 import io.micronaut.http.annotation.Body

@@ -1,8 +1,8 @@
-package io.github.titaniumcoder.toggl.reporting.reporting
+package io.github.titaniumcoder.reporting.reporting
 
-import io.github.titaniumcoder.toggl.reporting.toggl.TogglService
-import io.github.titaniumcoder.toggl.reporting.transformers.TransformerService
-import io.github.titaniumcoder.toggl.reporting.transformers.ViewModel
+import io.github.titaniumcoder.reporting.toggl.TogglService
+import io.github.titaniumcoder.reporting.transformers.TransformerService
+import io.github.titaniumcoder.reporting.transformers.ViewModel
 import java.time.LocalDate
 import javax.inject.Singleton
 

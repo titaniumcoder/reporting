@@ -1,4 +1,4 @@
-package io.github.titaniumcoder.toggl.reporting
+package io.github.titaniumcoder.reporting
 
 import com.nimbusds.jwt.JWTParser
 import com.nimbusds.jwt.PlainJWT
