@@ -53,7 +53,7 @@ endpoints:
     sensitive: true
   flyway:
     enabled: true
-    sensitive: true
+    sensitive: false
   health:
     enabled: true
     sensitive: true
@@ -67,5 +67,14 @@ endpoints:
     enabled: true
     sensitive: true
 
-#spring:
-#  jackson.serialization.write-dates-as-timestamps: false
+datasources:
+  default:
+    url: jdbc:postgresql://db:5432/reporting
+    username: reporting
+    password: ""
+    driverClassName: org.postgresql.Driver
+
+flyway:
+  datasources:
+    default:
+      enabled: true
