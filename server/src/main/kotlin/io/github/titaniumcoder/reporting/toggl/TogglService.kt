@@ -1,6 +1,5 @@
 package io.github.titaniumcoder.reporting.toggl
 
-import io.github.titaniumcoder.reporting.config.TogglConfiguration
 import io.micronaut.http.HttpStatus
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -9,7 +8,7 @@ import javax.inject.Singleton
 import kotlin.math.ceil
 
 @Singleton
-class TogglService(private val config: TogglConfiguration) {
+class TogglService {
     private val log = LoggerFactory.getLogger(TogglService::class.java)
 
     fun clients(): List<TogglModel.Client> = TODO("webClient.clients()")

@@ -4,7 +4,6 @@ import io.github.titaniumcoder.reporting.toggl.TogglService
 import io.micronaut.core.convert.format.Format
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
-import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.QueryValue
 import io.micronaut.security.annotation.Secured
 import java.time.LocalDate
