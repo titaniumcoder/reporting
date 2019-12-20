@@ -1,27 +1,26 @@
 package io.github.titaniumcoder.reporting.toggl
 
 import io.github.titaniumcoder.reporting.config.TogglConfiguration
-import io.github.titaniumcoder.reporting.toggl.TagCreator.tagbody
+import io.micronaut.http.HttpStatus
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.Month
 import javax.inject.Singleton
 import kotlin.math.ceil
 
 @Singleton
-class TogglService(private val webClient: TogglWebClient, private val config: TogglConfiguration) {
+class TogglService(private val config: TogglConfiguration) {
     private val log = LoggerFactory.getLogger(TogglService::class.java)
 
-    fun clients(): List<TogglModel.Client> = webClient.clients()
+    fun clients(): List<TogglModel.Client> = TODO("webClient.clients()")
 
     fun summary(from: LocalDate, to: LocalDate, year: Int, doCalc: Boolean): TogglModel.TogglSummary {
         if (doCalc) {
             log.info("Need to do the whole calculation for the full year first")
-            val calculatedSummary = webClient.summary(LocalDate.of(year, Month.JANUARY, 1), LocalDate.of(year, Month.DECEMBER, 31), config.workspaceId)
+            val calculatedSummary: TogglModel.TogglSummary = TODO("webClient.summary(LocalDate.of(year, Month.JANUARY, 1), LocalDate.of(year, Month.DECEMBER, 31), config.workspaceId)")
             updateSummary(calculatedSummary)
         }
-        val summary = webClient.summary(from, to, config.workspaceId)
+        val summary: TogglModel.TogglSummary = TODO("webClient.summary(from, to, config.workspaceId)")
         return summary.copy(data = summary.data.filter { it.time > 0 })
     }
 
@@ -31,11 +30,11 @@ class TogglService(private val webClient: TogglWebClient, private val config: To
     }
 
     fun entries(clientId: Long, from: LocalDate, to: LocalDate): TogglModel.TogglReporting {
-        val firstPage = webClient.entries(clientId, from, to, 1, config.workspaceId)
-        val range = 2.rangeTo(
+        val firstPage: TogglModel.TogglReporting = TODO("webClient.entries(clientId, from, to, 1, config.workspaceId)")
+        val range: List<TogglModel.TogglReporting> = 2.rangeTo(
                 ceil(firstPage.totalCount.toDouble() / firstPage.perPage).toInt()
         )
-                .map { webClient.entries(clientId, from, to, it, config.workspaceId) }
+                .map { TODO("webClient.entries(clientId, from, to, it, config.workspaceId)") }
 
         data class ClientSort(val client: String, val start: LocalDateTime) : Comparable<ClientSort> {
             override fun compareTo(other: ClientSort): Int =
@@ -62,11 +61,11 @@ class TogglService(private val webClient: TogglWebClient, private val config: To
     }
 
     fun tagBilled(entryId: Long) {
-        webClient.tagId(listOf(entryId.toString()).joinToString(","), tagbody(true))
+        TODO("webClient.tagId(listOf(entryId.toString()).joinToString(\",\"), tagbody(true))")
     }
 
     fun untagBilled(entryId: Long) {
-        webClient.tagId(listOf(entryId.toString()).joinToString(","), tagbody(false))
+        TODO("webClient.tagId(listOf(entryId.toString()).joinToString(\",\"), tagbody(false))")
     }
 
     private fun tagRange(clientId: Long, from: LocalDate, to: LocalDate, billed: Boolean) {
@@ -78,7 +77,7 @@ class TogglService(private val webClient: TogglWebClient, private val config: To
 
         val ids = entriesMatched.data.map { it.id.toString() }.sorted().chunked(50)
 
-        val completeResult = ids.map { webClient.tagId(it.joinToString(","), tagbody(billed)) }
+        val completeResult: List<HttpStatus> = ids.map { TODO("webClient.tagId(it.joinToString(\",\"), tagbody(billed))") }
         if (!completeResult.all { it.code == 200 }) {
             log.warn("Could not update the ids, got an error from the Toggl API")
         }
