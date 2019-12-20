@@ -36,7 +36,7 @@ class App extends React.Component<{}, IAppState> {
         password: null,
         clients: [],
         activeClient: null,
-        headerInfo: {cashouts: [], clientLimits: [], projectLimits: [], totalCashout: 0},
+        headerInfo: {cashouts: [], totalCashout: 0},
         projects: [],
         total: {minutesWorked: 0},
         timesheet: [],
