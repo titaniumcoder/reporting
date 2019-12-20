@@ -1,1 +1,1 @@
-web: java -Duser.timezone=Europe/Zurich -jar server/build/libs/server-all.jar --server.port=$PORT -Ddatasources.default.url="$JDBC_DATABASE_URL" -Ddatasources.default.username="$JDBC_DATABASE_USERNAME" -Ddatasources.default.password="$JDBC_DATABASE_PASSWORD"
+web: java -Duser.timezone=Europe/Zurich -Ddatasources.default.url="$JDBC_DATABASE_URL" -Ddatasources.default.username="$JDBC_DATABASE_USERNAME" -Ddatasources.default.password="$JDBC_DATABASE_PASSWORD" -jar server/build/libs/server-all.jar --server.port=$PORT 
