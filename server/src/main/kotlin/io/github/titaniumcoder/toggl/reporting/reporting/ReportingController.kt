@@ -7,6 +7,7 @@ import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.QueryValue
+import io.micronaut.http.server.types.files.SystemFile
 import io.micronaut.security.annotation.Secured
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -30,6 +31,8 @@ class ReportingController(val service: ReportingService) {
             @QueryValue("to") @Format("yyyy-MM-dd") to: LocalDate
     ): HttpResponse<ByteArray> {
         val sheet = service.timesheet(clientId, from, to)
+
+        // TODO: val s = SystemFile()
 
         val filename = "${sheet.name.toUpperCase()}-${sheet.date.format(DateTimeFormatter.ofPattern("yyyy-MM"))}.xlsx"
 
