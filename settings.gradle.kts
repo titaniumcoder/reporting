@@ -16,4 +16,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = "toggl-reporting"
+rootProject.name = "reporting"
