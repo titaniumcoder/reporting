@@ -47,16 +47,16 @@ micronaut:
 endpoints:
   info:
     enabled: true
-    sensitive: false
+    sensitive: true
   beans:
     enabled: true
     sensitive: true
   flyway:
     enabled: true
-    sensitive: false
+    sensitive: true
   health:
     enabled: true
-    sensitive: false
+    sensitive: true
   refresh:
     enabled: true
     sensitive: true

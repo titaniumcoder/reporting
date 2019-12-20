@@ -82,7 +82,7 @@ dependencies {
 
 test.classpath += configurations.developmentOnly
 
-mainClassName = "io.github.titaniumcoder.toggl.reporting.Application"
+mainClassName = "io.github.titaniumcoder.reporting.Application"
 
 test {
     useJUnitPlatform()
