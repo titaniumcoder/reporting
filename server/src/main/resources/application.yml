@@ -51,9 +51,6 @@ endpoints:
   beans:
     enabled: true
     sensitive: true
-  flyway:
-    enabled: true
-    sensitive: false
   health:
     enabled: true
     sensitive: true
@@ -73,8 +70,3 @@ datasources:
     username: reporting
     password: ""
     driverClassName: org.postgresql.Driver
-
-flyway:
-  datasources:
-    default:
-      enabled: true

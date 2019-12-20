@@ -41,7 +41,6 @@ dependencies {
     implementation "io.micronaut:micronaut-http-client"
     implementation "io.micronaut:micronaut-management"
     implementation "io.micronaut:micronaut-security-jwt"
-    implementation 'io.micronaut.configuration:micronaut-flyway'
     implementation 'io.micronaut.configuration:micronaut-jooq'
 
     runtime 'io.micronaut.configuration:micronaut-jdbc-hikari'
