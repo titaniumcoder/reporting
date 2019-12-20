@@ -108,16 +108,28 @@ shadowJar {
 }
 
 flyway {
-    url = 'jdbc:postgresql://db:5432/reporting'
-    user = 'reporting'
+    if (System.getenv("JDBC_DATABASE_URL") != null) {
+        url = System.getenv("JDBC_DATABASE_URL")
+        user = System.getenv("JDBC_DATABASE_USERNAME")
+        password = System.getenv("JDBC_DATABASE_PASSWORD")
+    } else {
+        url = 'jdbc:postgresql://db:5432/reporting'
+        user = 'reporting'
+    }
 }
 
 jooq {
     reporting(sourceSets.main) {
         jdbc {
             driver = 'org.postgresql.Driver'
-            url = 'jdbc:postgresql://db:5432/reporting'
-            user = 'reporting'
+            if (System.getenv("JDBC_DATABASE_URL") != null) {
+                url = System.getenv("JDBC_DATABASE_URL")
+                user = System.getenv("JDBC_DATABASE_USERNAME")
+                password = System.getenv("JDBC_DATABASE_PASSWORD")
+            } else {
+                url = 'jdbc:postgresql://db:5432/reporting'
+                user = 'reporting'
+            }
         }
 
         generator {
