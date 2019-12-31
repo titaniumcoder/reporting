@@ -5,9 +5,9 @@ import com.moowork.gradle.node.npm.NpmTask
 plugins {
     id("com.moowork.node") version "1.3.1" apply false
 
-    kotlin("jvm") version "1.3.50" apply false
-    kotlin("kapt") version "1.3.50" apply false
-    kotlin("plugin.allopen") version "1.3.50" apply false
+    kotlin("jvm") version "1.3.61" apply false
+    kotlin("kapt") version "1.3.61" apply false
+    kotlin("plugin.allopen") version "1.3.61" apply false
 
     id("com.github.johnrengelman.shadow") version "5.0.0" apply false
 }
