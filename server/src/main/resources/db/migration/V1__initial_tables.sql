@@ -41,3 +41,7 @@ create table Time_Entry(
     billable boolean not null default true,
     billed boolean not null default false
 );
+
+insert into Reporting_User(username, password, can_book, admin) values (
+    'admin', 'admin', true, true
+);
