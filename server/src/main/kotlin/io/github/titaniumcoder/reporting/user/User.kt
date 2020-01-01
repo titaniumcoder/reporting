@@ -19,6 +19,8 @@ data class User(
         val password: String?,
 
         val canBook: Boolean = true,
+        
+        val canViewMoney: Boolean = true,
 
         val admin: Boolean = true,
 

@@ -30,12 +30,23 @@ data class Project(
 )
 
 data class ProjectDto(
-        val project: Project,
+        val id: Long?,
+
+        val clientId: String,
+        val clientName: String,
+
+        val active: Boolean,
+
+        val name: String,
+
+        val maxMinutes: Int?,
+
+        val rateInCentsPerHour: Int?,
+
         val minutesUsed: Int,
         val minutesRemaining: Int?,
         val minutesPercentage: Double?,
         val amountBilled: Double,
         val amountOpen: Double,
-        val amountRemaining: Double?,
-        val timeEntries: List<Any> = listOf()
+        val amountRemaining: Double?
 )

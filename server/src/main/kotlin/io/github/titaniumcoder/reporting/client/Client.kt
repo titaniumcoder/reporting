@@ -1,6 +1,7 @@
 package io.github.titaniumcoder.reporting.client
 
 import io.github.titaniumcoder.reporting.project.ProjectDto
+import io.github.titaniumcoder.reporting.timeentry.TimeEntryDto
 import javax.validation.constraints.Max
 import javax.validation.constraints.Min
 import javax.validation.constraints.NotBlank
@@ -41,7 +42,6 @@ data class ClientDto(
         val minutesPercentage: Double?,
         val amountBilled: Double,
         val amountOpen: Double,
-        val amountRemaining: Double?
+        val amountRemaining: Double?,
+        val timeEntries: List<TimeEntryDto> = listOf()
 )
-
-

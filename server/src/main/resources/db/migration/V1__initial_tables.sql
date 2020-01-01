@@ -22,6 +22,7 @@ create table Reporting_User(
     username varchar(100) not null constraint uq_username unique ,
     password varchar(100),
     can_book boolean not null default true,
+    can_view_money boolean not null default true,
     admin boolean not null default true
 );
 
@@ -42,6 +43,6 @@ create table Time_Entry(
     billed boolean not null default false
 );
 
-insert into Reporting_User(username, password, can_book, admin) values (
-    'admin', 'admin', true, true
+insert into Reporting_User(username, password, can_book, can_view_money, admin) values (
+    'admin', 'admin', true, true, true
 );

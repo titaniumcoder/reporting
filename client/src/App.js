@@ -1,95 +1,64 @@
-import React, {useState} from 'react';
-import {
-    BrowserRouter as Router,
-    Switch,
-    Route,
-    Link
-} from 'react-router-dom'
+import React from 'react';
+import {BrowserRouter as Router, Redirect, Route, Switch} from 'react-router-dom'
 import './App.css';
-import {Collapse, Nav, Navbar, NavbarToggler, NavItem, NavLink} from "reactstrap";
+import Navigation from "./Navigation";
+import {Container} from "reactstrap";
+import CurrentTimeEntry from "./CurrentTimeEntry";
+import Clients from "./Clients";
+import ClientInfo from "./ClientInfo";
+import TimeLog from "./TimeLog";
+import Login from "./Login";
 
-/*
-import React from "react";
-import {
-    BrowserRouter as Router,
-    Switch,
-    Route,
-    Link
-} from "react-router-dom";
+const App = ({auth, admin, canBook, canViewMoney}) => {
+    // TODO get from DB
+    const clients = [{id: 'rsi', name: 'RSI'}, {id: 'srf', name: 'SRF'}, {
+        id: 'hvh',
+        name: 'Handballverein Herzogenbuchsee'
+    }];
 
-export default function App() {
-    return (
-        <Router>
-            <div>
-                <nav>
-                    <li>
-                        <Link to="/">Home</Link>
-                    </li>
-                    <li>
-                        <Link to="/about">About</Link>
-                    </li>
-                    <li>
-                        <Link to="/users">Users</Link>
-                    </li>
-                </nav>
+    if (!auth) {
+        return <Login/>
+    } else {
+        return (
+            <Router>
+                <div>
+                    <Navigation admin={admin}/>
+                    <Container fluid={true}>
+                        <Switch>
+                            {admin &&
+                            <Route path="/admin">
+                                {
+                                    admin ? (
+                                        <div>
+                                            <div><h4>User Administration</h4></div>
+                                            <div><h4>Client Administration</h4></div>
+                                            <div><h4>Project Administration</h4></div>
+                                            <div><h4>Manual Time Entries</h4></div>
+                                            <div><h4>Tag Range for Client</h4></div>
+                                        </div>) : <Redirect to="/"/>
+                                }
+                            </Route>
+                            }
+                            <Route path="/">
+                                {canBook &&
+                                <CurrentTimeEntry/>
+                                }
 
-                <Switch>
-                    <Route path="/about">
-                        <div>About</div>
-                    </Route>
-                    <Route path="/users">
-                        <div>Users</div>
-                    </Route>
-                    <Route path="/">
-                        <div>Home</div>
-                    </Route>
-                </Switch>
-            </div>
-        </Router>
-    )
-}
-
- */
-const App = (props) => {
-    const [isOpen, setIsOpen] = useState(false);
-
-    const toggle = () => setIsOpen(!isOpen);
-
-    return (
-        <Router>
-            <div>
-                <Navbar color="light" light expand="md">
-                    <NavbarToggler onClick={toggle}/>
-                    <Collapse isOpen={isOpen} navbar>
-                        <Nav className="mr-auto" navbar>
-                            <NavItem>
-                                <NavLink href="/">Time</NavLink>
-                            </NavItem>
-                            <NavItem>
-                                <NavLink href="/admin">Administration</NavLink>
-                            </NavItem>
-                        </Nav>
-                    </Collapse>
-                </Navbar>
-                <nav>
-                    <li>
-                        <Link to="/">Time Entries</Link>
-                    </li>
-                    <li>
-                        <Link to="/admin">Administration</Link>
-                    </li>
-                </nav>
-                <Switch>
-                    <Route path="/admin">
-                        <div>Administration</div>
-                    </Route>
-                    <Route path="/">
-                        <div>Time Entries</div>
-                    </Route>
-                </Switch>
-            </div>
-        </Router>
-    );
+                                <Clients clients={clients}/>
+                                <Route path="/client/:client">
+                                    <div className="mt-3">
+                                        <ClientInfo className="mt-3" canViewMoney={canViewMoney}/>
+                                        <hr/>
+                                    </div>
+                                </Route>
+                                <TimeLog/>
+                            </Route>
+                        </Switch>
+                    </Container>
+                </div>
+            </Router>
+        );
+    }
 };
 
 export default App;
