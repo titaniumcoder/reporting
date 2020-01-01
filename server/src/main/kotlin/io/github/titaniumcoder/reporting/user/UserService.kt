@@ -1,11 +1,11 @@
 package io.github.titaniumcoder.reporting.user
 
 import io.github.titaniumcoder.reporting.client.Client
-import io.micronaut.security.authentication.Authentication
-import io.micronaut.security.authentication.providers.PasswordEncoder
-import javax.inject.Singleton
+import org.springframework.security.core.Authentication
+import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.stereotype.Service
 
-@Singleton
+@Service
 class UserService(val repository: UserRepository, val encoder: PasswordEncoder) {
     fun listUsers(): List<UserDto> =
             repository.findAll()
@@ -35,11 +35,7 @@ class UserService(val repository: UserRepository, val encoder: PasswordEncoder) 
 
     fun updateUser(username: String, user: UserUpdateDto, auth: Authentication): UserDto? {
         println("Calling it with auth $auth")
-        val roles = auth.attributes["roles"]
-        val isAdmin =
-                tryCheck<List<String>>(roles) {
-                    this.contains("ROLE_ADMIN")
-                }
+        val isAdmin = auth.authorities.map { it.authority }.contains("ROLE_ADMIN")
 
         val allowed = auth.name == username || isAdmin
 
@@ -59,7 +55,7 @@ class UserService(val repository: UserRepository, val encoder: PasswordEncoder) 
                     canBook = if (isAdmin) user.canBook else u.canBook,
                     canViewMoney = if (isAdmin) user.canViewMoney else u.canViewMoney
             )
-            toDto(repository.update(fu))
+            toDto(repository.save(fu))
         }
     }
 

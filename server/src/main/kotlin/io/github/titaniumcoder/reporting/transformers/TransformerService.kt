@@ -1,14 +1,14 @@
 package io.github.titaniumcoder.reporting.transformers
 
 import io.github.titaniumcoder.reporting.toggl.TogglModel
+import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
-import javax.inject.Singleton
 import kotlin.random.Random
 
-@Singleton
+@Service
 class TransformerService {
     fun cash(summary: TogglModel.TogglSummary): ViewModel.HeaderInfo {
         val cashouts = summary.data.map { x ->

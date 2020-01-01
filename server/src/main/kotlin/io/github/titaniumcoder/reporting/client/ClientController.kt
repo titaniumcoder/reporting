@@ -1,35 +1,36 @@
 package io.github.titaniumcoder.reporting.client
 
-import io.micronaut.core.convert.format.Format
-import io.micronaut.http.annotation.*
-import io.micronaut.security.annotation.Secured
+import org.springframework.format.annotation.DateTimeFormat
+import org.springframework.security.access.annotation.Secured
+import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
 
-@Controller("/api")
+@RestController
+@RequestMapping("/api")
 class ClientController(val service: ClientService) {
     @Secured("isAuthenticated()")
-    @Get("/clients")
+    @GetMapping("/clients")
     fun clients() = service.clients()
 
-    @Get("/client/{id}")
+    @GetMapping("/client/{id}")
     fun client(@PathVariable("id") id: Int) =
             service.client(id)
 
     @Secured("isAuthenticated()")
-    @Put("/client/{clientId}/billed")
+    @PutMapping("/client/{clientId}/billed")
     fun tagBilled(
             @PathVariable("clientId") clientId: Int,
-            @QueryValue("from") @Format("yyyy-MM-dd") from: LocalDate,
-            @QueryValue("to") @Format("yyyy-MM-dd") to: LocalDate
+            @RequestParam("from") @DateTimeFormat(pattern = "yyyy-MM-dd") from: LocalDate,
+            @RequestParam("to") @DateTimeFormat(pattern = "yyyy-MM-dd") to: LocalDate
     ) =
             service.flagBilling(clientId, from, to, true)
 
     @Secured("isAuthenticated()")
-    @Delete("/client/{clientId}/billed")
+    @DeleteMapping("/client/{clientId}/billed")
     fun untagBilled(
             @PathVariable("clientId") clientId: Int,
-            @QueryValue("from") @Format("yyyy-MM-dd") from: LocalDate,
-            @QueryValue("to") @Format("yyyy-MM-dd") to: LocalDate
+            @RequestParam("from") @DateTimeFormat(pattern = "yyyy-MM-dd") from: LocalDate,
+            @RequestParam("to") @DateTimeFormat(pattern = "yyyy-MM-dd") to: LocalDate
     ) =
             service.flagBilling(clientId, from, to, false)
 }

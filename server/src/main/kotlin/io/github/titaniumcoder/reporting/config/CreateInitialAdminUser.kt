@@ -1,13 +1,7 @@
 package io.github.titaniumcoder.reporting.config
 
-import io.github.titaniumcoder.reporting.user.UserService
-import io.github.titaniumcoder.reporting.user.UserUpdateDto
-import io.micronaut.context.event.StartupEvent
-import io.micronaut.runtime.event.annotation.EventListener
-import io.micronaut.scheduling.annotation.Async
-import org.slf4j.LoggerFactory
-import javax.inject.Singleton
-
+// TODO needs to be replaced completely
+/*
 @Singleton
 class CreateInitialAdminUser(val service: UserService) {
     private val log = LoggerFactory.getLogger(CreateInitialAdminUser::class.java)
@@ -22,3 +16,4 @@ class CreateInitialAdminUser(val service: UserService) {
         }
     }
 }
+ */

@@ -3,12 +3,12 @@ package io.github.titaniumcoder.reporting.reporting
 import io.github.titaniumcoder.reporting.toggl.TogglService
 import io.github.titaniumcoder.reporting.transformers.TransformerService
 import io.github.titaniumcoder.reporting.transformers.ViewModel
+import org.springframework.stereotype.Service
 import java.time.LocalDate
-import javax.inject.Singleton
 
 class ExcelSheet(val name: String, val date: LocalDate, val excel: ByteArray)
 
-@Singleton
+@Service
 class ReportingService(private val service: TogglService, private val transformer: TransformerService) {
     private fun generateExcel(name: String, model: ViewModel.ReportingModel): ByteArray {
         fun tableheader(cell: Cell) {

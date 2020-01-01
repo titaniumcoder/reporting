@@ -1,12 +1,7 @@
 package io.github.titaniumcoder.reporting.config
 
-import io.github.titaniumcoder.reporting.user.UserService
-import io.micronaut.security.authentication.*
-import io.reactivex.Flowable
-import org.reactivestreams.Publisher
-import javax.inject.Singleton
-import javax.transaction.Transactional
-
+// TODO needs to be replaced completely
+/*
 @Singleton
 class AuthenticationProviderUserPassword(private val service: UserService) : AuthenticationProvider {
     override fun authenticate(authenticationRequest: AuthenticationRequest<*, *>?): Publisher<AuthenticationResponse> {
@@ -40,3 +35,4 @@ class AuthenticationProviderUserPassword(private val service: UserService) : Aut
         return Flowable.just(AuthenticationFailed())
     }
 }
+ */

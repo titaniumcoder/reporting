@@ -1,7 +1,6 @@
 package io.github.titaniumcoder.reporting.user
 
 import io.github.titaniumcoder.reporting.client.Client
-import io.micronaut.core.annotation.Introspected
 import javax.persistence.*
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
@@ -39,7 +38,6 @@ data class User(
         val clients: List<Client> = listOf()
 )
 
-@Introspected
 data class UserDto(
         val username: String,
         val email: String,
@@ -49,7 +47,6 @@ data class UserDto(
         val clients: List<Client> = listOf()
 )
 
-@Introspected
 data class UserUpdateDto(
         @NotBlank
         @Size(min = 2, max = 100)

@@ -37,6 +37,8 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.postgresql:postgresql")
 
+    implementation("org.flywaydb:flyway-core")
+
     implementation("org.apache.poi:poi-ooxml:4.1.0")
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")

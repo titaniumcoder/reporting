@@ -1,13 +1,13 @@
 package io.github.titaniumcoder.reporting.toggl
 
-import io.micronaut.http.HttpStatus
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
+import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalDateTime
-import javax.inject.Singleton
 import kotlin.math.ceil
 
-@Singleton
+@Service
 class TogglService {
     private val log = LoggerFactory.getLogger(TogglService::class.java)
 
@@ -77,7 +77,7 @@ class TogglService {
         val ids = entriesMatched.data.map { it.id.toString() }.sorted().chunked(50)
 
         val completeResult: List<HttpStatus> = ids.map { TODO("webClient.tagId(it.joinToString(\",\"), tagbody(billed))") }
-        if (!completeResult.all { it.code == 200 }) {
+        if (!completeResult.all { it.is2xxSuccessful }) {
             log.warn("Could not update the ids, got an error from the Toggl API")
         }
     }
