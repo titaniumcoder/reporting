@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service
 
 @Service
 class UserService(val repository: UserRepository, val encoder: PasswordEncoder) {
+    fun usersExists(): Boolean =
+            repository.count() > 0
+
     fun listUsers(): List<UserDto> =
             repository.findAll()
                     .map { toDto(it) }
@@ -14,7 +17,7 @@ class UserService(val repository: UserRepository, val encoder: PasswordEncoder) 
     fun saveUser(user: UserUpdateDto): UserDto {
         val newUser = User(
                 user.username,
-                user.password!! ,
+                user.password!!,
                 user.email,
                 user.canBook,
                 user.canViewMoney,
@@ -70,7 +73,7 @@ class UserService(val repository: UserRepository, val encoder: PasswordEncoder) 
     }
 
     private inline fun <reified T> tryCheck(obj: Any?, block: T.() -> Boolean): Boolean =
-        if (obj != null && obj is T) {
-            block(obj)
-        } else false
+            if (obj != null && obj is T) {
+                block(obj)
+            } else false
 }
