@@ -6,8 +6,8 @@ const Clients = ({clients}) => {
     return (
         <Nav tabs>
             {clients.map(({id, name}) =>
-                <NavItem>
-                    <NavLink key={id} to={`/client/${id}`} activeClassName="active"
+                <NavItem key={id}>
+                    <NavLink to={`/client/${id}`} activeClassName="active"
                              className="nav-link">{name}</NavLink>
                 </NavItem>
             )}
