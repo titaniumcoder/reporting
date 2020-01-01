@@ -1,13 +1,13 @@
 import React from 'react';
 import {BrowserRouter as Router, Redirect, Route, Switch} from 'react-router-dom'
 import './App.css';
-import Navigation from "./Navigation";
+import Navigation from "../Navigation";
 import {Container} from "reactstrap";
-import CurrentTimeEntry from "./CurrentTimeEntry";
-import Clients from "./Clients";
-import ClientInfo from "./ClientInfo";
-import TimeLog from "./TimeLog";
-import Login from "./Login";
+import CurrentTimeEntry from "../CurrentTimeEntry";
+import Clients from "../Clients";
+import ClientInfo from "../ClientInfo";
+import TimeLog from "../TimeLog";
+import Login from "../auth/Login";
 
 const App = ({auth, admin, canBook, canViewMoney}) => {
     // TODO get from DB

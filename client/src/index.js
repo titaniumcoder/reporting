@@ -14,8 +14,7 @@ import {
     faStopCircle,
     faUndo
 } from "@fortawesome/free-solid-svg-icons";
-import App from './App';
-import {configureStore, createAction, createReducer, createSlice} from "@reduxjs/toolkit";
+import App from './app/App';
 
 library.add(faFileExcel);
 library.add(faCheck);
@@ -25,20 +24,7 @@ library.add(faCog);
 library.add(faStopCircle);
 library.add(faPlayCircle);
 
-const counterSlice = createSlice({
-    name: 'counter',
-    initialState: 0,
-    reducers: {
-        increment: state => state + 1,
-        decrement: state => state -1
-    }
-});
-
-const store = configureStore({
-    reducer: counterSlice.reducer
-});
-
-ReactDOM.render(<App auth="rico" admin={true}/>, document.getElementById('root'));
+ReactDOM.render(<App auth={'rico'} admin={true}/>, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

@@ -35,7 +35,7 @@ class BasicAuthSpec : WordSpec() {
             }
 
             "the endpoint can be access with JWT obtained when Login endpoint is called with valid credentials" {
-                val creds = UsernamePasswordCredentials("test", "test")
+                val creds = UsernamePasswordCredentials("admin", "admin")
                 val request = HttpRequest.POST("/api/login", creds)
 
                 val rsp: HttpResponse<BearerAccessRefreshToken> = client.toBlocking().exchange(request,

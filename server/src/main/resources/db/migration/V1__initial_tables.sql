@@ -1,3 +1,5 @@
+create extension if not exists pgcrypto;
+
 create table Client(
     id varchar(20) not null constraint pk_client primary key ,
     active boolean not null default true,
@@ -20,7 +22,8 @@ create table Project(
 create table Reporting_User(
     id bigserial not null constraint pk_reporting_user primary key ,
     username varchar(100) not null constraint uq_username unique ,
-    password varchar(100),
+    password varchar(100) not null,
+    activated boolean not null default true,
     can_book boolean not null default true,
     can_view_money boolean not null default true,
     admin boolean not null default true
@@ -44,5 +47,5 @@ create table Time_Entry(
 );
 
 insert into Reporting_User(username, password, can_book, can_view_money, admin) values (
-    'admin', 'admin', true, true, true
+    'admin', crypt('admin', gen_salt('bf')), true, true, true
 );
