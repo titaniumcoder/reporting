@@ -8,18 +8,12 @@ plugins {
     id "org.jetbrains.kotlin.jvm"
     id "org.jetbrains.kotlin.kapt"
     id "org.jetbrains.kotlin.plugin.allopen"
+    id "org.jetbrains.kotlin.plugin.noarg"
     id "com.github.johnrengelman.shadow"
     id "application"
-
-    id 'nu.studer.jooq' version '3.0.3'
-    id "org.flywaydb.flyway" version "6.1.3"
 }
 
 group "toggl.reporting.micronaut"
-
-ext {
-    postgresqlVersion = '42.2.9'
-}
 
 repositories {
     mavenCentral()
@@ -40,13 +34,12 @@ dependencies {
     implementation "io.micronaut:micronaut-http-server-netty"
     implementation "io.micronaut:micronaut-http-client"
     implementation "io.micronaut:micronaut-management"
+    implementation 'io.micronaut.configuration:micronaut-flyway'
     implementation "io.micronaut:micronaut-security-jwt"
-    implementation 'io.micronaut.configuration:micronaut-jooq'
+    implementation 'io.micronaut.configuration:micronaut-jdbc-hikari'
+    implementation "io.micronaut.data:micronaut-data-hibernate-jpa:$micronautDataVersion"
 
-    runtime 'io.micronaut.configuration:micronaut-jdbc-hikari'
-
-    runtime "org.postgresql:postgresql:$postgresqlVersion"
-    jooqRuntime "org.postgresql:postgresql:$postgresqlVersion"
+    runtime "org.postgresql:postgresql:42.2.9"
 
     implementation("org.apache.poi:poi-ooxml:4.1.0")
 
@@ -54,6 +47,10 @@ dependencies {
     kapt "io.micronaut:micronaut-inject-java"
     kapt "io.micronaut:micronaut-validation"
     kapt "io.micronaut:micronaut-security"
+    kapt "io.micronaut.data:micronaut-data-processor:$micronautDataVersion"
+
+    // for password encryption mainly
+    implementation "org.apache.commons:commons-crypto:1.0.0"
 
     runtimeOnly "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.8"
     runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
@@ -86,6 +83,12 @@ test {
 
 allOpen {
     annotation("io.micronaut.aop.Around")
+    annotation("javax.persistence.Entity")
+    annotation("javax.inject.Singleton")
+}
+
+noArg {
+    annotation("javax.persistence.Entity")
 }
 
 compileKotlin {
@@ -107,56 +110,5 @@ shadowJar {
     mergeServiceFiles()
 }
 
-flyway {
-    if (System.getenv("JDBC_DATABASE_URL") != null) {
-        url = System.getenv("JDBC_DATABASE_URL")
-        user = System.getenv("JDBC_DATABASE_USERNAME")
-        password = System.getenv("JDBC_DATABASE_PASSWORD")
-    } else {
-        url = 'jdbc:postgresql://db:5432/reporting'
-        user = 'reporting'
-    }
-}
-
-jooq {
-    reporting(sourceSets.main) {
-        jdbc {
-            driver = 'org.postgresql.Driver'
-            if (System.getenv("JDBC_DATABASE_URL") != null) {
-                url = System.getenv("JDBC_DATABASE_URL")
-                user = System.getenv("JDBC_DATABASE_USERNAME")
-                password = System.getenv("JDBC_DATABASE_PASSWORD")
-            } else {
-                url = 'jdbc:postgresql://db:5432/reporting'
-                user = 'reporting'
-            }
-        }
-
-        generator {
-            database {
-                name = 'org.jooq.meta.postgres.PostgresDatabase'
-                inputSchema = 'public'
-                forcedTypes {
-
-                }
-            }
-            generate {
-                relations = true
-                deprecated = false
-                records = true
-                immutablePojos = false
-                fluentSetters = true
-                javaTimeTypes = true
-            }
-            target {
-                packageName = 'io.github.titaniumcoder.reporting'
-            }
-        }
-    }
-}
-
 run.classpath += configurations.developmentOnly
 run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
-
-generateReportingJooqSchemaSource.dependsOn(flywayMigrate)
-compileKotlin.dependsOn(generateReportingJooqSchemaSource)

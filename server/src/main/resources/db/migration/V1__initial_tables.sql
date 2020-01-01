@@ -1,5 +1,3 @@
-create extension if not exists pgcrypto;
-
 create table Client(
     id varchar(20) not null constraint pk_client primary key ,
     active boolean not null default true,
@@ -44,8 +42,4 @@ create table Time_Entry(
     username varchar(100) not null constraint fk_time_entry_user references Reporting_User(username),
     billable boolean not null default true,
     billed boolean not null default false
-);
-
-insert into Reporting_User(username, password, email, can_book, can_view_money, admin) values (
-    'admin', crypt('admin', gen_salt('bf')), 'admin@test.ch', true, true, true
 );

@@ -1,56 +1,80 @@
 package io.github.titaniumcoder.reporting.user
 
-import io.github.titaniumcoder.reporting.Routines
-import io.github.titaniumcoder.reporting.Tables.REPORTING_USER
-import io.github.titaniumcoder.reporting.tables.records.ReportingUserRecord
-import org.jooq.DSLContext
-import org.jooq.impl.DSL
+import io.github.titaniumcoder.reporting.client.Client
+import io.micronaut.security.authentication.Authentication
+import io.micronaut.security.authentication.providers.PasswordEncoder
 import javax.inject.Singleton
 
 @Singleton
-class UserService(val create: DSLContext) {
-    fun listUsers(): List<UserDto> {
-        return create.selectFrom(REPORTING_USER)
-                .orderBy(REPORTING_USER.USERNAME)
-                .fetch()
-                .map { r ->
-                    UserDto(
-                            r.username,
-                            r.email,
-                            r.canBook,
-                            r.canViewMoney,
-                            r.admin
-                    )
-                }.toList()
+class UserService(val repository: UserRepository, val encoder: PasswordEncoder) {
+    fun listUsers(): List<UserDto> =
+            repository.findAll()
+                    .map { toDto(it) }
+
+    fun saveUser(user: UserUpdateDto): UserDto {
+        val newUser = User(
+                user.username,
+                user.password!! ,
+                user.email,
+                user.canBook,
+                user.canViewMoney,
+                user.admin,
+                user.clients.map { Client(it, true, it) }
+        )
+        return toDto(repository.save(newUser))
     }
 
-    fun saveUser(user: User): UserDto {
-        val r = ReportingUserRecord()
-        r.username = user.username
-        r.password = encryptPassword(user.password)
-        r.email = user.email
-        r.canBook = user.canBook
-        r.admin = user.admin
-        r.canViewMoney = user.canViewMoney
+    fun validateUsernamePassword(username: String, password: String): User? =
+            repository.findById(username)
+                    .orElse(null)?.let { user ->
+                        if (encoder.matches(password, user.password))
+                            user
+                        else
+                            null
+                    }
 
-        // TODO isnert clients!!
-        val result = create.executeInsert(r)
-        if (result > 0) {
-            return UserDto(
-                    r.username,
-                    r.email,
-                    r.canBook,
-                    r.canViewMoney,
-                    r.admin,
-                    listOf()
+    fun updateUser(username: String, user: UserUpdateDto, auth: Authentication): UserDto? {
+        println("Calling it with auth $auth")
+        val roles = auth.attributes["roles"]
+        val isAdmin =
+                tryCheck<List<String>>(roles) {
+                    this.contains("ROLE_ADMIN")
+                }
+
+        val allowed = auth.name == username || isAdmin
+
+        if (!allowed) {
+            // TODO throw unauthorized
+            throw RuntimeException("Not allowed")
+        }
+
+        val currentUser = repository.findById(username).orElse(null)
+
+        return currentUser?.let { u ->
+            val fu = u.copy(
+                    username = user.username,
+                    email = user.email,
+                    password = user.password ?: u.password,
+                    admin = if (isAdmin) user.admin else u.admin,
+                    canBook = if (isAdmin) user.canBook else u.canBook,
+                    canViewMoney = if (isAdmin) user.canViewMoney else u.canViewMoney
             )
-        } else {
-            // TODO throw a useful exception here
-            throw IllegalArgumentException("username probably already exists!")
+            toDto(repository.update(fu))
         }
     }
 
-    private fun encryptPassword(password: String): String =
-            create.select(Routines.crypt(DSL.concat(password), Routines.genSalt1("bf")))
-                    .fetchOne().component1()
+    private fun toDto(user: User): UserDto {
+        return UserDto(
+                user.username,
+                user.email,
+                user.canBook,
+                user.canViewMoney,
+                user.admin
+        )
+    }
+
+    private inline fun <reified T> tryCheck(obj: Any?, block: T.() -> Boolean): Boolean =
+        if (obj != null && obj is T) {
+            block(obj)
+        } else false
 }
