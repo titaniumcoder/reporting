@@ -1,65 +1,40 @@
 import React from 'react';
-import {Button, Container, Form, FormGroup, Input} from 'reactstrap';
-import {Formik} from "formik";
 
 import './Login.css';
+import GoogleLogin, {GoogleLogout} from "react-google-login";
 
 const Login = ({executeLogin}) => {
-    const handleSubmit = (event, values) => {
-        executeLogin(values.username, values.password);
+    const responseSuccessGoogle = (response) => {
+        console.log('Success', response);
+    };
+
+    const responseFailureGoogle = (response) => {
+        console.log('Failure', response);
+    };
+
+    const logout = (response) => {
+        console.log('Logout', response);
     };
 
     return (
-        <div className="login">
-            <Container>
-                <Formik
-                    initialValues={{username: '', password: ''}}
-                    onSubmit={(values, {setSubmitting}) => {
-                        setSubmitting(true);
-                        handleSubmit(null, values);
-                        setSubmitting(false);
-                    }}>
-                    {({
-                          values,
-                          errors,
-                          touched,
-                          handleChange,
-                          handleBlur,
-                          handleSubmit,
-                          isSubmitting,
-                          /* and other goodies */
-                      }) => (
-                        <Form onSubmit={handleSubmit}>
-                            <FormGroup>
-                                <Input
-                                    type="text"
-                                    required
-                                    autoFocus
-                                    name="username"
-                                    placeholder="Benutzername"
-                                    value={values.username}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                />
-                            </FormGroup>
-                            <FormGroup>
-                                <Input
-                                    type="password"
-                                    required
-                                    name="password"
-                                    placeholder="Passwort"
-                                    value={values.password}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                />
-                            </FormGroup>
-                            <Button type="submit" color="primary" block size="lg" className="mt-5 mb-3">Anmelden</Button>
-                        </Form>
-                    )}
-                </Formik>
-            </Container>
+        <div>
+            <GoogleLogin
+                clientId="483387557047-olrn4mkp6m7gltp5fqhgr76094q6qf6e.apps.googleusercontent.com"
+                buttonText="Login"
+                responseType="code"
+                isSignedIn={true}
+                onSuccess={responseSuccessGoogle}
+                onFailure={responseFailureGoogle}
+                cookiePolicy={'single_host_origin'}
+            />
+
+            <GoogleLogout
+                clientId="483387557047-olrn4mkp6m7gltp5fqhgr76094q6qf6e.apps.googleusercontent.com"
+                buttonText="Logout"
+                onLogoutSuccess={logout}
+            />
         </div>
-    );
+    )        ;
 };
 
 export default Login;

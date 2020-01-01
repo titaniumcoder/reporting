@@ -1,70 +1,42 @@
 import {createSlice} from "@reduxjs/toolkit";
-import {Moment} from "moment";
-
-export interface IAuthState {
-    username?: string;
-    password?: string;
-    authToken?: string;
-    authExpiration?: Moment;
-    refreshToken?: string;
-    refreshExpiration?: Moment;
-    error?: string;
-    loggedIn: boolean;
-}
+import * as moment from "moment";
 
 const authSlice = createSlice({
     name: 'auth',
     initialState: {
         username: undefined,
-        password: undefined,
+        email: undefined,
         authToken: undefined,
         authExpiration: undefined,
-        refreshToken: undefined,
-        refreshExpiration: undefined,
         error: undefined,
         loggedIn: false
-    } as IAuthState,
+    },
     reducers: {
         login: {
             reducer(state, action) {
-                const {username, password} = action.payload;
+                const {username, email, authToken, authExpiration} = action.payload;
                 state.username = username;
-                state.password = password;
+                state.email = email;
+                state.authToken = authToken;
+                state.authExpiration = moment.utc(authExpiration);
                 state.error = undefined;
+                state.loggedIn = true;
             },
-            prepare(username, password) {
+            prepare(username, email, authToken, authExpiration) {
                 return {
-                    payload: {username, password}
+                    payload: {username, email, authToken, authExpiration}
                 }
             }
         },
         logout(state) {
             state.authToken = undefined;
             state.authExpiration = undefined;
-            state.refreshToken = undefined;
-            state.refreshExpiration = undefined;
+            state.username = undefined;
+            state.email = undefined;
             state.error = undefined;
             state.loggedIn = false;
         },
-        authSuccess: {
-            reducer(state, action) {
-                const {authToken, authExpiration, refreshToken, refreshExpiration} = action.payload;
-                state.authToken = authToken;
-                state.authExpiration = authExpiration;
-                state.refreshToken = refreshToken;
-                state.refreshExpiration = refreshExpiration;
-                state.error = undefined;
-                state.loggedIn = true;
-            },
-            prepare(authToken, authExpiration, refreshToken, refreshExpiration) {
-                return {
-                    payload: {
-                        authToken, authExpiration, refreshToken, refreshExpiration
-                    }
-                }
-            }
-        },
-        authFailed: {
+        loginFailed: {
             reducer(state, action) {
                 // TODO what do we do here?
                 const {error} = action.payload;
@@ -82,5 +54,5 @@ const authSlice = createSlice({
     }
 });
 
-export const {authFailed, authSuccess, login, logout} = authSlice.actions;
+export const {logout, login, loginFailed} = authSlice.actions;
 export default authSlice.reducer;

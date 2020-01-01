@@ -1,27 +1,25 @@
-import auth, {authFailed, authSuccess, IAuthState, login, logout} from './authSlice'
+import auth, {loginFailed, login, logout} from './authSlice'
 import moment from "moment";
 
-const sampleState: IAuthState = {
+const sampleState = {
     username: undefined,
-    password: undefined,
+    email: undefined,
     authToken: undefined,
     authExpiration: undefined,
-    refreshToken: undefined,
-    refreshExpiration: undefined,
     error: 'my error',
     loggedIn: false
 };
 
 const m = moment();
+
 describe('authSlice', () => {
     it('handles logout correctly', () => {
         expect(
             auth({
                 ...sampleState,
                 authToken: 'abc',
+                email: 'fred@test.org',
                 authExpiration: moment(),
-                refreshToken: 'xxx',
-                refreshExpiration: moment(),
                 loggedIn: true
             }, {
                 type: logout.type
@@ -35,7 +33,7 @@ describe('authSlice', () => {
     it('handles authFailed correctly', () => {
         expect(
             auth(sampleState, {
-                type: authFailed.type,
+                type: loginFailed.type,
                 payload: {
                     error: 'I have failed'
                 }
@@ -46,41 +44,23 @@ describe('authSlice', () => {
             loggedIn: false
         })
     });
-    it('handles authSuccess correctly', () => {
-        expect(
-            auth(sampleState, {
-                type: authSuccess.type,
-                payload: {
-                    authToken: 'aaa',
-                    authExpiration: m,
-                    refreshToken: 'bbb',
-                    refreshExpiration: m
-                }
-            })
-        ).toEqual({
-            ...sampleState,
-            authToken: 'aaa',
-            authExpiration: m,
-            refreshToken: 'bbb',
-            refreshExpiration: m,
-            error: undefined,
-            loggedIn: true
-        })
-    });
     it('handles login correctly', () => {
         expect(
             auth(sampleState, {
                 type: login.type,
                 payload: {
-                    username: 'fred',
-                    password: 'fredP'
+                    authToken: 'aaa',
+                    authExpiration: 9000,
+                    email: 'loggedin@test.org'
                 }
             })
         ).toEqual({
             ...sampleState,
-            username: 'fred',
-            password: 'fredP',
-            error: undefined
+            authToken: 'aaa',
+            email: 'loggedin@test.org',
+            authExpiration: moment.utc(9000),
+            error: undefined,
+            loggedIn: true
         })
     });
 });

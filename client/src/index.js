@@ -24,7 +24,7 @@ library.add(faCog);
 library.add(faStopCircle);
 library.add(faPlayCircle);
 
-ReactDOM.render(<App auth={'rico'} admin={true}/>, document.getElementById('root'));
+ReactDOM.render(<App auth={null} admin={true}/>, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
