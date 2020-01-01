@@ -8,22 +8,25 @@ import Clients from "../Clients";
 import ClientInfo from "../ClientInfo";
 import TimeLog from "../TimeLog";
 import Login from "../auth/Login";
+import {useSelector} from "react-redux";
 
 const App = ({auth, admin, canBook, canViewMoney}) => {
+    const loggedIn = useSelector(state => state.auth.loggedIn);
+
     // TODO get from DB
     const clients = [{id: 'rsi', name: 'RSI'}, {id: 'srf', name: 'SRF'}, {
         id: 'hvh',
         name: 'Handballverein Herzogenbuchsee'
     }];
 
-    if (!auth) {
+    if (!loggedIn) {
         return <Login/>
     } else {
         return (
             <Router>
                 <div>
-                    <Navigation admin={admin}/>
                     <Container fluid={true}>
+                        <Navigation admin={admin}/>
                         <Switch>
                             {admin &&
                             <Route path="/admin">

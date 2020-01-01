@@ -1,40 +1,35 @@
 import React from 'react';
 
 import './Login.css';
-import GoogleLogin, {GoogleLogout} from "react-google-login";
+import GoogleLogin from "react-google-login";
+import {GoogleClientId} from "../constants";
+import {login, logout} from "./authSlice";
+import {useDispatch} from "react-redux";
 
-const Login = ({executeLogin}) => {
+const Login = () => {
+    const dispatch = useDispatch();
+
     const responseSuccessGoogle = (response) => {
-        console.log('Success', response);
+        dispatch(login(response.profileObj.name, response.profileObj.email, response.tokenObj.access_token, response.tokenObj.expires_at));
     };
 
     const responseFailureGoogle = (response) => {
-        console.log('Failure', response);
-    };
-
-    const logout = (response) => {
-        console.log('Logout', response);
+        console.error('Google Failure during login', response);
+        dispatch(logout());
     };
 
     return (
-        <div>
+        <div className="login">
             <GoogleLogin
-                clientId="483387557047-olrn4mkp6m7gltp5fqhgr76094q6qf6e.apps.googleusercontent.com"
+                clientId={GoogleClientId}
                 buttonText="Login"
-                responseType="code"
                 isSignedIn={true}
                 onSuccess={responseSuccessGoogle}
                 onFailure={responseFailureGoogle}
                 cookiePolicy={'single_host_origin'}
             />
-
-            <GoogleLogout
-                clientId="483387557047-olrn4mkp6m7gltp5fqhgr76094q6qf6e.apps.googleusercontent.com"
-                buttonText="Logout"
-                onLogoutSuccess={logout}
-            />
         </div>
-    )        ;
+    );
 };
 
 export default Login;

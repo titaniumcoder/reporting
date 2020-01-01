@@ -1,5 +1,4 @@
 import {createSlice} from "@reduxjs/toolkit";
-import * as moment from "moment";
 
 const authSlice = createSlice({
     name: 'auth',
@@ -18,7 +17,7 @@ const authSlice = createSlice({
                 state.username = username;
                 state.email = email;
                 state.authToken = authToken;
-                state.authExpiration = moment.utc(authExpiration);
+                state.authExpiration = authExpiration;
                 state.error = undefined;
                 state.loggedIn = true;
             },

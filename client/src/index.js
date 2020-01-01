@@ -15,6 +15,9 @@ import {
     faUndo
 } from "@fortawesome/free-solid-svg-icons";
 import App from './app/App';
+import {Provider} from "react-redux";
+import rootReducer from "./rootReducer";
+import {configureStore} from "@reduxjs/toolkit";
 
 library.add(faFileExcel);
 library.add(faCheck);
@@ -24,7 +27,15 @@ library.add(faCog);
 library.add(faStopCircle);
 library.add(faPlayCircle);
 
-ReactDOM.render(<App auth={null} admin={true}/>, document.getElementById('root'));
+const store = configureStore({
+    reducer: rootReducer
+});
+
+ReactDOM.render(
+    <Provider store={store}>
+        <App auth={null} admin={true}/>
+    </Provider>
+    , document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

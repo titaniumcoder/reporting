@@ -1,10 +1,28 @@
 import React, {useState} from "react";
-import {Collapse, Nav, Navbar, NavbarToggler, NavItem, NavLink} from "reactstrap";
+import {Button, Collapse, Nav, Navbar, NavbarText, NavbarToggler, NavItem, NavLink} from "reactstrap";
+import {GoogleLogout} from "react-google-login";
+import {GoogleClientId} from "./constants";
+import {useDispatch, useSelector} from "react-redux";
+import {logout} from "./auth/authSlice";
+
+import * as moment from 'moment';
 
 const Navigation = ({admin}) => {
     const [isOpen, setIsOpen] = useState(false);
+    const dispatch = useDispatch();
+
+    const {username, expiration} = useSelector(state => ({
+        username: state.auth.username,
+        expiration: state.auth.authExpiration
+    }));
+
+    const expirationFormatted = moment.utc(expiration).local().format("HH:mm");
 
     const toggle = () => setIsOpen(!isOpen);
+
+    const executeLogout = () => {
+        dispatch(logout());
+    };
 
     if (admin) {
         return (
@@ -18,6 +36,19 @@ const Navigation = ({admin}) => {
                         <NavItem>
                             <NavLink href="/admin">Administration</NavLink>
                         </NavItem>
+                    </Nav>
+                    <Nav>
+                        <GoogleLogout
+                            clientId={GoogleClientId}
+                            buttonText="Logout"
+                            onLogoutSuccess={executeLogout}
+                            render={renderProps => (
+                                <NavItem>
+                                    <Button color="light" onClick={renderProps.onClick} disabled={renderProps.disabled}>Logout</Button>
+                                </NavItem>
+                            )}
+                        />
+                        <NavbarText className="ml-2">{username} (till {expirationFormatted})</NavbarText>
                     </Nav>
                 </Collapse>
             </Navbar>
