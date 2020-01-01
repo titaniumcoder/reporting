@@ -6,6 +6,7 @@ import io.github.titaniumcoder.reporting.tables.records.ReportingUserRecord
 import io.micronaut.security.authentication.*
 import io.reactivex.Flowable
 import org.jooq.DSLContext
+import org.jooq.impl.DSL
 import org.reactivestreams.Publisher
 import javax.inject.Inject
 import javax.inject.Singleton
