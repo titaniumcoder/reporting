@@ -7,10 +7,8 @@ plugins {
 
     kotlin("jvm") version "1.3.61" apply false
     kotlin("kapt") version "1.3.61" apply false
-    kotlin("plugin.allopen") version "1.3.61" apply false
-    kotlin("plugin.noarg") version "1.3.61" apply false
-
-    id("com.github.johnrengelman.shadow") version "5.0.0" apply false
+    kotlin("plugin.spring") version "1.3.61" apply false
+    kotlin("plugin.jpa") version "1.3.61" apply false
 }
 
 tasks {
@@ -31,7 +29,7 @@ tasks {
         description = "Copy client resources into server"
 
         from("${project(":client").buildDir}")
-        into("${project(":server").buildDir}/resources/main/public")
+        into("${project(":server").buildDir}/resources/main/static")
 
         dependsOn(":client:build")
     }

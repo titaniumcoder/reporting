@@ -1,14 +1,11 @@
 package io.github.titaniumcoder.reporting
 
-import io.micronaut.runtime.Micronaut
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
 
-object Application {
+@SpringBootApplication
+class ServerSpringApplication
 
-    @JvmStatic
-    fun main(args: Array<String>) {
-        Micronaut.build()
-                .packages("io.github.titaniumcoder.toggl.reporting")
-                .mainClass(Application.javaClass)
-                .start()
-    }
+fun main(args: Array<String>) {
+    runApplication<ServerSpringApplication>(*args)
 }

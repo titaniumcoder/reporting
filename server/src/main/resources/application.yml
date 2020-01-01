@@ -1,86 +1,24 @@
-micronaut:
-  application:
-    name: toggl-reporting
+# TODO
+#  security:
+#    enabled: true
+#    intercept-url-map:
+#      -
+#        pattern: /api/*
+#        access:
+#          - isAuthenticated()
+#      - pattern: /**
+#        access:
+#          - isAnonymous()
 
-  server:
-    cors:
-      enabled: true
-
-  router:
-    static-resources:
-      default:
-        enabled: true
-        mapping: "/**"
-        paths: "classpath:public"
-
-  security:
-    enabled: true
-    intercept-url-map:
-      -
-        pattern: /api/*
-        access:
-          - isAuthenticated()
-      - pattern: /**
-        access:
-          - isAnonymous()
-    endpoints:
-      login:
-        enabled: true
-        path: "/api/login"
-      oauth:
-        enabled: true
-    token:
-      basic-auth:
-        enabled: false
-      jwt:
-        enabled: true
-        signature:
-          secret:
-            generator:
-              secret: justSomeThingForLater
-
-  io:
-    watch:
-      paths: src/main
-      restart: true
-
-endpoints:
-  info:
-    enabled: true
-    sensitive: true
-  beans:
-    enabled: true
-    sensitive: true
-  health:
-    enabled: true
-    sensitive: true
-  refresh:
-    enabled: true
-    sensitive: true
-  environment:
-    enabled: true
-    sensitive: true
-  stop:
-    enabled: true
-    sensitive: true
-
-datasources:
-  default:
+spring:
+  datasource:
     url: ${JDBC_URL:`jdbc:postgresql://db:5432/reporting`}
     username: ${JDBC_USER:reporting}
     password: ${JDBC_PASSWORD:""}
     driverClassName: org.postgresql.Driver
-jpa:
-  default:
-    packages-to-scan:
-      - 'io.github.titaniumcoder.reporting'
-    properties:
-      hibernate:
-        hbm2ddl:
-          auto: none
-        show_sql: true
-flyway:
-  datasources:
-    default:
-      locations: classpath:db/migration
-
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+  flyway:
+    enabled: true
