@@ -24,4 +24,3 @@ class SecurityConfiguration : WebSecurityConfigurerAdapter() {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
     }
 }
-

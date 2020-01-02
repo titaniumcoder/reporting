@@ -4,11 +4,13 @@ import {GoogleLogout} from "react-google-login";
 import {GoogleClientId} from "./constants";
 import {useDispatch, useSelector} from "react-redux";
 import {logout} from "./auth/authSlice";
+import {logout as apiLogout} from './api/reportingApi';
 
 import * as moment from 'moment';
 
 const Navigation = ({admin}) => {
     const [isOpen, setIsOpen] = useState(false);
+
     const dispatch = useDispatch();
 
     const {username, expiration} = useSelector(state => ({
@@ -22,6 +24,7 @@ const Navigation = ({admin}) => {
 
     const executeLogout = () => {
         dispatch(logout());
+        apiLogout();
     };
 
     if (admin) {

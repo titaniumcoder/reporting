@@ -43,3 +43,15 @@ export const auth = async (idToken) => {
 export const logout = () => {
     delete axios.defaults.headers['Authorization'];
 };
+
+/*
+    async fetchExcel(id: number, fromM: Moment, toM: Moment) {
+        const from = fromM.format('YYYY-MM-DD');
+        const to = toM.format('YYYY-MM-DD');
+        return axios.get<any>(`timesheet/${id}`, {
+            params: {from, to},
+            maxContentLength: 10000000,
+            responseType: 'blob',
+        });
+    };
+ */
