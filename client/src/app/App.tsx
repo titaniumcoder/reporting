@@ -4,14 +4,16 @@ import './App.css';
 import Navigation from "../Navigation";
 import {Container} from "reactstrap";
 import CurrentTimeEntry from "../CurrentTimeEntry";
-import Clients from "../Clients";
-import ClientInfo from "../ClientInfo";
+import Clients from "../clients/Clients";
+import ClientInfo from "../clients/ClientInfo";
 import TimeLog from "../TimeLog";
 import Login from "../auth/Login";
 import {useSelector} from "react-redux";
+import UserAdmin from "../users/UserAdmin";
 
-const App = ({auth, admin, canBook, canViewMoney}) => {
-    const loggedIn = useSelector(state => state.auth.loggedIn);
+const App = () => {
+    const auth = useSelector(state => state.auth);
+    const {loggedIn, admin, canBook, canViewMoney} = auth;
 
     // TODO get from DB
     const clients = [{id: 'rsi', name: 'RSI'}, {id: 'srf', name: 'SRF'}, {
@@ -26,14 +28,14 @@ const App = ({auth, admin, canBook, canViewMoney}) => {
             <Router>
                 <div>
                     <Container fluid={true}>
-                        <Navigation admin={admin}/>
+                        <Navigation/>
                         <Switch>
                             {admin &&
                             <Route path="/admin">
                                 {
                                     admin ? (
                                         <div>
-                                            <div><h4>User Administration</h4></div>
+                                            <UserAdmin/>
                                             <div><h4>Client Administration</h4></div>
                                             <div><h4>Project Administration</h4></div>
                                         </div>) : <Redirect to="/"/>
@@ -48,7 +50,7 @@ const App = ({auth, admin, canBook, canViewMoney}) => {
                                 <Clients clients={clients}/>
                                 <Route path="/client/:client">
                                     <div className="mt-3">
-                                        <ClientInfo className="mt-3" canViewMoney={canViewMoney}/>
+                                        <ClientInfo canViewMoney={canViewMoney}/>
                                         <hr/>
                                     </div>
                                 </Route>

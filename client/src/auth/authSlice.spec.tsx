@@ -1,10 +1,10 @@
 import auth, {loginFailed, login, logout, userinfoUpdate} from './authSlice'
 
 const sampleState = {
-    username: undefined,
-    email: undefined,
-    authToken: undefined,
-    authExpiration: undefined,
+    username: '',
+    email: '',
+    authToken: '',
+    authExpiration: 0,
     error: 'my error',
     loggedIn: false,
     admin: false,
@@ -37,9 +37,7 @@ describe('authSlice', () => {
         expect(
             auth(sampleState, {
                 type: loginFailed.type,
-                payload: {
-                    error: 'I have failed'
-                }
+                payload: 'I have failed'
             })
         ).toEqual({
             ...sampleState,
@@ -57,7 +55,8 @@ describe('authSlice', () => {
                 payload: {
                     authToken: 'aaa',
                     authExpiration: 9000,
-                    email: 'loggedin@test.org'
+                    email: 'loggedin@test.org',
+                    username: 'Fred Feuerstein'
                 }
             })
         ).toEqual({
@@ -66,7 +65,8 @@ describe('authSlice', () => {
             email: 'loggedin@test.org',
             authExpiration: 9000,
             error: undefined,
-            loggedIn: true
+            loggedIn: false,
+            username: 'Fred Feuerstein'
         })
     });
     it('handles the server update correctly', () => {
@@ -84,7 +84,8 @@ describe('authSlice', () => {
             error: "my error",
             admin: true,
             canBook: true,
-            canViewMoney: true
+            canViewMoney: true,
+            loggedIn: true
         })
     });
 });

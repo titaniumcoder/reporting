@@ -4,19 +4,21 @@ import {GoogleLogout} from "react-google-login";
 import {GoogleClientId} from "./constants";
 import {useDispatch, useSelector} from "react-redux";
 import {logout} from "./auth/authSlice";
-import {logout as apiLogout} from './api/reportingApi';
+import api from './api/reportingApi';
 
 import * as moment from 'moment';
 import {NavLink} from "react-router-dom";
+import {RootState} from "./rootReducer";
 
-const Navigation = ({admin}) => {
+const Navigation = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     const dispatch = useDispatch();
 
-    const {username, expiration} = useSelector(state => ({
+    const {admin, username, expiration} = useSelector((state: RootState) => ({
         username: state.auth.username,
-        expiration: state.auth.authExpiration
+        expiration: state.auth.authExpiration,
+        admin: state.auth.admin
     }));
 
     const expirationFormatted = moment.utc(expiration).local().format("HH:mm");
@@ -25,7 +27,7 @@ const Navigation = ({admin}) => {
 
     const executeLogout = () => {
         dispatch(logout());
-        apiLogout();
+        api.logout();
     };
 
     if (admin) {

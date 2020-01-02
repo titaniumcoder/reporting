@@ -1,6 +1,6 @@
 import React from "react";
 
-const TimeLog = (props) => {
+const TimeLog = () => {
     return (
         <div>
             <h1>Time Entries</h1>
