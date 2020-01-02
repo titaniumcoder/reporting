@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://db:5432/rtest
+    username: postgres
+    password: ""
+    driverClassName: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+  flyway:
+    enabled: true
+  cache:
+    type: none
+
+reporting:
+  clientId: 483387557047-olrn4mkp6m7gltp5fqhgr76094q6qf6e.apps.googleusercontent.com
+  adminEmail: rico.metzger@gmail.com

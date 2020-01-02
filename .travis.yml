@@ -1,12 +1,18 @@
 language: java
 install: true
 
+services: postgresql
+
 os: linux
 jdk: openjdk11
 dist: trusty
 
 env:
   - CI=true
+
+before_script:
+  - psql -c 'create database rtest;' -U postgres
+
 
 script:
   - ./gradlew assembleServerAndClient --scan -s
