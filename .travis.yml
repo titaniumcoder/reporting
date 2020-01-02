@@ -44,7 +44,3 @@ cache:
   directories:
     - $HOME/.gradle/caches/modules-2/
     - $HOME/.gradle/wrapper/dists/
-
-
-
-    - sudo apt install -yq --no-install-suggests --no-install-recommends postgresql-11-postgis-2.5-scripts postgresql-11 postgresql-client-11 postgresql-11-postgis-2.5
