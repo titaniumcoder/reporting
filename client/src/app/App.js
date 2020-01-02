@@ -36,8 +36,6 @@ const App = ({auth, admin, canBook, canViewMoney}) => {
                                             <div><h4>User Administration</h4></div>
                                             <div><h4>Client Administration</h4></div>
                                             <div><h4>Project Administration</h4></div>
-                                            <div><h4>Manual Time Entries</h4></div>
-                                            <div><h4>Tag Range for Client</h4></div>
                                         </div>) : <Redirect to="/"/>
                                 }
                             </Route>
