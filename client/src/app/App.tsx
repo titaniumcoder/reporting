@@ -10,9 +10,12 @@ import TimeLog from "../TimeLog";
 import Login from "../auth/Login";
 import {useSelector} from "react-redux";
 import UserAdmin from "../users/UserAdmin";
+import {RootState} from "../rootReducer";
+import ClientAdmin from "../clients/ClientAdmin";
+import ProjectAdmin from "../projects/ProjectAdmin";
 
 const App = () => {
-    const auth = useSelector(state => state.auth);
+    const auth = useSelector((state: RootState) => state.auth);
     const {loggedIn, admin, canBook, canViewMoney} = auth;
 
     // TODO get from DB
@@ -36,8 +39,8 @@ const App = () => {
                                     admin ? (
                                         <div>
                                             <UserAdmin/>
-                                            <div><h4>Client Administration</h4></div>
-                                            <div><h4>Project Administration</h4></div>
+                                            <ClientAdmin/>
+                                            <ProjectAdmin/>
                                         </div>) : <Redirect to="/"/>
                                 }
                             </Route>

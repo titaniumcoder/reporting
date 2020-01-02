@@ -20,8 +20,8 @@ let initialState: UserState = {
     error: undefined
 };
 
-const userSlice = createSlice({
-    name: 'user',
+const clientSlice = createSlice({
+    name: 'client',
     initialState,
     reducers: {
         loadUsers(state, action: PayloadAction<User[]>) {
@@ -42,5 +42,5 @@ const userSlice = createSlice({
     }
 });
 
-export const {loadUsers, loadUsersFailed, loadingUsers} = userSlice.actions;
-export default userSlice.reducer;
+export const {loadUsers, loadUsersFailed, loadingUsers} = clientSlice.actions;
+export default clientSlice.reducer;

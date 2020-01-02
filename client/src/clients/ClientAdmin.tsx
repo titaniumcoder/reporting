@@ -1,13 +1,13 @@
 import React from 'react';
 
-import './UserAdmin.css';
+import './ClientAdmin.css';
 import {useDispatch, useSelector} from "react-redux";
 import {Alert, Button, Table} from "reactstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {RootState} from "../rootReducer";
 import Checkbox from "../components/Checkbox";
 
-const UserAdmin = () => {
+const ClientAdmin = () => {
     const dispatch = useDispatch();
     const {users, error, loading} = useSelector((state: RootState) => {
         const {users, error, loading} = state.user;
@@ -15,8 +15,8 @@ const UserAdmin = () => {
     });
 
     return (
-        <div className="userAdmin">
-            <h1>Users</h1>
+        <div className="clientAdmin mt-5">
+            <h1>Clients</h1>
             {error &&
             <Alert>{error}</Alert>
             }
@@ -65,4 +65,4 @@ const UserAdmin = () => {
     );
 };
 
-export default UserAdmin;
+export default ClientAdmin;
