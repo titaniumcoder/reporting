@@ -1,21 +1,11 @@
 language: java
 
-#addons:
-#  postgresql: "11"
-#  apt:
-#    packages:
-#      - postgresql-11
-#      - postgresql-client-11
-
-# services: postgresql
-
 os: linux
 jdk: openjdk11
 dist: trusty
 
 env:
   global:
-#    - PGPORT=5433
     - CI=true
 
 install:
@@ -25,6 +15,7 @@ install:
   - sed -e 's/^port.*/port = 5432/' /etc/postgresql/11/main/postgresql.conf > postgresql.conf
   - sudo chown postgres postgresql.conf
   - sudo mv postgresql.conf /etc/postgresql/11/main
+  - sudo ls /etc/postgresql/
   - sudo cp /etc/postgresql/{9,11}/main/pg_hba.conf
   - sudo service postgresql restart 11
   - sudo service postgresql start 11
