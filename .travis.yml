@@ -25,7 +25,7 @@ before_script:
   - psql -c 'create database rtest;' -U postgres
 
 script:
-  # - ./gradlew test
+  - ./gradlew test
   - ./gradlew assembleServerAndClient --scan -s
 
 before_cache:
