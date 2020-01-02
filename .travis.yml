@@ -1,20 +1,21 @@
 language: java
-#install: true
+install: true
 
 os: linux
 jdk: openjdk11
 dist: trusty
 
-#env:
-#  - CI=true
+env:
+  - CI=true
 
-#script:
-#  - ./gradlew assembleServerAndClient --scan -s
+script:
+  - ./gradlew assembleServerAndClient --scan -s
 
-#before_cache:
-#  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
 
-#cache:
-#  directories:
-#    - $HOME/.gradle/caches/modules-2/
-#    - $HOME/.gradle/wrapper/dists/
+cache:
+  directories:
+    - $HOME/.gradle/caches/modules-2/
+    - $HOME/.gradle/wrapper/dists/
+    - client/node_modules/
