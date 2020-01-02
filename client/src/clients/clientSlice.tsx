@@ -1,21 +1,16 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-
-interface User {
-    email: string;
-    admin: boolean;
-    canViewMoney: boolean;
-    canBook: boolean;
-    clients: string[];
-}
+import reportingApi, {Client} from "../api/reportingApi";
+import {AppThunk} from "../store";
+import {loadingUsers, loadUsersFailed, loadUsersSuccess} from "../users/userSlice";
 
 type UserState = {
     loading: boolean;
     error?: string;
-    users: User[];
+    clients: Client[];
 }
 
 let initialState: UserState = {
-    users: [],
+    clients: [],
     loading: false,
     error: undefined
 };
@@ -24,23 +19,33 @@ const clientSlice = createSlice({
     name: 'client',
     initialState,
     reducers: {
-        loadUsers(state, action: PayloadAction<User[]>) {
+        loadClientsSuccess(state, action: PayloadAction<Client[]>) {
             state.loading = false;
             state.error = undefined;
-            state.users = action.payload;
+            state.clients = action.payload;
         },
-        loadUsersFailed(state, action: PayloadAction<string>) {
+        loadClientsFailed(state, action: PayloadAction<string>) {
             state.loading = false;
-            state.users = [];
+            state.clients = [];
             state.error = action.payload;
         },
-        loadingUsers(state) {
+        loadingClients(state) {
             state.loading = true;
             state.error = undefined;
-            state.users = [];
+            state.clients = [];
         }
     }
 });
 
-export const {loadUsers, loadUsersFailed, loadingUsers} = clientSlice.actions;
+export const {loadClientsSuccess, loadClientsFailed, loadingClients} = clientSlice.actions;
 export default clientSlice.reducer;
+
+export const fetchClients = (): AppThunk => async dispatch => {
+    try {
+        dispatch(loadingClients());
+        const clients = await reportingApi.fetchClients();
+        dispatch(loadClientsSuccess(clients.data));
+    } catch (err) {
+        dispatch(loadClientsFailed(err.toString()));
+    }
+};

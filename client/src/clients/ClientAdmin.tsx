@@ -2,16 +2,16 @@ import React from 'react';
 
 import './ClientAdmin.css';
 import {useDispatch, useSelector} from "react-redux";
-import {Alert, Button, Table} from "reactstrap";
+import {Alert, Button, ButtonGroup, Table} from "reactstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {RootState} from "../rootReducer";
 import Checkbox from "../components/Checkbox";
 
 const ClientAdmin = () => {
     const dispatch = useDispatch();
-    const {users, error, loading} = useSelector((state: RootState) => {
-        const {users, error, loading} = state.user;
-        return {users, error, loading};
+    const {clients, error, loading} = useSelector((state: RootState) => {
+        const {clients, error, loading} = state.client;
+        return {clients, error, loading};
     });
 
     return (
@@ -23,38 +23,33 @@ const ClientAdmin = () => {
             <Table color={loading ? 'dark' : 'light'}>
                 <thead>
                 <tr>
-                    <th>Email</th>
-                    <th>Admin?</th>
-                    <th>Can Book?</th>
-                    <th>Can See Money?</th>
-                    <th>Clients</th>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Notes</th>
+                    <th>Max Minutes</th>
+                    <th>Rate</th>
                     <th className="text-right">
                         <Button><FontAwesomeIcon icon="plus"/></Button>
                     </th>
                 </tr>
                 </thead>
                 <tbody>
-                {users.map(user => (
-                        <tr key={user.email}>
-                            <td>{user.email}</td>
-                            <td><Checkbox value={user.admin}/></td>
-                            <td><Checkbox value={user.canBook}/></td>
-                            <td><Checkbox value={user.canViewMoney}/></td>
+                {clients.map(client => (
+                        <tr key={client.id} className={client.active ? 'light' : 'warning'}>
+                            <td>{client.id}</td>
+                            <td>{client.name}</td>
+                            <td>{client.notes}</td>
+                            <td>{client.maxMinutes}</td>
+                            <td>{client.rateInCentsPerHours}</td>
                             <td>
-                                {user.clients && (
-                                    <ul>
-                                        {user.clients.map(client => (
-                                            <li key={client}>{client}</li>
-                                        ))}
-                                    </ul>
-                                )
-                                }
-                            </td>
-                            <td>
-                                <div className="btn-group">
-                                    <button>Update</button>
-                                    <button>Delete</button>
-                                </div>
+                                <ButtonGroup>
+                                    <Button color="light">
+                                        <FontAwesomeIcon icon="pen"/>
+                                    </Button>
+                                    <Button color="danger">
+                                        <FontAwesomeIcon icon="trash"/>
+                                    </Button>
+                                </ButtonGroup>
                             </td>
                         </tr>
                     )

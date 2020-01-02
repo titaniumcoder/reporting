@@ -1,5 +1,6 @@
 package io.github.titaniumcoder.reporting.user
 
+import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.security.access.annotation.Secured
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
@@ -26,9 +27,10 @@ class UserController(val service: UserService) {
         return service.saveUser(user)
     }
 
-    @Secured("isAuthenticated()")
-    @PutMapping("/users/{username}")
-    fun update(@PathVariable("username") username: String, @RequestBody user: UserUpdateDto, auth: Authentication): UserDto? {
-        return service.updateUser(username, user, auth)
+    @Secured("ROLE_ADMIN")
+    @DeleteMapping("/users/{email}")
+    fun delete(@PathVariable("email") email: String): org.springframework.http.HttpStatus {
+        service.deleteUser(email)
+        return NO_CONTENT;
     }
 }

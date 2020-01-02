@@ -13,7 +13,7 @@ import {
     faSignOutAlt,
     faStopCircle,
     faPlus,
-    faUndo
+    faUndo, faPen, faTrash, faTimes
 } from "@fortawesome/free-solid-svg-icons";
 import {Provider} from "react-redux";
 import rootReducer from "./rootReducer";
@@ -27,6 +27,9 @@ library.add(faCog);
 library.add(faStopCircle);
 library.add(faPlayCircle);
 library.add(faPlus);
+library.add(faPen);
+library.add(faTrash);
+library.add(faTimes);
 
 const store = configureStore({
     reducer: rootReducer

@@ -1,66 +1,76 @@
-import user, {loadingUsers, loadUsers, loadUsersFailed} from './clientSlice'
+import user, {loadClientsFailed, loadClientsSuccess, loadingClients} from './clientSlice'
+import {Client} from "../api/reportingApi";
 
 const sampleState = {
-    users: [],
-    loading: false,
-    error: undefined
+    clients: [
+        {
+            active: false,
+            id: 'ff',
+            maxMinutes: undefined,
+            name: 'FFFF',
+            notes: undefined,
+            rateInCentsPerHours: undefined
+        }
+    ],
+    error: undefined,
+    loading: false
 };
 
 describe('clientSlice', () => {
-    it('handles loadingUsers correctly', () => {
+    it('handles loadingClients correctly', () => {
         expect(
             user({
                 ...sampleState,
-                authToken: 'abc',
-                email: 'fred@test.org',
-                authExpiration: 1,
-                loggedIn: true,
-                admin: true,
-                canBook: true,
-                canViewMoney: true
+                error: 'blabla',
+                loading: false
             }, {
-                type: loadingUsers.type
+                type: loadingClients.type
             })
         ).toEqual({
-            ...sampleState,
             error: undefined,
-            loggedIn: false
+            loading: true,
+            clients: []
         })
     });
-    it('handles loadUsers correctly', () => {
+    it('handles loadClientsSuccess correctly', () => {
         expect(
             user(sampleState, {
-                type: loadUsers.type,
-                payload: {
-                    error: 'I have failed'
-                }
+                type: loadClientsSuccess.type,
+                payload:
+                    [
+                        {
+                            active: true,
+                            id: 'ff1',
+                            maxMinutes: 100,
+                            name: 'FFFF1',
+                            notes: 'Notes',
+                            rateInCentsPerHours: 150
+                        }
+                    ]
             })
         ).toEqual({
-            ...sampleState,
-            error: 'I have failed',
-            loggedIn: false,
-            admin: false,
-            canBook: false,
-            canViewMoney: false
+            error: undefined,
+            clients: [{
+                active: true,
+                id: 'ff1',
+                maxMinutes: 100,
+                name: 'FFFF1',
+                notes: 'Notes',
+                rateInCentsPerHours: 150
+            }],
+            loading: false
         })
     });
-    it('handles loading failure correctly', () => {
+    it('handles loadClientsFailed correctly', () => {
         expect(
             user(sampleState, {
-                type: loadUsersFailed.type,
-                payload: {
-                    authToken: 'aaa',
-                    authExpiration: 9000,
-                    email: 'loggedin@test.org'
-                }
+                type: loadClientsFailed.type,
+                payload: 'Hilfe!!'
             })
         ).toEqual({
-            ...sampleState,
-            authToken: 'aaa',
-            email: 'loggedin@test.org',
-            authExpiration: 9000,
-            error: undefined,
-            loggedIn: true
+            clients: [],
+            loading: false,
+            error: 'Hilfe!!'
         })
     });
 });

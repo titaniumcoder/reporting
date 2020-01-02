@@ -44,7 +44,7 @@ const ProjectAdmin = () => {
                                 {user.clients && (
                                     <ul>
                                         {user.clients.map(client => (
-                                            <li key={client}>{client}</li>
+                                            <li key={client.id}>{client.name}</li>
                                         ))}
                                     </ul>
                                 )

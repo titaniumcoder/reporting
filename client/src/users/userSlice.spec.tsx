@@ -1,9 +1,9 @@
-import user, {loadingUsers, loadUsers, loadUsersFailed} from './userSlice'
+import user, {loadingUsers, loadUsersSuccess, loadUsersFailed} from './userSlice'
 
 const sampleState = {
-    users: [],
-    loading: false,
-    error: undefined
+    users: [{admin: false, canBook: false, canViewMoney: false, clients: [], email: 'fred@feuerstein.org'}],
+    error: undefined,
+    loading: false
 };
 
 describe('userSlice', () => {
@@ -11,56 +11,54 @@ describe('userSlice', () => {
         expect(
             user({
                 ...sampleState,
-                authToken: 'abc',
-                email: 'fred@test.org',
-                authExpiration: 1,
-                loggedIn: true,
-                admin: true,
-                canBook: true,
-                canViewMoney: true
+                error: 'blabla',
+                loading: false
             }, {
                 type: loadingUsers.type
             })
         ).toEqual({
-            ...sampleState,
             error: undefined,
-            loggedIn: false
+            loading: true,
+            users: []
         })
     });
-    it('handles loadUsers correctly', () => {
+    it('handles loadUsersSuccess correctly', () => {
         expect(
             user(sampleState, {
-                type: loadUsers.type,
-                payload: {
-                    error: 'I have failed'
-                }
+                type: loadUsersSuccess.type,
+                payload:
+                    [
+                        {
+                            admin: false,
+                            canBook: true,
+                            canViewMoney: true,
+                            clients: ['A', 'B'],
+                            email: 'wilma@feuerstein.org'
+                        }
+                    ]
             })
         ).toEqual({
-            ...sampleState,
-            error: 'I have failed',
-            loggedIn: false,
-            admin: false,
-            canBook: false,
-            canViewMoney: false
+            error: undefined,
+            users: [{
+                admin: false,
+                canBook: true,
+                canViewMoney: true,
+                clients: ['A', 'B'],
+                email: 'wilma@feuerstein.org'
+            }],
+            loading: false
         })
     });
     it('handles loading failure correctly', () => {
         expect(
             user(sampleState, {
                 type: loadUsersFailed.type,
-                payload: {
-                    authToken: 'aaa',
-                    authExpiration: 9000,
-                    email: 'loggedin@test.org'
-                }
+                payload: 'Hilfe!!'
             })
         ).toEqual({
-            ...sampleState,
-            authToken: 'aaa',
-            email: 'loggedin@test.org',
-            authExpiration: 9000,
-            error: undefined,
-            loggedIn: true
+            users: [],
+            loading: false,
+            error: 'Hilfe!!'
         })
     });
 });

@@ -70,4 +70,8 @@ class UserService(val repository: UserRepository) {
         return ctx?.let { findByEmail(ctx.authentication.principal as String) }?.let { toDto(it) }
     }
 
+    fun deleteUser(email: String): Unit {
+        repository.deleteById(email);
+    }
+
 }

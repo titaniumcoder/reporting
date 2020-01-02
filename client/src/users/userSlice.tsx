@@ -1,12 +1,6 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-
-interface User {
-    email: string;
-    admin: boolean;
-    canViewMoney: boolean;
-    canBook: boolean;
-    clients: string[];
-}
+import {AppThunk} from "../store";
+import reportingApi, {User} from "../api/reportingApi";
 
 type UserState = {
     loading: boolean;
@@ -24,7 +18,7 @@ const userSlice = createSlice({
     name: 'user',
     initialState,
     reducers: {
-        loadUsers(state, action: PayloadAction<User[]>) {
+        loadUsersSuccess(state, action: PayloadAction<User[]>) {
             state.loading = false;
             state.error = undefined;
             state.users = action.payload;
@@ -42,5 +36,15 @@ const userSlice = createSlice({
     }
 });
 
-export const {loadUsers, loadUsersFailed, loadingUsers} = userSlice.actions;
+export const {loadUsersSuccess, loadUsersFailed, loadingUsers} = userSlice.actions;
 export default userSlice.reducer;
+
+export const fetchUsers = (): AppThunk => async dispatch => {
+    try {
+        dispatch(loadingUsers());
+        const users = await reportingApi.fetchUsers();
+        dispatch(loadUsersSuccess(users.data));
+    } catch (err) {
+        dispatch(loadUsersFailed(err.toString()));
+    }
+};
