@@ -9,6 +9,8 @@ plugins {
     kotlin("kapt") version "1.3.61" apply false
     kotlin("plugin.spring") version "1.3.61" apply false
     kotlin("plugin.jpa") version "1.3.61" apply false
+
+    id("com.gradle.build-scan").version("3.1.1")
 }
 
 tasks {
@@ -91,4 +93,13 @@ project(":client") {
             dependsOn(npmInstall)
         }
     }
+}
+
+buildScan {
+    if (!System.getenv("CI").isNullOrEmpty()) {
+        publishAlways()
+        tag("CI")
+    }
+    termsOfServiceUrl = "https://gradle.com/terms-of-service"
+    termsOfServiceAgree = "yes"
 }
