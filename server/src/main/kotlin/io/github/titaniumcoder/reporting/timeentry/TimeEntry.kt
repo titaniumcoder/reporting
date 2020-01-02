@@ -30,7 +30,7 @@ data class TimeEntry(
         val description: String?,
 
         @ManyToOne(optional = false, cascade = [CascadeType.ALL])
-        @JoinColumn(name = "username")
+        @JoinColumn(name = "email")
         val user: User,
 
         val billable: Boolean = true,

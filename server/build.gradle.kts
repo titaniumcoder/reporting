@@ -31,6 +31,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.2.2.RELEASE")
 
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -38,12 +39,14 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
+    // for security parts
     implementation("com.google.api-client:google-api-client:1.30.7")
+    implementation("com.github.ben-manes.caffeine:caffeine:2.8.0")
 
     runtimeOnly("org.postgresql:postgresql")
-
     implementation("org.flywaydb:flyway-core")
 
+    // for creating the excel sheets
     implementation("org.apache.poi:poi-ooxml:4.1.0")
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")

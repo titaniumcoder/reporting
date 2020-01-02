@@ -8,15 +8,15 @@ import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
 
 @Service
-class CreateInitialAdminUser(val service: UserService) {
+class CreateInitialAdminUser(val service: UserService, val config: ReportingConfiguration) {
     private val log = LoggerFactory.getLogger(CreateInitialAdminUser::class.java)
 
     @EventListener(ApplicationReadyEvent::class)
     fun onStartup() {
         if (!service.usersExists()) {
-            val u = UserUpdateDto("admin", "admin", "admin@test.org", true, true, true, listOf())
+            val u = UserUpdateDto(config.adminEmail, true, true, true, listOf())
             service.saveUser(u)
-            log.warn("Created Sample user with username \"admin\" and password \"password\", please change!!")
+            log.info("Created inital admin user with email \"${config.adminEmail}\"")
         }
     }
 }

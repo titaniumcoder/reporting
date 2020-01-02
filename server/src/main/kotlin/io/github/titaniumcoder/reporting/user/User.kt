@@ -10,15 +10,8 @@ import javax.validation.constraints.Size
 @Table(name = "reporting_user")
 data class User(
         @NotBlank
-        @Size(max = 100)
-        @Id
-        val username: String,
-
-        @Size(max = 100)
-        val password: String,
-
-        @NotBlank
         @Email
+        @Id
         val email: String,
 
         @Column(name = "can_book")
@@ -32,14 +25,13 @@ data class User(
         @ManyToMany
         @JoinTable(
                 name = "client_user",
-                joinColumns = [JoinColumn(name = "username")],
+                joinColumns = [JoinColumn(name = "email")],
                 inverseJoinColumns = [JoinColumn(name = "client_id")]
         )
         val clients: List<Client> = listOf()
 )
 
 data class UserDto(
-        val username: String,
         val email: String,
         val canBook: Boolean,
         val canViewMoney: Boolean,
@@ -49,15 +41,8 @@ data class UserDto(
 
 data class UserUpdateDto(
         @NotBlank
-        @Size(min = 2, max = 100)
-        val username: String,
-
-        @NotBlank
         @Email
         val email: String,
-
-        @Size(min = 8, max = 100)
-        val password: String?,
 
         val admin: Boolean,
         val canBook: Boolean,

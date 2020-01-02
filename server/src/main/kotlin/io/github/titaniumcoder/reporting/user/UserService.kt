@@ -14,16 +14,11 @@ class UserService(val repository: UserRepository) {
             repository.findAll()
                     .map { toDto(it) }
 
-    fun findById(username: String): User? =
-            repository.findByIdOrNull(username)
-
     fun findByEmail(email: String): User? =
-            repository.findByEmail(email)
+            repository.findByIdOrNull(email)
 
     fun saveUser(user: UserUpdateDto): UserDto {
         val newUser = User(
-                user.username,
-                user.password!!,
                 user.email,
                 user.canBook,
                 user.canViewMoney,
@@ -48,9 +43,7 @@ class UserService(val repository: UserRepository) {
 
         return currentUser?.let { u ->
             val fu = u.copy(
-                    username = user.username,
                     email = user.email,
-                    password = user.password ?: u.password,
                     admin = if (isAdmin) user.admin else u.admin,
                     canBook = if (isAdmin) user.canBook else u.canBook,
                     canViewMoney = if (isAdmin) user.canViewMoney else u.canViewMoney
@@ -61,7 +54,6 @@ class UserService(val repository: UserRepository) {
 
     private fun toDto(user: User): UserDto {
         return UserDto(
-                user.username,
                 user.email,
                 user.canBook,
                 user.canViewMoney,

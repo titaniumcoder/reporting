@@ -5,6 +5,7 @@ import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import io.github.titaniumcoder.reporting.user.UserService
 import org.slf4j.LoggerFactory
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.common.OAuth2AccessToken
@@ -15,7 +16,7 @@ import org.springframework.security.oauth2.provider.token.ResourceServerTokenSer
 import org.springframework.stereotype.Service
 
 @Service
-class GoogleResourceTokenServices(val config: ReportingConfiguration, val service: UserService) : ResourceServerTokenServices {
+class GoogleValidationService(val config: ReportingConfiguration) {
     private val log = LoggerFactory.getLogger(GoogleResourceTokenServices::class.java)
 
     private val verifier: GoogleIdTokenVerifier by lazy {
@@ -27,7 +28,8 @@ class GoogleResourceTokenServices(val config: ReportingConfiguration, val servic
                 .build()
     }
 
-    private fun validateIdToken(idToken: String): String {
+    @Cacheable("tokens")
+    fun validateIdToken(idToken: String): String {
         val result = verifier.verify(idToken)
 
         if (result != null) {
@@ -46,10 +48,14 @@ class GoogleResourceTokenServices(val config: ReportingConfiguration, val servic
             throw InvalidTokenException(idToken)
         }
     }
+}
+
+@Service
+class GoogleResourceTokenServices(val config: ReportingConfiguration, val service: UserService, val validator: GoogleValidationService) : ResourceServerTokenServices {
 
     override fun loadAuthentication(accessToken: String?): OAuth2Authentication {
         if (accessToken != null) {
-            val result = validateIdToken(accessToken)
+            val result = validator.validateIdToken(accessToken)
             val user = service.findByEmail(result)
             if (user != null) {
                 val roles = mutableListOf("ROLE_USER")

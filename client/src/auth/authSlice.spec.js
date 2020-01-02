@@ -1,5 +1,4 @@
-import auth, {loginFailed, login, logout} from './authSlice'
-import moment from "moment";
+import auth, {loginFailed, login, logout, infoUpdate} from './authSlice'
 
 const sampleState = {
     username: undefined,
@@ -7,10 +6,11 @@ const sampleState = {
     authToken: undefined,
     authExpiration: undefined,
     error: 'my error',
-    loggedIn: false
+    loggedIn: false,
+    admin: false,
+    canViewMoney: false,
+    canBook: false
 };
-
-const m = moment();
 
 describe('authSlice', () => {
     it('handles logout correctly', () => {
@@ -19,8 +19,11 @@ describe('authSlice', () => {
                 ...sampleState,
                 authToken: 'abc',
                 email: 'fred@test.org',
-                authExpiration: moment(),
-                loggedIn: true
+                authExpiration: 1,
+                loggedIn: true,
+                admin: true,
+                canBook: true,
+                canViewMoney: true
             }, {
                 type: logout.type
             })
@@ -58,9 +61,27 @@ describe('authSlice', () => {
             ...sampleState,
             authToken: 'aaa',
             email: 'loggedin@test.org',
-            authExpiration: moment.utc(9000),
+            authExpiration: 9000,
             error: undefined,
             loggedIn: true
+        })
+    });
+    it('handles the server update correctly', () => {
+        expect(
+            auth(sampleState, {
+                type: infoUpdate.type,
+                payload: {
+                    admin: true,
+                    canBook: true,
+                    canViewMoney: true
+                }
+            })
+        ).toEqual({
+            ...sampleState,
+            error: "my error",
+            admin: true,
+            canBook: true,
+            canViewMoney: true
         })
     });
 });

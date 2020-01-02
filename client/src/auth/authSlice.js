@@ -8,7 +8,10 @@ const authSlice = createSlice({
         authToken: undefined,
         authExpiration: undefined,
         error: undefined,
-        loggedIn: false
+        loggedIn: false,
+        admin: false,
+        canBook: false,
+        canViewMoney: false
     },
     reducers: {
         login: {
@@ -27,6 +30,19 @@ const authSlice = createSlice({
                 }
             }
         },
+        infoUpdate: {
+            reducer(state, action) {
+                const {admin, canBook, canViewMoney}=action.payload;
+                state.admin = admin;
+                state.canBook = canBook;
+                state.canViewMoney = canViewMoney;
+            },
+            prepare(admin, canBook, canViewMoney) {
+                return {
+                    payload: {admin, canBook, canViewMoney}
+                }
+            }
+        },
         logout(state) {
             state.authToken = undefined;
             state.authExpiration = undefined;
@@ -34,6 +50,9 @@ const authSlice = createSlice({
             state.email = undefined;
             state.error = undefined;
             state.loggedIn = false;
+            state.canBook = false;
+            state.admin = false;
+            state.canViewMoney = false;
         },
         loginFailed: {
             reducer(state, action) {
@@ -53,5 +72,5 @@ const authSlice = createSlice({
     }
 });
 
-export const {logout, login, loginFailed} = authSlice.actions;
+export const {logout, login, loginFailed, infoUpdate} = authSlice.actions;
 export default authSlice.reducer;
