@@ -1,14 +1,14 @@
 language: java
 install: true
 
-addons:
-  postgresql: "11"
-  apt:
-    packages:
-      - postgresql-11
-      - postgresql-client-11
+#addons:
+#  postgresql: "11"
+#  apt:
+#    packages:
+#      - postgresql-11
+#      - postgresql-client-11
 
-# services: postgresql
+services: postgresql
 
 os: linux
 jdk: openjdk11
@@ -16,7 +16,7 @@ dist: trusty
 
 env:
   global:
-    - PGPORT=5433
+#    - PGPORT=5433
     - CI=true
 
 before_script:
