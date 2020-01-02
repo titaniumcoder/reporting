@@ -3,19 +3,30 @@ import React from 'react';
 import './Login.css';
 import GoogleLogin from "react-google-login";
 import {GoogleClientId} from "../constants";
-import {login, logout} from "./authSlice";
+import {login, loginFailed, logout, userinfoUpdate} from "./authSlice";
 import {useDispatch} from "react-redux";
+import {auth} from "../api/reportingApi";
 
 const Login = () => {
     const dispatch = useDispatch();
 
-    const responseSuccessGoogle = (response) => {
+    const responseSuccessGoogle = async (response) => {
         dispatch(login(response.profileObj.name, response.profileObj.email, response.tokenObj.id_token, response.tokenObj.expires_at));
+        try {
+            const serverResponse = await auth(response.tokenObj.id_token);
+            if (serverResponse.status === 200) {
+                const {admin, canBook, canViewMoney} = serverResponse.data;
+                dispatch(userinfoUpdate(admin, canBook, canViewMoney))
+            } else {
+                dispatch(loginFailed("Unexpected Server Response Status: " + serverResponse.status));
+            }
+        } catch (err) {
+            dispatch(loginFailed(err.toString()));
+        }
     };
 
     const responseFailureGoogle = (response) => {
-        console.error('Google Failure during login', response);
-        dispatch(logout());
+        dispatch(loginFailed(response.toString()));
     };
 
     return (

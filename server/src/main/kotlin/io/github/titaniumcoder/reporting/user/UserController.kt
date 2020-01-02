@@ -8,6 +8,12 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api")
 class UserController(val service: UserService) {
 
+    @Secured("isAuthenticated()")
+    @GetMapping("/current-user")
+    fun me(auth: Authentication): UserDto? {
+        return service.currentUser()
+    }
+
     @Secured("ROLE_ADMIN")
     @GetMapping("/users")
     fun list(): List<UserDto> {

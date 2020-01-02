@@ -30,7 +30,7 @@ const authSlice = createSlice({
                 }
             }
         },
-        infoUpdate: {
+        userinfoUpdate: {
             reducer(state, action) {
                 const {admin, canBook, canViewMoney}=action.payload;
                 state.admin = admin;
@@ -60,6 +60,9 @@ const authSlice = createSlice({
                 const {error} = action.payload;
                 state.error = error;
                 state.loggedIn = false;
+                state.admin = false;
+                state.canBook = false;
+                state.canViewMoney = false;
             },
             prepare(error) {
                 return {
@@ -72,5 +75,5 @@ const authSlice = createSlice({
     }
 });
 
-export const {logout, login, loginFailed, infoUpdate} = authSlice.actions;
+export const {logout, login, loginFailed, userinfoUpdate} = authSlice.actions;
 export default authSlice.reducer;

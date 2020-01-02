@@ -1,8 +1,12 @@
 package io.github.titaniumcoder.reporting.user
 
 import io.github.titaniumcoder.reporting.client.Client
+import io.github.titaniumcoder.reporting.config.SecurityConfiguration
+import org.apache.catalina.security.SecurityConfig
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.context.SecurityContext
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 
 @Service
@@ -59,6 +63,11 @@ class UserService(val repository: UserRepository) {
                 user.canViewMoney,
                 user.admin
         )
+    }
+
+    fun currentUser(): UserDto? {
+        val ctx = SecurityContextHolder.getContext()
+        return ctx?.let { findByEmail(ctx.authentication.principal as String) }?.let { toDto(it) }
     }
 
 }

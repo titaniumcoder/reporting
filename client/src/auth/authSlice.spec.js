@@ -1,4 +1,4 @@
-import auth, {loginFailed, login, logout, infoUpdate} from './authSlice'
+import auth, {loginFailed, login, logout, userinfoUpdate} from './authSlice'
 
 const sampleState = {
     username: undefined,
@@ -44,7 +44,10 @@ describe('authSlice', () => {
         ).toEqual({
             ...sampleState,
             error: 'I have failed',
-            loggedIn: false
+            loggedIn: false,
+            admin: false,
+            canBook: false,
+            canViewMoney: false
         })
     });
     it('handles login correctly', () => {
@@ -69,7 +72,7 @@ describe('authSlice', () => {
     it('handles the server update correctly', () => {
         expect(
             auth(sampleState, {
-                type: infoUpdate.type,
+                type: userinfoUpdate.type,
                 payload: {
                     admin: true,
                     canBook: true,
