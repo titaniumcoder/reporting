@@ -1,5 +1,4 @@
 language: java
-install: true
 
 #addons:
 #  postgresql: "11"
@@ -8,7 +7,7 @@ install: true
 #      - postgresql-11
 #      - postgresql-client-11
 
-services: postgresql
+# services: postgresql
 
 os: linux
 jdk: openjdk11
@@ -18,6 +17,12 @@ env:
   global:
 #    - PGPORT=5433
     - CI=true
+
+install:
+  - sudo apt-get install -yq --no-install-suggests --no-install-recommends postgresql-common
+  - sudo service postgresql stop
+  - sudo apt install -yq --no-install-suggests --no-install-recommends postgresql-11 postgresql-client-11
+  - sudo service postgresql start 11
 
 before_script:
   - psql -c 'create database rtest;' -U postgres
