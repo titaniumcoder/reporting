@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${JDBC_URL:jdbc:postgresql://db:5432/reporting}
-    username: ${JDBC_USER:reporting}
-    password: ${JDBC_PASSWORD:""}
+    url: ${JDBC_DATABASE_URL:jdbc:postgresql://db:5432/reporting}
+    username: ${JDBC_DATABASE_USER:reporting}
+    password: ${JDBC_DATABASE_PASSWORD:""}
     driverClassName: org.postgresql.Driver
   jpa:
     hibernate:
@@ -19,6 +19,5 @@ spring:
 
 reporting:
   clientId: 483387557047-olrn4mkp6m7gltp5fqhgr76094q6qf6e.apps.googleusercontent.com
-  clientSecret: ${GOOGLE_SECRET}
   adminEmail: rico.metzger@gmail.com
 
