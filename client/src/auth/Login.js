@@ -3,7 +3,7 @@ import React from 'react';
 import './Login.css';
 import GoogleLogin from "react-google-login";
 import {GoogleClientId} from "../constants";
-import {login, loginFailed, logout, userinfoUpdate} from "./authSlice";
+import {login, loginFailed, userinfoUpdate} from "./authSlice";
 import {useDispatch} from "react-redux";
 import {auth} from "../api/reportingApi";
 
