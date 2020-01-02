@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: ${JDBC_URL:jdbc:postgresql://db:5432/reporting}
+    url: ${JDBC_URL:jdbc:postgresql://db:5433/reporting}
     username: ${JDBC_USER:reporting}
     password: ${JDBC_PASSWORD:""}
     driverClassName: org.postgresql.Driver

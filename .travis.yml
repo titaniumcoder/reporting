@@ -3,15 +3,21 @@ install: true
 
 addons:
   postgresql: "11"
+  apt:
+    packages:
+      - postgresql-1
+      - postgresql-client-11
 
-services: postgresql
+# services: postgresql
 
 os: linux
 jdk: openjdk11
 dist: trusty
 
 env:
-  - CI=true
+  global:
+    - PGPORT=5433
+    - CI=true
 
 before_script:
   - psql -c 'create database rtest;' -U postgres
