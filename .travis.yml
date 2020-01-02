@@ -15,7 +15,7 @@ dist: trusty
 
 env:
   global:
-#    - PGPORT=5433
+    - PGPORT=5433
     - CI=true
 
 install:
@@ -26,7 +26,6 @@ install:
 
 before_script:
   - psql -c 'create database rtest;' -U postgres
-
 
 script:
   - ./gradlew assembleServerAndClient --scan -s
