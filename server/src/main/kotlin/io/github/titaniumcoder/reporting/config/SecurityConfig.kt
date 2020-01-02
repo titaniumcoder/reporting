@@ -7,13 +7,15 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer
 
-@EnableWebSecurity(debug = true)
+
+@EnableWebSecurity
 @Configuration
 @EnableResourceServer
 class SecurityConfig : WebSecurityConfigurerAdapter() {
     override fun configure(http: HttpSecurity) {
-        http.authorizeRequests()
-                .antMatchers("/api/**").authenticated()
+        http
+                .csrf().disable()
+                .authorizeRequests()
                 .anyRequest().permitAll()
                 .and()
                 .httpBasic().disable()
@@ -22,3 +24,4 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
     }
 }
+

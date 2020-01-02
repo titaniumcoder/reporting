@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 class TestController {
     @GetMapping("/api/whoami")
-    fun testLogin(@AuthenticationPrincipal(expression="name") name: String): String {
+    fun testLogin(@AuthenticationPrincipal name: String): String {
         return name
     }
 }

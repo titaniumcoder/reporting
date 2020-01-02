@@ -10,7 +10,8 @@ const Login = () => {
     const dispatch = useDispatch();
 
     const responseSuccessGoogle = (response) => {
-        dispatch(login(response.profileObj.name, response.profileObj.email, response.tokenObj.access_token, response.tokenObj.expires_at));
+        console.log('Got the following information: ', response);
+        dispatch(login(response.profileObj.name, response.profileObj.email, response.tokenObj.id_token, response.tokenObj.expires_at));
     };
 
     const responseFailureGoogle = (response) => {

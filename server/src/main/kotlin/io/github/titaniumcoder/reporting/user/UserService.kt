@@ -1,18 +1,24 @@
 package io.github.titaniumcoder.reporting.user
 
 import io.github.titaniumcoder.reporting.client.Client
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.Authentication
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
-class UserService(val repository: UserRepository, val encoder: PasswordEncoder) {
+class UserService(val repository: UserRepository) {
     fun usersExists(): Boolean =
             repository.count() > 0
 
     fun listUsers(): List<UserDto> =
             repository.findAll()
                     .map { toDto(it) }
+
+    fun findById(username: String): User? =
+            repository.findByIdOrNull(username)
+
+    fun findByEmail(email: String): User? =
+            repository.findByEmail(email)
 
     fun saveUser(user: UserUpdateDto): UserDto {
         val newUser = User(
@@ -26,15 +32,6 @@ class UserService(val repository: UserRepository, val encoder: PasswordEncoder) 
         )
         return toDto(repository.save(newUser))
     }
-
-    fun validateUsernamePassword(username: String, password: String): User? =
-            repository.findById(username)
-                    .orElse(null)?.let { user ->
-                        if (encoder.matches(password, user.password))
-                            user
-                        else
-                            null
-                    }
 
     fun updateUser(username: String, user: UserUpdateDto, auth: Authentication): UserDto? {
         println("Calling it with auth $auth")
@@ -72,8 +69,4 @@ class UserService(val repository: UserRepository, val encoder: PasswordEncoder) 
         )
     }
 
-    private inline fun <reified T> tryCheck(obj: Any?, block: T.() -> Boolean): Boolean =
-            if (obj != null && obj is T) {
-                block(obj)
-            } else false
 }
