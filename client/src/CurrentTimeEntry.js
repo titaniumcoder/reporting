@@ -1,10 +1,8 @@
 import React, {useState} from "react";
-import {Button} from "reactstrap";
-import Row from "reactstrap/es/Row";
-import Col from "reactstrap/es/Col";
+import {Button, Col, Row} from "reactstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
-const CurrentTimeEntry = ({running}) => {
+const CurrentTimeEntry = () => {
     // TODO replace this with the reality
 
     // TODO handle start button: send to server
