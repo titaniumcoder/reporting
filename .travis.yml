@@ -1,6 +1,9 @@
 language: java
 install: true
 
+addons:
+  postgresql: "11"
+
 services: postgresql
 
 os: linux
