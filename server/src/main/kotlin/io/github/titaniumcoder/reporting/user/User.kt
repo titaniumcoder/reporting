@@ -35,7 +35,12 @@ data class UserDto(
         val canBook: Boolean,
         val canViewMoney: Boolean,
         val admin: Boolean,
-        val clients: List<Client> = listOf()
+        val clients: List<UserClient> = listOf()
+)
+
+data class UserClient(
+        val id: String,
+        val name: String
 )
 
 data class UserUpdateDto(
