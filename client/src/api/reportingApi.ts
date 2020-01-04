@@ -64,24 +64,75 @@ export interface UpdatingClient {
     rate: number;
 }
 
+export interface TimeEntry {
+    id?: number;
+    date: string;
+    starting: string;
+    ending?: string;
+
+    projectId?: number;
+    projectName?: string;
+
+    description?: string;
+
+    username: string;
+
+    billable: boolean;
+    billed: boolean;
+
+    timeUsed: string;
+    amount: number;
+}
+
+export interface UpdatingTimeEntry {
+    id?: number;
+    starting: string;
+    ending?: string;
+
+    projectId?: number;
+
+    description?: string;
+
+    username: string;
+
+    billable: boolean;
+    billed: boolean;
+}
+
 export interface IReportingApi {
     auth(idToken: string): Promise<AxiosResponse<ICurrentUser>>;
 
     logout(): void;
 
     fetchUsers(): Promise<AxiosResponse<User[]>>
+
     saveUser(user: UpdatingUser): Promise<AxiosResponse<void>>
+
     deleteUser(email: string): Promise<AxiosResponse<void>>
 
     fetchClients(): Promise<AxiosResponse<Client[]>>
+
     fetchClientList(): Promise<AxiosResponse<ClientList[]>>
+
     saveClient(client: Client): Promise<AxiosResponse<void>>
+
     deleteClient(id: string): Promise<AxiosResponse<void>>
 
     fetchProjects(): Promise<AxiosResponse<Project[]>>
+
     fetchProjectList(): Promise<AxiosResponse<ProjectList[]>>
+
     saveProject(client: Project): Promise<AxiosResponse<void>>
+
     deleteProject(id: number): Promise<AxiosResponse<void>>
+
+    fetchCurrentTimeetnry(): Promise<TimeEntry | undefined>
+
+    startTimeEntry(ref: number | undefined): Promise<AxiosResponse<TimeEntry>>
+
+    stopTimeEntry(te: UpdatingTimeEntry): Promise<AxiosResponse<TimeEntry>>
+
+    updateTimeEntry(te: UpdatingTimeEntry): Promise<AxiosResponse<TimeEntry>>
 }
 
 export interface ICurrentUser {
@@ -149,6 +200,29 @@ export class ReportingApi implements IReportingApi {
 
     async deleteProject(id: number) {
         return await axios.delete<void>('projects/' + id);
+    }
+
+    async fetchCurrentTimeetnry() {
+        const curr = await axios.get<TimeEntry | undefined>('current-timeentry');
+        if (curr.status === 204) {
+            return undefined
+        } else {
+            return curr.data
+        }
+    }
+
+    async startTimeEntry(ref: number | undefined) {
+        return await axios.post<TimeEntry>('start-timeentry', {}, {
+            params: {ref}
+        });
+    }
+
+    async stopTimeEntry(te: UpdatingTimeEntry) {
+        return await axios.post<TimeEntry>('stop-timeentry', te);
+    }
+
+    async updateTimeEntry(te: UpdatingTimeEntry) {
+        return await axios.post<TimeEntry>('timeentries', te);
     }
 }
 

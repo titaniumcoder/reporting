@@ -16,7 +16,7 @@ class UserController(val service: UserService) {
     @Secured("isAuthenticated()")
     @GetMapping("/current-user")
     fun me(auth: Authentication): UserDto? {
-        return service.currentUser()
+        return service.currentUserDto()
     }
 
     @Secured("ROLE_ADMIN")

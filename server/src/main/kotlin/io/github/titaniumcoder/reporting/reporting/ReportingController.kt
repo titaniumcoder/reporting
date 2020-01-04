@@ -1,16 +1,12 @@
 package io.github.titaniumcoder.reporting.reporting
 
-import org.springframework.format.annotation.DateTimeFormat
-import org.springframework.http.ResponseEntity
-import org.springframework.security.access.annotation.Secured
-import org.springframework.web.bind.annotation.*
-import java.io.ByteArrayInputStream
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api")
 class ReportingController(val service: ReportingService) {
+    /*
     @Secured("isAuthenticated()")
     @GetMapping("/client/{clientId}")
     fun entries(
@@ -37,4 +33,5 @@ class ReportingController(val service: ReportingService) {
 
         // return StreamedFile(input, MediaType.of("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")).attach(filename)
     }
+     */
 }

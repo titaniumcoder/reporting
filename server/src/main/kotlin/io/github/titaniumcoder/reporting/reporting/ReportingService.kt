@@ -1,15 +1,14 @@
 package io.github.titaniumcoder.reporting.reporting
 
-import io.github.titaniumcoder.reporting.toggl.TogglService
-import io.github.titaniumcoder.reporting.transformers.TransformerService
 import io.github.titaniumcoder.reporting.transformers.ViewModel
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
-class ExcelSheet(val name: String, val date: LocalDate, val excel: ByteArray)
+class ExcelSheet(val name: String, val date: LocalDate, @Suppress("unused") val excel: ByteArray)
 
 @Service
-class ReportingService(private val service: TogglService, private val transformer: TransformerService) {
+class ReportingService {
+    @Suppress("unused", "UNUSED_PARAMETER")
     private fun generateExcel(name: String, model: ViewModel.ReportingModel): ByteArray {
         fun tableheader(cell: Cell) {
             cell.apply {
@@ -21,6 +20,7 @@ class ReportingService(private val service: TogglService, private val transforme
             }
         }
         return excel {
+            /*
             sheet(name) {
                 // ---- header ----
                 cell(0, 0) {
@@ -257,12 +257,14 @@ class ReportingService(private val service: TogglService, private val transforme
                             }
                         }
             }
+             */
         }
                 .render()
     }
 
 
-    fun timesheet(clientId: Long, from: LocalDate, to: LocalDate): ExcelSheet {
+    @Suppress("unused")
+    fun timesheet(clientId: Long, from: LocalDate, to: LocalDate): ExcelSheet = TODO() /*{
         val originalEntries = service.entries(clientId, from, to)
 
         val entries =
@@ -275,16 +277,21 @@ class ReportingService(private val service: TogglService, private val transforme
 
         return ExcelSheet(name, from, body)
     }
+    */
 
-    fun entries(clientId: Long, from: LocalDate?, to: LocalDate?): ViewModel.ReportingModel {
+    @Suppress("unused")
+    fun entries(clientId: Long, from: LocalDate?, to: LocalDate?): ViewModel.ReportingModel = TODO() /*{
         val definiteTo = to ?: (LocalDate.now().plusMonths(1).withDayOfMonth(1).minusDays(1))
         val definiteFrom = from ?: (definiteTo.withDayOfMonth(1))
 
         val entries = service.entries(clientId, definiteFrom, definiteTo)
         return transformer.transformInput(entries, definiteFrom, definiteTo, clientId)
     }
+    */
 
+    @Suppress("unused")
     private fun formatTime(minutes: Int): Double = minutes.toDouble() / 1440
 
+    @Suppress("unused")
     private fun formatNumeric(minutes: Int): Double = minutes.toDouble() / 60
 }

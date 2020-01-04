@@ -2,10 +2,8 @@ package io.github.titaniumcoder.reporting.client
 
 import io.github.titaniumcoder.reporting.user.UserService
 import org.springframework.data.domain.Sort
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.lang.IllegalArgumentException
 
 @Service
 @Transactional
@@ -18,11 +16,11 @@ class ClientService(val repository: ClientRepository, val userService: UserServi
     }
 
     fun deleteClient(id: String) {
-        repository.deleteById(id);
+        repository.deleteById(id)
     }
 
     fun clientList(): List<ClientListDto> {
-        val user = userService.currentUser() ?: throw IllegalArgumentException("User is not logged in")
+        val user = userService.currentUserDto()
 
         val clients = repository.findActives().map { ClientListDto(it.id, it.name) }
 

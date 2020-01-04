@@ -80,3 +80,5 @@ data class ProjectDto(
         val amountOpen: Double,
         val amountRemaining: Double?
 )
+
+data class ProjectList(val id: Long?, val clientName: String, val name: String)

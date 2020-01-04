@@ -3,7 +3,6 @@ import {BrowserRouter as Router, Redirect, Route, Switch} from 'react-router-dom
 import './App.css';
 import Navigation from "../Navigation";
 import {Container} from "reactstrap";
-import CurrentTimeEntry from "../CurrentTimeEntry";
 import Clients from "../clients/Clients";
 import ClientInfo from "../clients/ClientInfo";
 import TimeLog from "../TimeLog";
@@ -13,6 +12,7 @@ import UserAdmin from "../users/UserAdmin";
 import {RootState} from "../rootReducer";
 import ClientAdmin from "../clients/ClientAdmin";
 import ProjectAdmin from "../projects/ProjectAdmin";
+import CurrentTimeEntry from "../timeentry/CurrentTimeEntry";
 
 const App = () => {
     const auth = useSelector((state: RootState) => state.auth);
