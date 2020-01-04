@@ -8,6 +8,14 @@ export interface User {
     clients: { id: string; name: string; }[];
 }
 
+export interface UpdatingUser {
+    email: string;
+    admin: boolean;
+    canBook: boolean;
+    canViewMoney: boolean;
+    clients: string[]
+}
+
 export interface Project {
 }
 
@@ -17,7 +25,7 @@ export interface Client {
     name: string;
     notes?: string;
     maxMinutes?: number;
-    rateInCentsPerHours?: number;
+    rateInCentsPerHour?: number;
 }
 
 
@@ -27,10 +35,12 @@ export interface IReportingApi {
     logout(): void;
 
     fetchUsers(): Promise<AxiosResponse<User[]>>
-    saveUser(user: User): Promise<boolean>
-    deleteUser(user: User): Promise<boolean>
+    saveUser(user: UpdatingUser): Promise<AxiosResponse<void>>
+    deleteUser(email: string): Promise<AxiosResponse<void>>
 
     fetchClients(): Promise<AxiosResponse<Client[]>>
+    saveClient(client: Client): Promise<AxiosResponse<void>>
+    deleteClient(client: Client): Promise<AxiosResponse<void>>
 }
 
 export interface ICurrentUser {
@@ -60,20 +70,25 @@ export class ReportingApi implements IReportingApi {
         return axios.get<User[]>('users');
     }
 
-    async saveUser(user: User) {
-        const result = await axios.post<User>('users', user);
-        return result.status === 200 || result.status === 201;
+    async saveUser(user: UpdatingUser) {
+        return await axios.post<void>('users', user);
     }
 
-    async deleteUser(user: User) {
-        const result = await axios.delete<void>('users/' + user.email);
-        return result.status >= 200 && result.status < 400;
+    async deleteUser(email: string) {
+        return await axios.delete<void>('users/' + email);
     }
 
     async fetchClients() {
         return axios.get<Client[]>('clients');
     }
 
+    async saveClient(client: Client) {
+        return await axios.post<void>('clients', client);
+    }
+
+    async deleteClient(client: Client) {
+        return await axios.delete<void>('users/' + client.id);
+    }
 }
 
 export default new ReportingApi();

@@ -7,6 +7,7 @@ import {
     Button,
     ButtonGroup,
     Form,
+    FormFeedback,
     FormGroup,
     Input,
     Label,
@@ -19,14 +20,24 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {RootState} from "../rootReducer";
 import Checkbox from "../components/Checkbox";
 import {fetchUsers} from "./userSlice";
-import reportingApi, {User} from "../api/reportingApi";
+import reportingApi, {UpdatingUser, User} from "../api/reportingApi";
 import Modal from "reactstrap/lib/Modal";
-import {Field, Formik} from "formik";
+import {FormHandler} from "../components/FormHandler";
+
+const EMPTY_USER_FORM: UpdatingUser = {
+    email: '',
+    clients: [],
+    admin: false,
+    canBook: false,
+    canViewMoney: false
+};
 
 const UserAdmin = () => {
+    const [newRecord, setNewRecord] = useState(false);
     const [editing, setEditing] = useState(false);
     const [deleting, setDeleting] = useState(false);
-    const [editingUser, setEditingUser] = useState({} as User);
+    const [instance, setInstance] = useState(EMPTY_USER_FORM);
+    const [editingId, setEditingId] = useState(undefined as string | undefined);
 
     const dispatch = useDispatch();
     const {users, error, loading} = useSelector((state: RootState) => {
@@ -38,35 +49,63 @@ const UserAdmin = () => {
         return {loggedIn, email};
     });
 
+    const updateRecord = async (user: UpdatingUser) => {
+        if (user.clients === undefined) {
+            user.clients = [];
+        }
+        await reportingApi.saveUser(user);
+        setInstance(EMPTY_USER_FORM);
+        setEditingId(undefined);
+        setEditing(false);
+        dispatch(fetchUsers());
+    };
+
+    const deleteRecord = async (email: string) => {
+        await reportingApi.deleteUser(email);
+        setDeleting(false);
+        setInstance(EMPTY_USER_FORM);
+        dispatch(fetchUsers());
+    };
+
+    const toUserForm = (user: User) => ({
+        admin: user.admin,
+        email: user.email,
+        canBook: user.canBook,
+        canViewMoney: user.canViewMoney,
+        clients: user.clients.map(i => i.id)
+    });
+
+    const updatingRecord = (user: User) => {
+        setInstance(toUserForm(user));
+        setEditing(true);
+        setNewRecord(false);
+        setEditingId(user.email);
+    };
+
     useEffect(() => {
         dispatch(fetchUsers());
-    }, [loggedIn, email]);
+    }, [loggedIn, email, dispatch]);
 
     const cancelEditing = () => {
+        setInstance(EMPTY_USER_FORM);
+        setEditingId(undefined);
+        setNewRecord(false);
         setEditing(false);
     };
 
     const cancelDeleting = () => {
+        setInstance(EMPTY_USER_FORM);
         setDeleting(false);
     };
-    const showDeleteUserDialog = (user: User) => {
-        setEditingUser(user);
+    const showDeleteDialog = (user: User) => {
+        setInstance(toUserForm(user));
         setDeleting(true);
     };
 
-    const createUser = () => {
-        setEditingUser({
-            email: '',
-            clients: [],
-            admin: false,
-            canBook: false,
-            canViewMoney: false
-        });
-        setEditing(true);
-    };
-
-    const updateUser = (user: User) => {
-        setEditingUser(user);
+    const createNewRecord = () => {
+        setInstance(EMPTY_USER_FORM);
+        setEditingId(undefined);
+        setNewRecord(true);
         setEditing(true);
     };
 
@@ -85,12 +124,19 @@ const UserAdmin = () => {
                     <th className="col-1 text-center">Money?</th>
                     <th className="col">Clients</th>
                     <th className="text-right col-auto">
-                        <Button onClick={createUser}><FontAwesomeIcon icon="plus"/></Button>
+                        <Button onClick={createNewRecord} size="sm"><FontAwesomeIcon icon="plus"/></Button>
                     </th>
                 </tr>
                 </thead>
                 <tbody>
-                {users.map(user => (
+                {users.map(user =>
+                    (editing && !newRecord && editingId === user.email && instance) ? (
+                        <tr key={user.email}>
+                            <td colSpan={6}>
+                                <UpdateForm instance={instance} cancel={cancelEditing} update={updateRecord}/>
+                            </td>
+                        </tr>
+                    ) : (
                         <tr key={user.email} className="row">
                             <td className="col">{user.email}</td>
                             <td className="col-1 text-center"><Checkbox value={user.admin}/></td>
@@ -108,10 +154,10 @@ const UserAdmin = () => {
                             </td>
                             <td className="col-auto">
                                 <ButtonGroup>
-                                    <Button color="light" onClick={() => updateUser(user)}>
+                                    <Button color="light" onClick={() => updatingRecord(user)}>
                                         <FontAwesomeIcon icon="pen"/>
                                     </Button>
-                                    <Button color="danger" onClick={() => showDeleteUserDialog(user)}>
+                                    <Button color="danger" onClick={() => showDeleteDialog(user)}>
                                         <FontAwesomeIcon icon="trash"/>
                                     </Button>
                                 </ButtonGroup>
@@ -119,192 +165,169 @@ const UserAdmin = () => {
                         </tr>
                     )
                 )}
+                {newRecord && (
+                    <tr>
+                        <td colSpan={6}>
+                            <UpdateForm instance={instance} cancel={cancelEditing} update={updateRecord}/>
+                        </td>
+                    </tr>
+                )}
                 </tbody>
             </Table>
 
-            <UpdateForm dispatch={dispatch} editingUser={editingUser} endEditing={cancelEditing} shown={editing}/>
-
-            <DeleteDialog dispatch={dispatch} editingUser={editingUser} endDeleting={cancelDeleting} shown={deleting}/>
+            <DeleteDialog shown={deleting} instance={instance} cancel={cancelDeleting} execute={deleteRecord}/>
         </div>
     );
 };
 
 export default UserAdmin;
 
-const UpdateForm = ({editingUser, dispatch, endEditing, shown}) => {
-    const [remoteError, setRemoteError] = useState<string | undefined>(undefined);
+interface UpdateFormProps {
+    instance: UpdatingUser;
+    cancel: () => void;
+    update: (user: UpdatingUser) => Promise<void>;
+}
 
-    const clients = useSelector((state: RootState) => state.client.clients);
-
-    const cancelEditing = () => {
-        endEditing();
+const UpdateForm = ({instance, cancel, update}: UpdateFormProps) => {
+    const validator = (value) => {
+        let errors: Map<string, string | undefined> = new Map();
+        if (!value.email) {
+            errors.set('email', 'Email is required');
+        } else {
+            const re = /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/i;
+            if (!re.test(value.email.toLowerCase())) {
+                errors.set('email', 'Email is not valid');
+            }
+        }
+        return errors;
     };
 
-    const handleSave = async (user: User) => {
+    const handleSave = async (value) => {
         try {
-            const result = await reportingApi.saveUser(user);
-            if (result) {
-                endEditing();
-                dispatch(fetchUsers());
-            } else {
-                setRemoteError('Could not save, check the log');
-            }
+            await update(value);
         } catch (err) {
             setRemoteError(err.toString());
         }
     };
 
-    return (
-        <Formik
-            initialValues={{...editingUser}}
-            validateOnChange={true}
-            validateOnMount={true}
-            validate={values => {
-                let errors: any = {};
-                if (!values.email) {
-                    errors.email = 'Email is required';
-                }
-                return errors;
-            }}
-            onSubmit={async (values, {setSubmitting}) => {
-                setSubmitting(true);
-                await handleSave({
-                    email: values.email,
-                    admin: !!values.admin,
-                    clients: values.clients,
-                    canViewMoney: !!values.canViewMoney,
-                    canBook: !!values.canBook
-                });
-                setSubmitting(false);
-            }}>
-            {({
-                  values,
-                  errors,
-                  handleChange,
-                  handleBlur,
-                  handleSubmit,
-                  isSubmitting,
-                  submitForm
-              }) => (
-                <Form onSubmit={handleSubmit}>
-                    <Modal isOpen={shown} toggle={cancelEditing}>
-                        <ModalHeader toggle={cancelEditing}>Editing User {editingUser.email}</ModalHeader>
-                        <ModalBody>
-                            {remoteError &&
-                            <Alert color="danger">{remoteError}</Alert>
-                            }
-                            <div>
-                                <FormGroup>
-                                    <Label for="email">Email:</Label>
-                                    <Input
-                                        type="email"
-                                        name="email"
-                                        value={values.email}
-                                        valid={!errors.email}
-                                        onBlur={handleBlur}
-                                        onChange={handleChange}/>
-                                </FormGroup>
-                                <FormGroup check>
-                                    <Field name="admin">
-                                        {({field}) => (
-                                            <Label check>
-                                                <Input
-                                                    type="checkbox"
-                                                    {...field}
-                                                    checked={field.value}
-                                                />
-                                                {' '}Admin?</Label>
-                                        )}
-                                    </Field>
-                                </FormGroup>
-                                <FormGroup check>
-                                    <Field name="canBook">
-                                        {({field}) => (
-                                            <Label check>
-                                                <Input
-                                                    type="checkbox"
-                                                    {...field}
-                                                    checked={field.value}
-                                                />
-                                                {' '}Can Book?</Label>
-                                        )}
-                                    </Field>
-                                </FormGroup>
-                                <FormGroup check>
-                                    <Field name="canViewMoney">
-                                        {({field}) => (
-                                            <Label check>
-                                                <Input
-                                                    type="checkbox"
-                                                    {...field}
-                                                    checked={field.value}
-                                                />
-                                                {' '}Can View Money?</Label>
-                                        )}
-                                    </Field>
-                                </FormGroup>
-                                <FormGroup>
-                                    <Label for="clients">Clients:</Label>
-                                    <Field name="clients">{
-                                        ({
-                                             field
-                                         }) => (
-                                            <Input
-                                                type="select"
-                                                {...field}
-                                                multiple={true}
-                                            >
-                                                {clients.map(client => (
-                                                    <option value={client.id}>client.name</option>
-                                                ))}
-                                            </Input>
-                                        )}</Field>
-                                </FormGroup>
-                            </div>
-                        </ModalBody>
-                        <ModalFooter>
-                            <Button type="submit" color="primary" disabled={isSubmitting}
-                                    onClick={() => submitForm()}>Save</Button>{' '}
-                            <Button color="secondary" onClick={cancelEditing}>Cancel</Button>
-                        </ModalFooter>
-                    </Modal>
-                </Form>
+    const {values, errors, submitDisabled, doSubmit, handleChange, handleChecked, handleMultiple} = FormHandler(instance, validator, handleSave);
 
-            )}
-        </Formik>
+    const [remoteError, setRemoteError] = useState<string | undefined>(undefined);
+
+    // const clients = useSelector((state: RootState) => state.client.clients);
+    const clients = [{id: 'a', name: 'A'}, {id: 'b', name: 'B'}, {id: 'c', name: 'C'}];
+
+    return (
+        <Form onSubmit={doSubmit}>
+            <div>
+                {remoteError &&
+                <Alert color="danger">{remoteError}</Alert>
+                }
+                <FormGroup>
+                    <Label for="email">Email:</Label>
+                    <Input
+                        autoFocus={true}
+                        type="email"
+                        name="email"
+                        valid={!errors.get('email')}
+                        invalid={!!errors.get('email')}
+                        value={values.email}
+                        onChange={handleChange}
+                    />
+                    <FormFeedback>{errors.get('email')}</FormFeedback>
+                </FormGroup>
+                <FormGroup check>
+                    <Label check>
+                        <Input
+                            type="checkbox"
+                            checked={values.admin}
+                            onChange={handleChecked}
+                            name="admin"
+                        />
+                        {' '}Admin?</Label>
+                </FormGroup>
+                <FormGroup check>
+                    <Label check>
+                        <Input
+                            type="checkbox"
+                            checked={values.canBook}
+                            onChange={handleChecked}
+                            name="canBook"
+                        />
+                        {' '}Can Book?</Label>
+                </FormGroup>
+                <FormGroup check>
+                    <Label check>
+                        <Input
+                            type="checkbox"
+                            checked={values.canViewMoney}
+                            onChange={handleChecked}
+                            name="canViewMoney"
+                        />
+                        {' '}Can View Money?</Label>
+                </FormGroup>
+                <FormGroup>
+                    <Label for="clients">Clients:</Label>
+                    <Input
+                        type="select"
+                        name="clients"
+                        onChange={handleMultiple}
+                        multiple={true}
+                        value={values.clients}
+                    >
+                        {clients.map(client => (
+                            <option key={client.id} value={client.id}>{client.name}</option>
+                        ))}
+                    </Input>
+                </FormGroup>
+                <ButtonGroup>
+                    <Button type="submit" color="primary"
+                            disabled={submitDisabled}>Save</Button>{' '}
+                    <Button color="secondary" onClick={() => {
+                        cancel();
+                    }}>Cancel</Button>
+                </ButtonGroup>
+            </div>
+        </Form>
     );
 };
-const DeleteDialog = ({editingUser, dispatch, endDeleting, shown}) => {
+
+interface IDeleteDialogProps {
+    instance: UpdatingUser;
+    cancel: () => void;
+    shown: boolean;
+    execute: (string) => Promise<void>;
+}
+
+const DeleteDialog: React.FC<IDeleteDialogProps> = ({instance, cancel, execute, shown}) => {
     const [remoteError, setRemoteError] = useState<string | undefined>(undefined);
 
     const handleDelete = async () => {
         try {
-            const result = await reportingApi.deleteUser(editingUser);
-            if (result) {
-                endDeleting();
-                dispatch(fetchUsers());
-            } else {
-                setRemoteError('Could not delete, check the log');
-            }
+            await execute(instance.email);
         } catch (err) {
             setRemoteError(err.toString());
         }
     };
 
+    if (!shown) {
+        return null;
+    }
+
     return (
-        <Modal isOpen={shown} toggle={endDeleting}>
-            <ModalHeader toggle={endDeleting}>Deleting User</ModalHeader>
+        <Modal isOpen={shown} toggle={cancel}>
+            <ModalHeader toggle={cancel}>Deleting User</ModalHeader>
             <ModalBody>
                 {remoteError && (
                     <Alert color="danger">{remoteError}</Alert>
                 )}
                 <div>
-                    Are you sure you want to delete user {editingUser.email}?
+                    Are you sure you want to delete user {instance.email}?
                 </div>
             </ModalBody>
             <ModalFooter>
-                <Button color="danger" onClick={handleDelete}>Delete</Button>{' '}
-                <Button color="secondary" onClick={endDeleting}>Cancel</Button>
+                <Button color="danger" type="submit" onClick={handleDelete}>Delete</Button>{' '}
+                <Button color="secondary" onClick={cancel}>Cancel</Button>
             </ModalFooter>
         </Modal>
     );

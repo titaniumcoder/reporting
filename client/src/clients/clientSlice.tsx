@@ -1,7 +1,6 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import reportingApi, {Client} from "../api/reportingApi";
 import {AppThunk} from "../store";
-import {loadingUsers, loadUsersFailed, loadUsersSuccess} from "../users/userSlice";
 
 type UserState = {
     loading: boolean;

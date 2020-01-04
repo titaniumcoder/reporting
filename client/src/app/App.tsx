@@ -11,6 +11,7 @@ import Login from "../auth/Login";
 import {useSelector} from "react-redux";
 import UserAdmin from "../users/UserAdmin";
 import {RootState} from "../rootReducer";
+import ClientAdmin from "../clients/ClientAdmin";
 
 const App = () => {
     const auth = useSelector((state: RootState) => state.auth);
@@ -37,9 +38,9 @@ const App = () => {
                                     admin ? (
                                         <div>
                                             <UserAdmin/>
+                                            <ClientAdmin/>
                                             {
                                                 /*
-                                            <ClientAdmin/>
                                             <ProjectAdmin/>
                                                  */
                                             }
