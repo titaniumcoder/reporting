@@ -57,6 +57,7 @@ const UserAdmin = () => {
         setInstance(EMPTY_USER_FORM);
         setEditingId(undefined);
         setEditing(false);
+        setNewRecord(false);
         dispatch(fetchUsers());
     };
 
@@ -298,7 +299,7 @@ interface IDeleteDialogProps {
     execute: (string) => Promise<void>;
 }
 
-const DeleteDialog: React.FC<IDeleteDialogProps> = ({instance, cancel, execute, shown}) => {
+const DeleteDialog = ({instance, cancel, execute, shown}: IDeleteDialogProps) => {
     const [remoteError, setRemoteError] = useState<string | undefined>(undefined);
 
     const handleDelete = async () => {

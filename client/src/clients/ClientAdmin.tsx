@@ -7,6 +7,7 @@ import {
     Button,
     ButtonGroup,
     Form,
+    FormFeedback,
     FormGroup,
     Input,
     Label,
@@ -19,15 +20,27 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {RootState} from "../rootReducer";
 import Checkbox from "../components/Checkbox";
 import {fetchClients} from "./clientSlice";
-import reportingApi, {Client} from "../api/reportingApi";
+import reportingApi, {Client, UpdatingClient} from "../api/reportingApi";
 import Modal from "reactstrap/lib/Modal";
-import ShowMinutes from "../components/ShowMinutes";
+import ShowHours, {toHours, toMinutes} from "../components/ShowHours";
 import ShowRate from "../components/ShowRate";
+import {FormHandler} from "../components/FormHandler";
+
+const EMPTY_CLIENT_FORM: UpdatingClient = {
+    active: true,
+    id: '',
+    maxHours: '',
+    name: '',
+    notes: '',
+    rate: 0
+};
+
 
 const ClientAdmin = () => {
     const [newRecord, setNewRecord] = useState(false);
+    const [editing, setEditing] = useState(false);
     const [deleting, setDeleting] = useState(false);
-    const [instance, setInstance] = useState(undefined as Client | undefined);
+    const [instance, setInstance] = useState(EMPTY_CLIENT_FORM);
     const [editingId, setEditingId] = useState(undefined as string | undefined);
 
     const dispatch = useDispatch();
@@ -40,33 +53,45 @@ const ClientAdmin = () => {
         return {loggedIn, email};
     });
 
-    const updateRecord = async (client: Client) => {
-        if (client.rateInCentsPerHour === 0) {
-            client.rateInCentsPerHour = undefined;
-        }
-        if (client.maxMinutes === 0) {
-            client.maxMinutes = undefined;
-        }
-        if (!client.notes) {
-            client.notes = undefined;
-        }
-        await reportingApi.saveClient(client);
-        setInstance(undefined);
+    const updateRecord = async (client: UpdatingClient) => {
+        await reportingApi.saveClient(toClient(client));
+        setInstance(EMPTY_CLIENT_FORM);
         setEditingId(undefined);
+        setEditing(false);
+        setNewRecord(false);
         dispatch(fetchClients());
     };
 
-    const deleteRecord = async (client: Client) => {
-        await reportingApi.deleteClient(client);
+    const deleteRecord = async (id: string) => {
+        await reportingApi.deleteClient(id);
         setDeleting(false);
-        setInstance(undefined);
+        setInstance(EMPTY_CLIENT_FORM);
         dispatch(fetchClients());
     };
+
+    const toClientForm = (client: Client) => ({
+        active: client.active,
+        id: client.id,
+        name: client.name,
+        notes: client.notes || '',
+        maxHours: client.maxMinutes ? toHours(client.maxMinutes, false) : '0:00',
+        rate: client.rateInCentsPerHour ? client.rateInCentsPerHour / 100 : 0,
+    } as UpdatingClient);
+
+    const toClient = (client: UpdatingClient) => ({
+        active: client.active,
+        id: client.id,
+        name: client.name,
+        notes: client.notes === '' ? undefined : client.notes,
+        maxMinutes: toMinutes(client.maxHours),
+        rateInCentsPerHour: Math.round(client.rate * 100)
+    } as Client);
 
     const updatingRecord = (client: Client) => {
-        setInstance(client);
-        setEditingId(client.id);
+        setInstance(toClientForm(client));
+        setEditing(true);
         setNewRecord(false);
+        setEditingId(client.id);
     };
 
     useEffect(() => {
@@ -74,31 +99,26 @@ const ClientAdmin = () => {
     }, [loggedIn, email, dispatch]);
 
     const cancelEditing = () => {
-        setInstance(undefined);
+        setInstance(EMPTY_CLIENT_FORM);
         setEditingId(undefined);
         setNewRecord(false);
+        setEditing(false);
     };
 
     const cancelDeleting = () => {
-        setInstance(undefined);
+        setInstance(EMPTY_CLIENT_FORM);
         setDeleting(false);
     };
     const showDeleteDialog = (client: Client) => {
-        setInstance(client);
+        setInstance(toClientForm(client));
         setDeleting(true);
     };
 
     const createNewRecord = () => {
-        setInstance({
-            notes: '',
-            maxMinutes: undefined,
-            rateInCentsPerHour: undefined,
-            name: '',
-            id: '',
-            active: true
-        });
+        setInstance(EMPTY_CLIENT_FORM);
         setEditingId(undefined);
         setNewRecord(true);
+        setEditing(true);
     };
 
     return (
@@ -114,16 +134,16 @@ const ClientAdmin = () => {
                     <th className="col-1">Id</th>
                     <th className="col-3">Name</th>
                     <th className="col">Notes</th>
-                    <th className="col-2 text-right">Max Time</th>
-                    <th className="col-2 text-right">Rate</th>
-                    <th className="text-right col-auto">
+                    <th className="col-1">Max Time</th>
+                    <th className="col-1">Rate</th>
+                    <th className="text-right col-1">
                         <Button onClick={createNewRecord} size="sm"><FontAwesomeIcon icon="plus"/></Button>
                     </th>
                 </tr>
                 </thead>
                 <tbody>
                 {clients.map(client => (
-                        (editingId && editingId === client.id) ? (
+                        (editing && !newRecord && editingId === client.id) ? (
                             <tr key={client.id}>
                                 <td colSpan={6}>
                                     <UpdateForm instance={instance} cancel={cancelEditing} update={updateRecord}/>
@@ -135,9 +155,9 @@ const ClientAdmin = () => {
                                 <td className="col-1">{client.id}</td>
                                 <td className="col-3">{client.name}</td>
                                 <td className="col">{client.notes}</td>
-                                <td className="col-2 text-right"><ShowMinutes minutes={client.maxMinutes}/></td>
-                                <td className="col-2 text-right"><ShowRate rate={client.rateInCentsPerHour}/></td>
-                                <td className="col-auto">
+                                <td className="col-1"><ShowHours minutes={client.maxMinutes}/></td>
+                                <td className="col-1"><ShowRate rate={client.rateInCentsPerHour}/></td>
+                                <td className="col-1 text-right">
                                     <ButtonGroup>
                                         <Button color="light" onClick={() => updatingRecord(client)}>
                                             <FontAwesomeIcon icon="pen"/>
@@ -168,35 +188,40 @@ const ClientAdmin = () => {
 
 export default ClientAdmin;
 
-const UpdateForm = ({instance, cancel, update}) => {
-    const [remoteError, setRemoteError] = useState<string | undefined>(undefined);
+interface UpdateFormProps {
+    instance: UpdatingClient;
+    cancel: () => void;
+    update: (client: UpdatingClient) => Promise<void>;
+}
 
-    const cancelEditing = () => {
-        cancel();
+const UpdateForm = ({instance, cancel, update}: UpdateFormProps) => {
+    const validator = (value) => {
+        let errors: Map<string, string | undefined> = new Map();
+        if (!value.id || value.id.length === 0) {
+            errors.set('id', 'ID is required');
+        }
+        if (!value.name || value.name.length === 0) {
+            errors.set('name', 'Name is required');
+        }
+        // TODO think about testing the rate and max minutes
+        return errors;
     };
 
-    const handleSave = async (client: Client) => {
+    const handleSave = async (client: UpdatingClient) => {
         try {
-            update(client);
+            setRemoteError(undefined);
+            await update(client);
         } catch (err) {
             setRemoteError(err.toString());
         }
     };
 
-    /*
-                    setSubmitting(true);
-                const {id, name, active, maxMinutes, rateInCentsPerHour, notes} = values;
-                await handleSave({
-                    id, name, active, maxMinutes, rateInCentsPerHour, notes
-                });
-                setSubmitting(false);
-     */
+    const {values, errors, submitDisabled, doSubmit, handleChange, handleChecked} = FormHandler(instance, validator, handleSave);
 
-    const handleSubmit = () => {
-    };
+    const [remoteError, setRemoteError] = useState<string | undefined>(undefined);
 
     return (
-        <Form onSubmit={handleSubmit}>
+        <Form onSubmit={doSubmit}>
             <div>
                 {remoteError &&
                 <Alert color="danger">{remoteError}</Alert>
@@ -205,6 +230,9 @@ const UpdateForm = ({instance, cancel, update}) => {
                     <Label check>
                         <Input
                             type="checkbox"
+                            checked={values.active}
+                            onChange={handleChecked}
+                            name="active"
                         />
                         {' '}Active?</Label>
                 </FormGroup>
@@ -212,43 +240,89 @@ const UpdateForm = ({instance, cancel, update}) => {
                     <Label for="id">Id:</Label>
                     <Input
                         autoFocus={true}
+                        type="text"
+                        name="id"
+                        valid={!errors.get('id')}
+                        invalid={!!errors.get('id')}
+                        value={values.id}
+                        onChange={handleChange}
                     />
+                    <FormFeedback>{errors.get('id')}</FormFeedback>
                 </FormGroup>
                 <FormGroup>
                     <Label for="name">Name:</Label>
                     <Input
+                        type="text"
+                        name="name"
+                        valid={!errors.get('name')}
+                        invalid={!!errors.get('name')}
+                        value={values.name}
+                        onChange={handleChange}
                     />
+                    <FormFeedback>{errors.get('name')}</FormFeedback>
                 </FormGroup>
                 <FormGroup>
                     <Label for="notes">Notes:</Label>
                     <Input
+                        type="textarea"
+                        rows={3}
+                        name="notes"
+                        valid={!errors.get('notes')}
+                        invalid={!!errors.get('notes')}
+                        value={values.notes}
+                        onChange={handleChange}
                     />
+                    <FormFeedback>{errors.get('notes')}</FormFeedback>
                 </FormGroup>
                 <FormGroup>
-                    <Label for="maxMinutes">Max Time:</Label>
+                    <Label for="maxHours">Max Time:</Label>
                     <Input
+                        type="text"
+                        name="maxHours"
+                        valid={!errors.get('maxHours')}
+                        invalid={!!errors.get('maxHours')}
+                        value={values.maxHours}
+                        onChange={handleChange}
                     />
+                    <FormFeedback>{errors.get('maxHours')}</FormFeedback>
                 </FormGroup>
                 <FormGroup>
                     <Label for="rate">Rate:</Label>
                     <Input
+                        type="text"
+                        name="rate"
+                        valid={!errors.get('rate')}
+                        invalid={!!errors.get('rate')}
+                        value={values.rate}
+                        onChange={handleChange}
                     />
+                    <FormFeedback>{errors.get('rate')}</FormFeedback>
                 </FormGroup>
                 <ButtonGroup>
-                    <Button type="submit" color="primary" disabled={true}
-                            onClick={() => handleSubmit()}>Save</Button>{' '}
-                    <Button color="secondary" onClick={cancelEditing}>Cancel</Button>
+                    <Button type="submit" color="primary"
+                            disabled={submitDisabled}>Save</Button>{' '}
+                    <Button color="secondary" onClick={() => {
+                        cancel();
+                    }}>Cancel</Button>
                 </ButtonGroup>
             </div>
         </Form>
     );
 };
-const DeleteDialog = ({instance, cancel, execute, shown}) => {
+
+interface IDeleteDialogProps {
+    instance: UpdatingClient;
+    cancel: () => void;
+    shown: boolean;
+    execute: (string) => Promise<void>;
+}
+
+const DeleteDialog = ({instance, cancel, execute, shown}: IDeleteDialogProps) => {
     const [remoteError, setRemoteError] = useState<string | undefined>(undefined);
 
     const handleDelete = async () => {
         try {
-            await execute(instance);
+            await execute(instance.id);
         } catch (err) {
             setRemoteError(err.toString());
         }
@@ -270,7 +344,7 @@ const DeleteDialog = ({instance, cancel, execute, shown}) => {
                 </div>
             </ModalBody>
             <ModalFooter>
-                <Button color="danger" onClick={handleDelete}>Delete</Button>{' '}
+                <Button color="danger" type="submit" onClick={handleDelete}>Delete</Button>{' '}
                 <Button color="secondary" onClick={cancel}>Cancel</Button>
             </ModalFooter>
         </Modal>

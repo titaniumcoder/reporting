@@ -28,6 +28,14 @@ export interface Client {
     rateInCentsPerHour?: number;
 }
 
+export interface UpdatingClient {
+    id: string;
+    active: boolean;
+    name: string;
+    notes: string;
+    maxHours: string;
+    rate: number;
+}
 
 export interface IReportingApi {
     auth(idToken: string): Promise<AxiosResponse<ICurrentUser>>;
@@ -40,7 +48,7 @@ export interface IReportingApi {
 
     fetchClients(): Promise<AxiosResponse<Client[]>>
     saveClient(client: Client): Promise<AxiosResponse<void>>
-    deleteClient(client: Client): Promise<AxiosResponse<void>>
+    deleteClient(id: string): Promise<AxiosResponse<void>>
 }
 
 export interface ICurrentUser {
@@ -86,8 +94,8 @@ export class ReportingApi implements IReportingApi {
         return await axios.post<void>('clients', client);
     }
 
-    async deleteClient(client: Client) {
-        return await axios.delete<void>('users/' + client.id);
+    async deleteClient(id: string) {
+        return await axios.delete<void>('clients/' + id);
     }
 }
 
