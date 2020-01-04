@@ -10,9 +10,6 @@ class ClientService(val repository: ClientRepository) {
     fun clients(): List<Client> =
             repository.findAll(Sort.by("name"))
 
-    fun client(id: Int): ClientDto = TODO()
-
-    private fun calculateClientDto(client: Client): ClientDto = TODO()
     fun saveClient(client: Client): Client {
         return repository.save(client)
     }
@@ -20,5 +17,9 @@ class ClientService(val repository: ClientRepository) {
     fun deleteClient(id: String) {
         repository.deleteById(id);
     }
+
+    fun clientList(): List<ClientListDto> =
+            repository.findActives()
+                    .map { ClientListDto(it.id, it.name) }
 }
 

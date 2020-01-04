@@ -33,7 +33,6 @@ export function FormHandler<T>(instance: T, validator: (T) => Map<string, string
     };
 
     const doSubmit = async (evt) => {
-        console.log('Submit event: ', evt);
         evt.preventDefault();
 
         if (!submitDisabled) {

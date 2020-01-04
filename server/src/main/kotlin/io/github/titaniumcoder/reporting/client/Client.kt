@@ -54,3 +54,8 @@ data class ClientDto(
         val amountRemaining: Double?,
         val timeEntries: List<TimeEntryDto> = listOf()
 )
+
+data class ClientListDto(
+        val id: String,
+        val name: String
+)

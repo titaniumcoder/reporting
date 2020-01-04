@@ -41,6 +41,23 @@ data class Project(
         val billable: Boolean = true
 )
 
+data class ProjectAdminDto(
+        val id: Long?,
+        val clientId: String,
+        val clientName: String?,
+        val active: Boolean,
+        @NotBlank
+        @Size(max = 100)
+        val name: String,
+        @Min(0)
+        @Max(5260320)
+        val maxMinutes: Int?,
+        @Min(0)
+        @Max(200000)
+        val rateInCentsPerHour: Int?,
+        val billable: Boolean
+)
+
 data class ProjectDto(
         val id: Long?,
 
