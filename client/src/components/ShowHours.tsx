@@ -37,7 +37,7 @@ export const toMinutes: ToMinutesFunc = (hours) => {
     } else {
         const parts = hours.split(':');
 
-        if (parts.length != 2) {
+        if (parts.length !== 2) {
             throw new Error('Illegal time type, its either HH:MM or hh.mm');
         }
 
