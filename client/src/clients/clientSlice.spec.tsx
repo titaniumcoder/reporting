@@ -1,5 +1,4 @@
 import user, {loadClientsFailed, loadClientsSuccess, loadingClients} from './clientSlice'
-import {Client} from "../api/reportingApi";
 
 const sampleState = {
     clients: [
