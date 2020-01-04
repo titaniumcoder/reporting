@@ -214,8 +214,7 @@ const UpdateForm = ({instance, cancel, update}: UpdateFormProps) => {
 
     const [remoteError, setRemoteError] = useState<string | undefined>(undefined);
 
-    // const clients = useSelector((state: RootState) => state.client.clients);
-    const clients = [{id: 'a', name: 'A'}, {id: 'b', name: 'B'}, {id: 'c', name: 'C'}];
+    const clients = useSelector((state: RootState) => state.client.clients);
 
     return (
         <Form onSubmit={doSubmit}>
