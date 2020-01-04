@@ -30,41 +30,39 @@ const Navigation = () => {
         api.logout();
     };
 
-    if (admin) {
-        return (
-            <Navbar color="light" light expand="md">
-                <NavbarToggler onClick={toggle}/>
-                <Collapse isOpen={isOpen} navbar>
-                    <Nav className="mr-auto" navbar>
-                        <NavItem>
-                            <NavLink to="/" activeClassName="active" exact={true}
-                                     className="nav-link">Time</NavLink>
-                        </NavItem>
+    return (
+        <Navbar color="light" light expand="md">
+            <NavbarToggler onClick={toggle}/>
+            <Collapse isOpen={isOpen} navbar>
+                <Nav className="mr-auto" navbar>
+                    <NavItem>
+                        <NavLink to="/" activeClassName="active" exact={true}
+                                 className="nav-link">Time</NavLink>
+                    </NavItem>
+                    {admin && (
                         <NavItem>
                             <NavLink to="/admin" activeClassName="active"
                                      className="nav-link">Administration</NavLink>
                         </NavItem>
-                    </Nav>
-                    <Nav>
-                        <GoogleLogout
-                            clientId={GoogleClientId}
-                            buttonText="Logout"
-                            onLogoutSuccess={executeLogout}
-                            render={renderProps => (
-                                <NavItem>
-                                    <Button color="light" onClick={renderProps.onClick}
-                                            disabled={renderProps.disabled}>Logout</Button>
-                                </NavItem>
-                            )}
-                        />
-                        <NavbarText className="ml-2">{username} (till {expirationFormatted})</NavbarText>
-                    </Nav>
-                </Collapse>
-            </Navbar>
-        );
-    } else {
-        return null;
-    }
+                    )}
+                </Nav>
+                <Nav>
+                    <GoogleLogout
+                        clientId={GoogleClientId}
+                        buttonText="Logout"
+                        onLogoutSuccess={executeLogout}
+                        render={renderProps => (
+                            <NavItem>
+                                <Button color="light" onClick={renderProps.onClick}
+                                        disabled={renderProps.disabled}>Logout</Button>
+                            </NavItem>
+                        )}
+                    />
+                    <NavbarText className="ml-2">{username} (till {expirationFormatted})</NavbarText>
+                </Nav>
+            </Collapse>
+        </Navbar>
+    );
 };
 
 export default Navigation;

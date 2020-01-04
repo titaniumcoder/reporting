@@ -16,6 +16,7 @@ import ProjectAdmin from "../projects/ProjectAdmin";
 
 const App = () => {
     const auth = useSelector((state: RootState) => state.auth);
+
     const {loggedIn, admin, canBook, canViewMoney} = auth;
 
     if (!loggedIn) {
