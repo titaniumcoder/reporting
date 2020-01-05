@@ -18,20 +18,8 @@ const CurrentTimeEntry = () => {
     useEffect(() => {
         if (isAllowed && authToken) {
             const sse = new EventSource('/sse/current-timeentry?token=' + authToken);
-            sse.onopen = (e) => {
-                console.log('Event Source opened', e);
-            };
-            sse.onerror = (e: any) => {
-                if (e.readyState == EventSource.CLOSED) {
-                    console.log('close');
-                } else {
-                    console.log(e);
-                }
-            };
             sse.onmessage = (e) => {
-                console.log('Message Event: ', e.data);
-
-                dispatch(currentTimeEntrySuccess(e.data));
+                dispatch(currentTimeEntrySuccess(JSON.parse(e.data)));
             };
             return () => {
                 sse.close()
