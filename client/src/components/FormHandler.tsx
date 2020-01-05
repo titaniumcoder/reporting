@@ -1,6 +1,10 @@
 import {useEffect, useMemo, useState} from "react";
 
-export function FormHandler<T>(instance: T, validator: (T) => Map<string, string | undefined>, save: (T) => Promise<void>) {
+export interface FormErrors {
+    [field: string]: string;
+}
+
+export function FormHandler<T>(instance: T, validator: (T) => FormErrors, save: (T) => Promise<void>) {
     const [values, setValues] = useState(instance);
     const [submitting, setSubmitting] = useState(false);
     const [submitDisabled, setSubmitDisabled] = useState(true);
@@ -8,7 +12,7 @@ export function FormHandler<T>(instance: T, validator: (T) => Map<string, string
     const errors = useMemo(() => validator(values), [values, validator]);
 
     useEffect(() => {
-        setSubmitDisabled(submitting || errors.size > 0);
+        setSubmitDisabled(submitting || !!errors);
     }, [submitting, errors]);
 
     const handleChange = (evt) => {

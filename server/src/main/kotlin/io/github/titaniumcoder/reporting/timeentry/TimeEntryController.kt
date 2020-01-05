@@ -1,6 +1,5 @@
 package io.github.titaniumcoder.reporting.timeentry
 
-import io.github.titaniumcoder.reporting.config.Roles
 import io.github.titaniumcoder.reporting.config.Roles.Booking
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
@@ -15,9 +14,9 @@ class TimeEntryController(val service: TimeEntryService) {
     }
 
     @Secured(Booking)
-    @PostMapping("/stop-timeentry")
-    fun stopTimeEntry(@RequestBody timeentry: TimeEntryUpdateDto): TimeEntryDto {
-        return service.stopTimeEntry(timeentry);
+    @DeleteMapping("/current-timeentry/{id}")
+    fun stopTimeEntry(@PathVariable("id", required = true) id: Long): TimeEntryDto {
+        return service.stopTimeEntry(id)
     }
 
     @Secured(Booking)

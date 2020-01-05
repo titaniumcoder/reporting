@@ -1,4 +1,4 @@
-import client, {loadClientsFailed, loadClientsSuccess, loadClientsStarted, loadClientListFailed, loadClientListSuccess, loadClientListStarted} from './clientSlice'
+import client, {loadClientsFailed, loadClientsSuccess, loadClientsStarted, loadClientListFailed, loadClientListSuccess, loadClientListStarted, selectClient} from './clientSlice'
 
 const sampleState = {
     clients: [
@@ -18,7 +18,8 @@ const sampleState = {
         }
     ],
     error: undefined,
-    loading: false
+    loading: false,
+    selectedClient: undefined
 };
 
 describe('clientSlice', () => {
@@ -132,4 +133,15 @@ describe('clientSlice', () => {
             clientList: []
         })
     });
+    it('allows selection of a client', () => {
+        expect(
+            client(sampleState, {
+                type: selectClient.type,
+                payload: '111'
+            })
+        ).toEqual({
+            ...sampleState,
+            selectedClient: '111'
+        })
+    })
 });

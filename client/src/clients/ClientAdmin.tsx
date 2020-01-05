@@ -24,7 +24,7 @@ import reportingApi, {Client, UpdatingClient} from "../api/reportingApi";
 import Modal from "reactstrap/lib/Modal";
 import ShowHours, {toHours, toMinutes} from "../components/ShowHours";
 import ShowRate from "../components/ShowRate";
-import {FormHandler} from "../components/FormHandler";
+import {FormErrors, FormHandler} from "../components/FormHandler";
 
 const EMPTY_CLIENT_FORM: UpdatingClient = {
     active: true,
@@ -196,12 +196,12 @@ interface UpdateFormProps {
 
 const UpdateForm = ({instance, cancel, update}: UpdateFormProps) => {
     const validator = (value) => {
-        let errors: Map<string, string | undefined> = new Map();
+        let errors: FormErrors = {};
         if (!value.id || value.id.length === 0) {
-            errors.set('id', 'ID is required');
+            errors['id'] = 'ID is required';
         }
         if (!value.name || value.name.length === 0) {
-            errors.set('name', 'Name is required');
+            errors['name'] = 'Name is required';
         }
         // TODO think about testing the rate and max minutes
         return errors;
@@ -242,24 +242,24 @@ const UpdateForm = ({instance, cancel, update}: UpdateFormProps) => {
                         autoFocus={true}
                         type="text"
                         name="id"
-                        valid={!errors.get('id')}
-                        invalid={!!errors.get('id')}
+                        valid={!errors['id']}
+                        invalid={!!errors['id']}
                         value={values.id}
                         onChange={handleChange}
                     />
-                    <FormFeedback>{errors.get('id')}</FormFeedback>
+                    <FormFeedback>{errors['id']}</FormFeedback>
                 </FormGroup>
                 <FormGroup>
                     <Label for="name">Name:</Label>
                     <Input
                         type="text"
                         name="name"
-                        valid={!errors.get('name')}
-                        invalid={!!errors.get('name')}
+                        valid={!errors['name']}
+                        invalid={!!errors['name']}
                         value={values.name}
                         onChange={handleChange}
                     />
-                    <FormFeedback>{errors.get('name')}</FormFeedback>
+                    <FormFeedback>{errors['name']}</FormFeedback>
                 </FormGroup>
                 <FormGroup>
                     <Label for="notes">Notes:</Label>
@@ -267,36 +267,36 @@ const UpdateForm = ({instance, cancel, update}: UpdateFormProps) => {
                         type="textarea"
                         rows={3}
                         name="notes"
-                        valid={!errors.get('notes')}
-                        invalid={!!errors.get('notes')}
+                        valid={!errors['notes']}
+                        invalid={!!errors['notes']}
                         value={values.notes}
                         onChange={handleChange}
                     />
-                    <FormFeedback>{errors.get('notes')}</FormFeedback>
+                    <FormFeedback>{errors['notes']}</FormFeedback>
                 </FormGroup>
                 <FormGroup>
                     <Label for="maxHours">Max Time:</Label>
                     <Input
                         type="text"
                         name="maxHours"
-                        valid={!errors.get('maxHours')}
-                        invalid={!!errors.get('maxHours')}
+                        valid={!errors['maxHours']}
+                        invalid={!!errors['maxHours']}
                         value={values.maxHours}
                         onChange={handleChange}
                     />
-                    <FormFeedback>{errors.get('maxHours')}</FormFeedback>
+                    <FormFeedback>{errors['maxHours']}</FormFeedback>
                 </FormGroup>
                 <FormGroup>
                     <Label for="rate">Rate:</Label>
                     <Input
                         type="text"
                         name="rate"
-                        valid={!errors.get('rate')}
-                        invalid={!!errors.get('rate')}
+                        valid={!errors['rate']}
+                        invalid={!!errors['rate']}
                         value={values.rate}
                         onChange={handleChange}
                     />
-                    <FormFeedback>{errors.get('rate')}</FormFeedback>
+                    <FormFeedback>{errors['rate']}</FormFeedback>
                 </FormGroup>
                 <ButtonGroup>
                     <Button type="submit" color="primary"

@@ -80,7 +80,7 @@ export interface TimeEntry {
     billable: boolean;
     billed: boolean;
 
-    timeUsed: string;
+    timeUsed: number;
     amount: number;
 }
 
@@ -128,7 +128,7 @@ export interface IReportingApi {
 
     startTimeEntry(ref: number | undefined): Promise<AxiosResponse<TimeEntry>>
 
-    stopTimeEntry(te: UpdatingTimeEntry): Promise<AxiosResponse<TimeEntry>>
+    stopTimeEntry(id: number): Promise<AxiosResponse<TimeEntry>>
 
     updateTimeEntry(te: UpdatingTimeEntry): Promise<AxiosResponse<TimeEntry>>
 }
@@ -201,13 +201,13 @@ export class ReportingApi implements IReportingApi {
     }
 
     async startTimeEntry(ref: number | undefined) {
-        return await axios.post<TimeEntry>('start-timeentry', {}, {
+        return await axios.post<TimeEntry>('start-timeentry' + (ref ? '/' + ref : ''), {}, {
             params: {ref}
         });
     }
 
-    async stopTimeEntry(te: UpdatingTimeEntry) {
-        return await axios.post<TimeEntry>('stop-timeentry', te);
+    async stopTimeEntry(id: number) {
+        return await axios.delete<TimeEntry>('current-timeentry/' + id);
     }
 
     async updateTimeEntry(te: UpdatingTimeEntry) {

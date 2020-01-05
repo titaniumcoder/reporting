@@ -7,13 +7,15 @@ type ClientState = {
     error?: string;
     clients: Client[];
     clientList: { id: string, name: string }[]
+    selectedClient: string | undefined
 }
 
 let initialState: ClientState = {
     clients: [],
     loading: false,
     error: undefined,
-    clientList: []
+    clientList: [],
+    selectedClient: undefined
 };
 
 const clientSlice = createSlice({
@@ -49,6 +51,9 @@ const clientSlice = createSlice({
             state.loading = true;
             state.error = undefined;
             state.clientList = [];
+        },
+        selectClient(state, action: PayloadAction<string | undefined>) {
+            state.selectedClient = action.payload;
         }
     }
 });
@@ -59,7 +64,8 @@ export const {
     loadClientsStarted,
     loadClientListSuccess,
     loadClientListFailed,
-    loadClientListStarted
+    loadClientListStarted,
+    selectClient
 } = clientSlice.actions;
 
 export default clientSlice.reducer;

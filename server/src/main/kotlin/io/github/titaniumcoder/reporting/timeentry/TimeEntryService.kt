@@ -49,11 +49,14 @@ class TimeEntryService(val repository: TimeEntryRepository, val projectService: 
         return toDto(te)
     }
 
-    fun stopTimeEntry(entry: TimeEntryUpdateDto): TimeEntryDto {
-        val endingEntry = entry.copy(
-                ending = entry.ending ?: LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
+    fun stopTimeEntry(id: Long): TimeEntryDto {
+        val entry = repository.findByIdOrNull(id) ?: throw IllegalArgumentException("unknown id: $id")
+
+        val finalEntry = repository.save(
+                entry.copy(ending = LocalDateTime.now())
         )
-        return updateTimeEntry(endingEntry)
+
+        return toDto(finalEntry)
     }
 
     fun updateTimeEntry(entry: TimeEntryUpdateDto): TimeEntryDto {

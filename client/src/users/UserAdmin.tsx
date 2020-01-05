@@ -22,7 +22,7 @@ import Checkbox from "../components/Checkbox";
 import {fetchUsers} from "./userSlice";
 import reportingApi, {UpdatingUser, User} from "../api/reportingApi";
 import Modal from "reactstrap/lib/Modal";
-import {FormHandler} from "../components/FormHandler";
+import {FormErrors, FormHandler} from "../components/FormHandler";
 
 const EMPTY_USER_FORM: UpdatingUser = {
     email: '',
@@ -191,13 +191,13 @@ interface UpdateFormProps {
 
 const UpdateForm = ({instance, cancel, update}: UpdateFormProps) => {
     const validator = (value) => {
-        let errors: Map<string, string | undefined> = new Map();
+        let errors: FormErrors = {};
         if (!value.email) {
-            errors.set('email', 'Email is required');
+            errors['email'] = 'Email is required';
         } else {
             const re = /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/i;
             if (!re.test(value.email.toLowerCase())) {
-                errors.set('email', 'Email is not valid');
+                errors['email'] = 'Email is not valid';
             }
         }
         return errors;
@@ -229,12 +229,12 @@ const UpdateForm = ({instance, cancel, update}: UpdateFormProps) => {
                         autoFocus={true}
                         type="email"
                         name="email"
-                        valid={!errors.get('email')}
-                        invalid={!!errors.get('email')}
+                        valid={!errors['email']}
+                        invalid={!!errors['email']}
                         value={values.email}
                         onChange={handleChange}
                     />
-                    <FormFeedback>{errors.get('email')}</FormFeedback>
+                    <FormFeedback>{errors['email']}</FormFeedback>
                 </FormGroup>
                 <FormGroup check>
                     <Label check>

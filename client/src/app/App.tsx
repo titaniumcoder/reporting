@@ -17,7 +17,7 @@ import CurrentTimeEntry from "../timeentry/CurrentTimeEntry";
 const App = () => {
     const auth = useSelector((state: RootState) => state.auth);
 
-    const {loggedIn, admin, canBook, canViewMoney} = auth;
+    const {loggedIn, admin, canBook} = auth;
 
     if (!loggedIn) {
         return <Login/>
@@ -48,7 +48,7 @@ const App = () => {
                                 <Clients />
                                 <Route path="/client/:client">
                                     <div className="mt-3">
-                                        <ClientInfo canViewMoney={canViewMoney}/>
+                                        <ClientInfo />
                                         <hr/>
                                     </div>
                                 </Route>
