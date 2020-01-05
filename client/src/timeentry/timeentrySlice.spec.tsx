@@ -1,28 +1,11 @@
-import timeentry, {currentTimeEntryFailed, currentTimeEntryStarted, currentTimeEntrySuccess} from './timeentrySlice'
-import {Project, ProjectList, TimeEntry} from "../api/reportingApi";
+import timeentry, {currentTimeEntryFailed, currentTimeEntrySuccess} from './timeentrySlice'
 
 const sampleState = {
     currentTimeEntry: undefined,
     error: undefined,
-    loading: false
 };
 
 describe('timeentrySlice', () => {
-    it('handles currentTimeEntryStarted correctly', () => {
-        expect(
-            timeentry({
-                ...sampleState,
-                error: 'blabla',
-                loading: false
-            }, {
-                type: currentTimeEntryStarted.type
-            })
-        ).toEqual({
-            error: undefined,
-            loading: true,
-            currentTimeEntry: undefined
-        })
-    });
     it('handles currentTimeEntrySuccess correctly', () => {
         expect(
             timeentry(sampleState, {
@@ -55,7 +38,6 @@ describe('timeentrySlice', () => {
                 timeUsed: '33:22',
                 username: 'ABC'
             },
-            loading: false
         })
     });
     it('handles currentTimeEntryFailed correctly', () => {
@@ -66,7 +48,6 @@ describe('timeentrySlice', () => {
             })
         ).toEqual({
             currentTimeEntry: undefined,
-            loading: false,
             error: 'Hilfe!!'
         })
     });

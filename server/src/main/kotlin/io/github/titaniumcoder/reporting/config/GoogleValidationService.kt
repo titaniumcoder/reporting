@@ -5,13 +5,16 @@ import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.Cacheable
-import org.springframework.security.oauth2.common.exceptions.InvalidTokenException
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Mono
+import java.lang.RuntimeException
+
+interface TokenValidationService {
+    fun validateIdToken(idToken: String): Mono<String>
+}
 
 @Service
-class GoogleValidationService(val config: ReportingConfiguration) {
-    private val log = LoggerFactory.getLogger(GoogleResourceTokenServices::class.java)
-
+class GoogleValidationService(val config: ReportingConfiguration) : TokenValidationService {
     private val verifier: GoogleIdTokenVerifier by lazy {
         val transport = NetHttpTransport()
         val jsonFactory = JacksonFactory()
@@ -22,23 +25,31 @@ class GoogleValidationService(val config: ReportingConfiguration) {
     }
 
     @Cacheable("tokens")
-    fun validateIdToken(idToken: String): String {
-        val result = verifier.verify(idToken)
+    override fun validateIdToken(idToken: String): Mono<String> {
+        return Mono.fromCallable {
+            val result = verifier.verify(idToken)
 
-        if (result != null) {
-            val payload = result.payload
+            if (result != null) {
+                val payload = result.payload
 
-            val email = payload.email
-            val verified = payload.emailVerified
+                val email = payload.email
+                val verified = payload.emailVerified
 
-            if (verified) {
-                log.debug("Loading user with email $email")
-                return email
+                if (verified) {
+                    log.debug("Loading user with email $email")
+                    email
+                } else {
+                    throw InvalidTokenException(idToken)
+                }
             } else {
                 throw InvalidTokenException(idToken)
             }
-        } else {
-            throw InvalidTokenException(idToken)
         }
     }
+
+    companion object {
+        private val log = LoggerFactory.getLogger(GoogleValidationService::class.java)
+    }
 }
+
+class InvalidTokenException(token: String) : RuntimeException("Invalid Token: $token")

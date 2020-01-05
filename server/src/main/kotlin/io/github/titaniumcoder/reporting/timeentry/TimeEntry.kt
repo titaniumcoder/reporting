@@ -3,7 +3,6 @@ package io.github.titaniumcoder.reporting.timeentry
 import com.fasterxml.jackson.annotation.JsonFormat
 import io.github.titaniumcoder.reporting.project.Project
 import io.github.titaniumcoder.reporting.user.User
-import org.codehaus.jackson.annotate.JsonIgnore
 import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.persistence.*

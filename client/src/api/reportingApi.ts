@@ -126,8 +126,6 @@ export interface IReportingApi {
 
     deleteProject(id: number): Promise<AxiosResponse<void>>
 
-    fetchCurrentTimeetnry(): Promise<TimeEntry | undefined>
-
     startTimeEntry(ref: number | undefined): Promise<AxiosResponse<TimeEntry>>
 
     stopTimeEntry(te: UpdatingTimeEntry): Promise<AxiosResponse<TimeEntry>>
@@ -200,15 +198,6 @@ export class ReportingApi implements IReportingApi {
 
     async deleteProject(id: number) {
         return await axios.delete<void>('projects/' + id);
-    }
-
-    async fetchCurrentTimeetnry() {
-        const curr = await axios.get<TimeEntry | undefined>('current-timeentry');
-        if (curr.status === 204) {
-            return undefined
-        } else {
-            return curr.data
-        }
     }
 
     async startTimeEntry(ref: number | undefined) {

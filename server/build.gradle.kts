@@ -30,21 +30,23 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-cache")
-    implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.2.2.RELEASE")
-
-    implementation("org.springframework.security:spring-security-oauth2-client:5.2.1.RELEASE")
 
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     // for security parts
     implementation("com.google.api-client:google-api-client:1.30.7")
+
+    // for a cache implementation
     implementation("com.github.ben-manes.caffeine:caffeine:2.8.0")
 
+    // flyway and postgres
     runtimeOnly("org.postgresql:postgresql")
     implementation("org.flywaydb:flyway-core")
 
@@ -52,6 +54,8 @@ dependencies {
     implementation("org.apache.poi:poi-ooxml:4.1.0")
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
+    testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }

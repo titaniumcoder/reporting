@@ -1,27 +1,47 @@
 import React, {useEffect, useMemo} from "react";
-import {Button, ButtonGroup, Col, Input, Label, Row} from "reactstrap";
+import {Button, ButtonGroup, Col, Row} from "reactstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../rootReducer";
-import {fetchCurrentTimeEntry} from "./timeentrySlice";
 import reportingApi, {TimeEntry} from "../api/reportingApi";
+import {currentTimeEntrySuccess} from "./timeentrySlice";
 
 const CurrentTimeEntry = () => {
-    const {loggedIn, admin, canBook} = useSelector((root: RootState) => root.auth);
+    const {loggedIn, admin, canBook, authToken} = useSelector((root: RootState) => root.auth);
 
     const isAllowed = useMemo(() => loggedIn && (admin || canBook), [loggedIn, admin, canBook]);
 
     const currentTimeEntry: TimeEntry | undefined = useSelector((root: RootState) => root.timeentry.currentTimeEntry);
 
-    const validator = () => {};
-
     const dispatch = useDispatch();
 
     useEffect(() => {
-        if (isAllowed) {
-            dispatch(fetchCurrentTimeEntry());
+        if (isAllowed && authToken) {
+            const sse = new EventSource('/sse/current-timeentry?token=' + authToken);
+            sse.onopen = (e) => {
+                console.log('Event Source opened', e);
+            };
+            sse.onerror = (e: any) => {
+                if (e.readyState == EventSource.CLOSED) {
+                    console.log('close');
+                } else {
+                    console.log(e);
+                }
+            };
+            sse.onmessage = (e) => {
+                console.log('Message Event: ', e.data);
+
+                dispatch(currentTimeEntrySuccess(e.data));
+            };
+            return () => {
+                sse.close()
+            };
+        } else {
+
+            return () => {
+            }
         }
-    }, [isAllowed, dispatch]);
+    }, [isAllowed, authToken, dispatch]);
 
     const executeUpdateTimeEntry = async (api) => {
         if (currentTimeEntry) {
@@ -36,7 +56,6 @@ const CurrentTimeEntry = () => {
                 starting,
                 username
             });
-            dispatch(fetchCurrentTimeEntry());
         }
     };
 
@@ -48,7 +67,6 @@ const CurrentTimeEntry = () => {
     };
     const startNewEntry = async () => {
         await reportingApi.startTimeEntry(undefined);
-        dispatch(fetchCurrentTimeEntry());
     };
 
     if (currentTimeEntry) {

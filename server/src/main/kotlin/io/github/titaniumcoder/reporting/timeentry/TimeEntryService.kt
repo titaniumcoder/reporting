@@ -13,8 +13,8 @@ import java.time.temporal.ChronoUnit
 @Service
 @Transactional
 class TimeEntryService(val repository: TimeEntryRepository, val projectService: ProjectService, val userService: UserService) {
-    fun activeTimeEntry(): TimeEntryDto? {
-        val user = userService.currentUserDto()
+    fun activeTimeEntry(principal: String): TimeEntryDto? {
+        val user = userService.findByEmail(principal) ?: throw IllegalArgumentException("Unknown user: $principal")
 
         return repository.findLastOpenEntry(user.email, PageRequest.of(0, 1)).firstOrNull()?.let { toDto(it) }
     }

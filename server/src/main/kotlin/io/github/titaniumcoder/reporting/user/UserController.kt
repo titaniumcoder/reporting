@@ -1,5 +1,6 @@
 package io.github.titaniumcoder.reporting.user
 
+import io.github.titaniumcoder.reporting.config.Roles.Admin
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.ResponseEntity
@@ -19,19 +20,19 @@ class UserController(val service: UserService) {
         return service.currentUserDto()
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured(Admin)
     @GetMapping("/users")
     fun list(): List<UserDto> {
         return service.listUsers()
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured(Admin)
     @PostMapping("/users")
     fun save(@RequestBody @Validated user: UserUpdateDto): UserDto {
         return service.saveUser(user)
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured(Admin)
     @DeleteMapping("/users/{email}")
     fun delete(@PathVariable("email") email: String): ResponseEntity<Unit> {
         if (SecurityContextHolder.getContext().authentication.principal == email) {

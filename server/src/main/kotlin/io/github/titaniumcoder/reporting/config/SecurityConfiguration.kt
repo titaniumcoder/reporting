@@ -1,32 +1,49 @@
 package io.github.titaniumcoder.reporting.config
 
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.builders.WebSecurity
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer
+import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.security.authentication.ReactiveAuthenticationManager
+import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
+import org.springframework.security.config.web.server.ServerHttpSecurity
+import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.security.web.server.context.ServerSecurityContextRepository
+import reactor.core.publisher.Mono
 
-@EnableWebSecurity
+
 @Configuration
-@EnableResourceServer
-class SecurityConfiguration : WebSecurityConfigurerAdapter() {
-    override fun configure(web: WebSecurity) {
-        web.ignoring()
-                .antMatchers("/", "/index.html", "/*.json", "/favicon.ico", "/*.js", "/static/**", "/robots.txt", "/error")
-    }
+@EnableWebFluxSecurity
+@EnableReactiveMethodSecurity
+class SecurityConfiguration(val securityContextRepository: ServerSecurityContextRepository, val authenticationManager: ReactiveAuthenticationManager) {
 
-    override fun configure(http: HttpSecurity) {
-        http
+    @Bean
+    fun securitygWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain? {
+        return http
+                .cors().disable()
                 .csrf().disable()
-                .authorizeRequests()
-                .antMatchers("/api/**").authenticated()
-                .anyRequest().permitAll()
-                .and()
-                .httpBasic().disable()
                 .formLogin().disable()
-                .oauth2Login().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .httpBasic().disable()
+                .exceptionHandling()
+                .authenticationEntryPoint { swe, _ ->
+                    Mono.fromRunnable {
+                        swe.response.statusCode = HttpStatus.UNAUTHORIZED
+                    }
+                }
+                .accessDeniedHandler { swe, _ ->
+                    Mono.fromRunnable {
+                        swe.response.statusCode = HttpStatus.FORBIDDEN
+                    }
+                }
+                .and()
+                .securityContextRepository(securityContextRepository)
+                .authenticationManager(authenticationManager)
+                .authorizeExchange()
+                .pathMatchers(HttpMethod.OPTIONS).permitAll()
+                .pathMatchers("/", "/index.html", "/*.json", "/favicon.ico", "/*.js", "/static/**", "/robots.txt", "/error", "/sse/**").permitAll()
+                .anyExchange().authenticated()
+                .and().build()
     }
 }
+
