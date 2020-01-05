@@ -1,5 +1,6 @@
 package io.github.titaniumcoder.reporting.timeentry
 
+import io.github.titaniumcoder.reporting.exceptions.ForbiddenException
 import io.github.titaniumcoder.reporting.project.ProjectService
 import io.github.titaniumcoder.reporting.user.UserService
 import org.springframework.data.domain.PageRequest
@@ -22,7 +23,7 @@ class TimeEntryService(val repository: TimeEntryRepository, val projectService: 
     fun readTimeEntry(id: Long): TimeEntry? {
         val te = repository.findByIdOrNull(id) ?: throw IllegalArgumentException("could not load entry with id $id")
 
-        val user = userService.currentUser()
+        val user = userService.currentUser() ?: throw ForbiddenException()
 
         return when {
             user.admin -> te
@@ -41,7 +42,7 @@ class TimeEntryService(val repository: TimeEntryRepository, val projectService: 
                 ending = null,
                 project = ref?.project,
                 description = ref?.description,
-                user = userService.currentUser(),
+                user = userService.currentUser() ?: throw ForbiddenException(),
                 billable = ref?.project?.billable ?: true,
                 billed = false
         ))
@@ -68,7 +69,7 @@ class TimeEntryService(val repository: TimeEntryRepository, val projectService: 
                 description = entry.description,
                 ending = entry.ending,
                 starting = entry.starting,
-                user = userService.currentUser()
+                user = userService.currentUser() ?: throw ForbiddenException()
         )
                 ?: TimeEntry(
                         project = entry.projectId?.let { projectService.findProject(it) },
@@ -77,7 +78,7 @@ class TimeEntryService(val repository: TimeEntryRepository, val projectService: 
                         description = entry.description,
                         ending = entry.ending,
                         starting = entry.starting,
-                        user = userService.currentUser(),
+                        user = userService.currentUser() ?: throw ForbiddenException(),
                         id = null
                 )
 

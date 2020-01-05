@@ -5,11 +5,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContext
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.context.SecurityContextImpl
-import org.springframework.security.core.userdetails.ReactiveUserDetailsService
 import org.springframework.security.web.server.context.ServerSecurityContextRepository
 import org.springframework.stereotype.Component
 import org.springframework.web.server.ServerWebExchange
@@ -42,20 +39,5 @@ class JwtContextRepository(val authenticationManager: ReactiveAuthenticationMana
         private val log: Logger = LoggerFactory.getLogger(JwtContextRepository::class.java)
         private const val tokenPrefix = "Bearer "
         private const val prefixLength = tokenPrefix.length
-    }
-}
-
-@Component
-class AuthenticationManager(val tokenProvider: TokenValidationService, val userDetailsService: ReactiveUserDetailsService) : ReactiveAuthenticationManager {
-    override fun authenticate(authentication: Authentication): Mono<Authentication>? {
-        val authToken = authentication.credentials.toString()
-        return tokenProvider
-                .validateIdToken(authToken)
-                .flatMap { userDetailsService.findByUsername(it) }
-                .map {
-                    val a = UsernamePasswordAuthenticationToken(it.username, "N/A", it.authorities)
-                    SecurityContextHolder.getContext().authentication = a // TODO is this really right?
-                    a
-                }
     }
 }

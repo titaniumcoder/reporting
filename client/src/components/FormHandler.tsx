@@ -4,7 +4,11 @@ export interface FormErrors {
     [field: string]: string;
 }
 
-export function FormHandler<T>(instance: T, validator: (T) => FormErrors, save: (T) => Promise<void>) {
+export type SaveFunc<T> = (T) => Promise<void>
+
+export type ValidatorFunc<T> = (T) => FormErrors;
+
+export function FormHandler<T>(instance: T, validator: ValidatorFunc<T>, save: SaveFunc<T>) {
     const [values, setValues] = useState(instance);
     const [submitting, setSubmitting] = useState(false);
     const [submitDisabled, setSubmitDisabled] = useState(true);
@@ -12,7 +16,7 @@ export function FormHandler<T>(instance: T, validator: (T) => FormErrors, save: 
     const errors = useMemo(() => validator(values), [values, validator]);
 
     useEffect(() => {
-        setSubmitDisabled(submitting || !!errors);
+        setSubmitDisabled(submitting || errors === {});
     }, [submitting, errors]);
 
     const handleChange = (evt) => {

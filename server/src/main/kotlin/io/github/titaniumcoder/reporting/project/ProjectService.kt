@@ -3,6 +3,7 @@ package io.github.titaniumcoder.reporting.project
 import io.github.titaniumcoder.reporting.client.ClientRepository
 import io.github.titaniumcoder.reporting.config.Roles.Admin
 import io.github.titaniumcoder.reporting.config.Roles.Booking
+import io.github.titaniumcoder.reporting.exceptions.ForbiddenException
 import io.github.titaniumcoder.reporting.user.UserService
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
@@ -19,11 +20,14 @@ class ProjectService(val repository: ProjectRepository, val clientRepository: Cl
                     .map { toAdminDto(it) }
 
     @Secured("isAuthenticated()")
-    fun projectList(): List<ProjectList> =
-            repository
-                    .findAll(Sort.by("name"))
-                    .filter { userService.currentUser().admin || userService.currentUser().clients.map { c -> c.id }.contains(it.client.id) }
-                    .map { ProjectList(it.id, it.client.name, it.name) }
+    fun projectList(): List<ProjectList> {
+        val currentUser = userService.currentUser() ?: throw ForbiddenException()
+
+        return repository
+                .findAll(Sort.by("name"))
+                .filter { currentUser.admin || currentUser.clients.map { c -> c.id }.contains(it.client.id) }
+                .map { ProjectList(it.id, it.client.name, it.name) }
+    }
 
     @Secured(Admin)
     fun saveProject(dto: ProjectAdminDto): ProjectAdminDto {
@@ -45,10 +49,10 @@ class ProjectService(val repository: ProjectRepository, val clientRepository: Cl
     fun findProject(id: Long): Project? {
         val project = repository.findByIdOrNull(id)
 
-        val user = userService.currentUser()
+        val user = userService.currentUser() ?: throw ForbiddenException()
 
         return project?.let {
-            if (it.client in user.clients) it else null
+            if (user.admin || it.client in user.clients) it else null
         }
     }
 

@@ -4,9 +4,11 @@ import io.github.titaniumcoder.reporting.client.Client
 import io.github.titaniumcoder.reporting.client.ClientRepository
 import io.github.titaniumcoder.reporting.project.Project
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import reactor.core.publisher.Mono
 
 @Service
 @Transactional
@@ -38,12 +40,13 @@ class UserService(val repository: UserRepository, val clientRepository: ClientRe
         return toDto(repository.save(newUser))
     }
 
-    fun currentUser(): User {
-        val ctx = SecurityContextHolder.getContext()
-        return ctx?.let { findByEmail(ctx.authentication.principal as String) } ?: throw IllegalArgumentException("not allowed to be here") // TODO create own exception
+    fun currentUser(): User? {
+        val a1 = SecurityContextHolder.getContext().authentication
+
+        return findByEmail(a1.principal as String)
     }
 
-    fun currentUserDto(): UserDto = toDto(currentUser())
+    fun currentUserDto(): UserDto? = currentUser()?.let { toDto(it) }
 
     fun deleteUser(email: String) {
         repository.deleteById(email)
@@ -60,8 +63,8 @@ class UserService(val repository: UserRepository, val clientRepository: ClientRe
     }
 
     fun userHasAccessToClient(user: User, client: Client): Boolean =
-        user.clients.contains(client)
+            user.clients.contains(client)
 
     fun userHasAccessToProject(user: User, project: Project): Boolean =
-        userHasAccessToClient(user, project.client)
+            userHasAccessToClient(user, project.client)
 }

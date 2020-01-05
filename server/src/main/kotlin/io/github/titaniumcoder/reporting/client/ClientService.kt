@@ -1,5 +1,6 @@
 package io.github.titaniumcoder.reporting.client
 
+import io.github.titaniumcoder.reporting.exceptions.ForbiddenException
 import io.github.titaniumcoder.reporting.user.UserService
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
@@ -20,7 +21,7 @@ class ClientService(val repository: ClientRepository, val userService: UserServi
     }
 
     fun clientList(): List<ClientListDto> {
-        val user = userService.currentUserDto()
+        val user = userService.currentUserDto() ?: throw ForbiddenException()
 
         val clients = repository.findActives().map { ClientListDto(it.id, it.name) }
 
@@ -32,3 +33,4 @@ class ClientService(val repository: ClientRepository, val userService: UserServi
         }
     }
 }
+

@@ -22,7 +22,7 @@ import reportingApi, {TimeEntry} from "../api/reportingApi";
 import {currentTimeEntrySuccess} from "./timeentrySlice";
 import * as moment from 'moment';
 import ShowHours from "../components/ShowHours";
-import {FormErrors, FormHandler} from "../components/FormHandler";
+import {FormErrors, FormHandler, SaveFunc, ValidatorFunc} from "../components/FormHandler";
 
 interface SavingTimeEntry {
     id: number;
@@ -40,8 +40,8 @@ interface SavingTimeEntry {
 }
 
 const CurrentTimeEntry = () => {
-    const [remoteError, setRemoteError] = useState<string | undefined>(undefined);
-    const [isOpen, setIsOpen] = useState(true);
+    const [remoteError, setRemoteError] = useState('');
+    const [isOpen, setIsOpen] = useState(false);
     const [savingTimeEntry, setSavingTimeEntry] = useState<SavingTimeEntry>({
         ending: '',
         starting: '',
@@ -72,7 +72,7 @@ const CurrentTimeEntry = () => {
     };
 
     const updateTimeEntry = async (timeEntry: SavingTimeEntry) => {
-        setRemoteError(undefined);
+        setRemoteError('');
         try {
             await reportingApi.updateTimeEntry({
                 username: timeEntry.username,
@@ -84,20 +84,28 @@ const CurrentTimeEntry = () => {
                 billed: false,
                 billable: false
             });
+            setIsOpen(false);
         } catch (err) {
-            setRemoteError(err.toString);
+            try {
+                setRemoteError(err.toString);
+            } catch (err2) {
+                console.log('Could not set remote error: ', err);
+            }
         }
     };
-
-    const {values, errors, submitDisabled, doSubmit, handleChange, handleChecked} = FormHandler<SavingTimeEntry>(savingTimeEntry, validateTimeEntry, updateTimeEntry);
 
     const dispatch = useDispatch();
 
     useEffect(() => {
         if (isAllowed && authToken) {
-            const sse = new EventSource('/sse/current-timeentry?token=' + authToken);
+            const sse = new EventSource(`/sse/current-timeentry?token=${authToken}`);
             sse.onmessage = (e) => {
-                dispatch(currentTimeEntrySuccess(JSON.parse(e.data)));
+                const parsed = JSON.parse(e.data);
+                if (!parsed.id) {
+                    dispatch(currentTimeEntrySuccess(undefined))
+                } else {
+                    dispatch(currentTimeEntrySuccess(parsed));
+                }
             };
             return () => {
                 sse.close()
@@ -184,108 +192,134 @@ const CurrentTimeEntry = () => {
         <div>
             {row}
 
-            <Form onSubmit={doSubmit}>
-                <Modal isOpen={isOpen} toggle={closeModal}>
-                    <ModalHeader toggle={closeModal}>Saving entry</ModalHeader>
-                    <ModalBody>
-                        {remoteError &&
-                        <Alert color="danger">{remoteError}</Alert>
-                        }
-                        <FormGroup>
-                            <Label for="starting">Starting:</Label>
-                            <Input
-                                type="datetime-local"
-                                name="starting"
-                                valid={!errors['starting']}
-                                invalid={!!errors['starting']}
-                                value={values.starting}
-                                onChange={handleChange}
-                            />
-                            <FormFeedback>{errors['email']}</FormFeedback>
-                        </FormGroup>
-                        <FormGroup>
-                            <Label for="ending">Ending:</Label>
-                            <Input
-                                type="datetime-local"
-                                name="ending"
-                                valid={!errors['ending']}
-                                invalid={!!errors['ending']}
-                                value={values.ending}
-                                onChange={handleChange}
-                            />
-                            <FormFeedback>{errors['email']}</FormFeedback>
-                        </FormGroup>
-                        <FormGroup>
-                            <Label for="projectId">Project:</Label>
-                            <Input
-                                autoFocus={true}
-                                type="select"
-                                name="projectId"
-                                valid={!errors['projectId']}
-                                invalid={!!errors['projectId']}
-                                value={values.projectId}
-                                onChange={handleChange}>
-                                <option value={-1}>- No Project -</option>
-                                <option value={1}>Project 1</option>
-                            </Input>
-                            <FormFeedback>{errors['projectId']}</FormFeedback>
-                        </FormGroup>
-                        <FormGroup>
-                            <Label for="description">Description:</Label>
-                            <Input
-                                type="text"
-                                name="description"
-                                valid={!errors['description']}
-                                invalid={!!errors['description']}
-                                value={values.description}
-                                onChange={handleChange}
-                            />
-                            <FormFeedback>{errors['email']}</FormFeedback>
-                        </FormGroup>
-                        <FormGroup>
-                            <Label for="username">User:</Label>
-                            <Input
-                                type="text"
-                                name="username"
-                                valid={!errors['username']}
-                                invalid={!!errors['username']}
-                                value={values.username}
-                                onChange={handleChange}
-                            />
-                            <FormFeedback>{errors['email']}</FormFeedback>
-                        </FormGroup>
-                        <FormGroup check>
-                            <Label check>
-                                <Input
-                                    type="checkbox"
-                                    checked={values.billable}
-                                    onChange={handleChecked}
-                                    name="billable"
-                                />
-                                {' '}Billable?</Label>
-                        </FormGroup>
-                        <FormGroup check>
-                            <Label check>
-                                <Input
-                                    type="checkbox"
-                                    checked={values.billed}
-                                    onChange={handleChecked}
-                                    name="billed"
-                                />
-                                {' '}Billed?</Label>
-                        </FormGroup>
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button type="submit" color="primary"
-                                disabled={submitDisabled}>Save</Button>{' '}
-                        <Button color="secondary" onClick={() => {
-                            setIsOpen(false);
-                        }}>Cancel</Button>
-                    </ModalFooter>
-                </Modal>
-            </Form>
+            {isOpen &&
+            <UpdateDialog
+                savingTimeEntry={savingTimeEntry}
+                validateTimeEntry={validateTimeEntry}
+                updateTimeEntry={updateTimeEntry}
+                closeModal={closeModal}
+                remoteError={remoteError}
+                isOpen={isOpen}
+            />
+            }
         </div>
     );
 };
 
 export default CurrentTimeEntry;
+
+interface UpdateDialogProps {
+    savingTimeEntry: SavingTimeEntry;
+    validateTimeEntry: ValidatorFunc<SavingTimeEntry>;
+    updateTimeEntry: SaveFunc<SavingTimeEntry>;
+    closeModal: () => void;
+    remoteError: string | undefined;
+    isOpen: boolean;
+}
+
+const UpdateDialog = ({savingTimeEntry, validateTimeEntry, updateTimeEntry, closeModal, remoteError, isOpen}: UpdateDialogProps) => {
+    const {values, errors, submitDisabled, doSubmit, handleChange, handleChecked} =
+        FormHandler<SavingTimeEntry>(savingTimeEntry, validateTimeEntry, updateTimeEntry);
+
+
+    return (
+        <Form onSubmit={doSubmit}>
+            <Modal isOpen={isOpen} toggle={closeModal}>
+                <ModalHeader toggle={closeModal}>Saving entry</ModalHeader>
+                <ModalBody>
+                    {remoteError &&
+                    <Alert color="danger">{remoteError}</Alert>
+                    }
+                    <FormGroup>
+                        <Label for="starting">Starting:</Label>
+                        <Input
+                            type="datetime-local"
+                            name="starting"
+                            valid={!errors['starting']}
+                            invalid={!!errors['starting']}
+                            value={values.starting}
+                            onChange={handleChange}
+                        />
+                        <FormFeedback>{errors['email']}</FormFeedback>
+                    </FormGroup>
+                    <FormGroup>
+                        <Label for="ending">Ending:</Label>
+                        <Input
+                            type="datetime-local"
+                            name="ending"
+                            valid={!errors['ending']}
+                            invalid={!!errors['ending']}
+                            value={values.ending}
+                            onChange={handleChange}
+                        />
+                        <FormFeedback>{errors['email']}</FormFeedback>
+                    </FormGroup>
+                    <FormGroup>
+                        <Label for="projectId">Project:</Label>
+                        <Input
+                            autoFocus={true}
+                            type="select"
+                            name="projectId"
+                            valid={!errors['projectId']}
+                            invalid={!!errors['projectId']}
+                            value={values.projectId}
+                            onChange={handleChange}>
+                            <option value={-1}>- No Project -</option>
+                            <option value={1}>Project 1</option>
+                        </Input>
+                        <FormFeedback>{errors['projectId']}</FormFeedback>
+                    </FormGroup>
+                    <FormGroup>
+                        <Label for="description">Description:</Label>
+                        <Input
+                            type="text"
+                            name="description"
+                            valid={!errors['description']}
+                            invalid={!!errors['description']}
+                            value={values.description}
+                            onChange={handleChange}
+                        />
+                        <FormFeedback>{errors['email']}</FormFeedback>
+                    </FormGroup>
+                    <FormGroup>
+                        <Label for="username">User:</Label>
+                        <Input
+                            type="text"
+                            name="username"
+                            valid={!errors['username']}
+                            invalid={!!errors['username']}
+                            value={values.username}
+                            onChange={handleChange}
+                        />
+                        <FormFeedback>{errors['email']}</FormFeedback>
+                    </FormGroup>
+                    <FormGroup check>
+                        <Label check>
+                            <Input
+                                type="checkbox"
+                                checked={values.billable}
+                                onChange={handleChecked}
+                                name="billable"
+                            />
+                            {' '}Billable?</Label>
+                    </FormGroup>
+                    <FormGroup check>
+                        <Label check>
+                            <Input
+                                type="checkbox"
+                                checked={values.billed}
+                                onChange={handleChecked}
+                                name="billed"
+                            />
+                            {' '}Billed?</Label>
+                    </FormGroup>
+                </ModalBody>
+                <ModalFooter>
+                    <Button type="submit" color="primary"
+                            disabled={submitDisabled} onClick={doSubmit}>Save</Button>{' '}
+                    <Button color="secondary" onClick={closeModal}>Cancel</Button>
+                </ModalFooter>
+            </Modal>
+        </Form>
+    )
+};
