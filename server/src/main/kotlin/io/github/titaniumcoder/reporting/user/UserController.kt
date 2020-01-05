@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
+import reactor.core.publisher.Mono
 
 @RestController
 @RequestMapping("/api")
@@ -16,8 +17,8 @@ class UserController(val service: UserService) {
 
     @Secured("isAuthenticated()")
     @GetMapping("/current-user")
-    fun me(auth: Authentication): UserDto? {
-        return service.currentUserDto()
+    fun me(auth: Authentication): Mono<UserDto> {
+        return service.reactiveCurrentUserDto()
     }
 
     @Secured(Admin)

@@ -40,6 +40,22 @@ class UserService(val repository: UserRepository, val clientRepository: ClientRe
         return toDto(repository.save(newUser))
     }
 
+    @Transactional
+    // FIXME this does not work: lazy loading
+    fun reactiveCurrentUser(): Mono<User> {
+        return ReactiveSecurityContextHolder
+                .getContext()
+                .map { it.authentication }
+                .flatMap { Mono.justOrEmpty(findByEmail(it.principal as String)) }
+    }
+
+    @Transactional
+    // FIXME this does not work: lazy loading
+    fun reactiveCurrentUserDto(): Mono<UserDto> {
+        return reactiveCurrentUser()
+                .map { toDto(it) }
+    }
+
     fun currentUser(): User? {
         val a1 = SecurityContextHolder.getContext().authentication
 

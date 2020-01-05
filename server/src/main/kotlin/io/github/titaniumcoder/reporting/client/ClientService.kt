@@ -21,7 +21,7 @@ class ClientService(val repository: ClientRepository, val userService: UserServi
     }
 
     fun clientList(): List<ClientListDto> {
-        val user = userService.currentUserDto() ?: throw ForbiddenException()
+        val user = userService.currentUser() ?: throw ForbiddenException()
 
         val clients = repository.findActives().map { ClientListDto(it.id, it.name) }
 
