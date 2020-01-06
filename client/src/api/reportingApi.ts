@@ -85,7 +85,7 @@ export interface TimeEntry {
 }
 
 export interface UpdatingTimeEntry {
-    id?: number;
+    id: number;
     starting: string;
     ending?: string;
 
@@ -131,6 +131,12 @@ export interface IReportingApi {
     stopTimeEntry(id: number): Promise<AxiosResponse<TimeEntry>>
 
     updateTimeEntry(te: UpdatingTimeEntry): Promise<AxiosResponse<TimeEntry>>
+
+    deleteTimeEntry(id: number): Promise<AxiosResponse<void>>
+
+    fetchTimeEntries(from?: number, to?: number, clientId?: number, allEntries?: boolean): Promise<AxiosResponse<TimeEntry[]>>
+
+    togglTimeEntries(ids: number[]): Promise<AxiosResponse<void>>
 }
 
 export interface ICurrentUser {
@@ -212,6 +218,22 @@ export class ReportingApi implements IReportingApi {
 
     async updateTimeEntry(te: UpdatingTimeEntry) {
         return await axios.post<TimeEntry>('timeentries', te);
+    }
+
+    async deleteTimeEntry(id: number) {
+        return await axios.delete<void>(`timeentries/${id}`);
+    }
+
+    async fetchTimeEntries(from?: number, to?: number, clientId?: number, allEntries?: boolean) {
+        return await axios.get<TimeEntry[]>('timeentries', {
+            params: {
+                from, to, clientId, allEntries
+            }
+        });
+    }
+
+    async togglTimeEntries(ids: number[]) {
+        return await axios.post<void>('toggl-timeentries', ids);
     }
 }
 

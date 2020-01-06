@@ -1,8 +1,20 @@
-import timeentry, {currentTimeEntryFailed, currentTimeEntrySuccess} from './timeentrySlice'
+import timeentry, {
+    currentTimeEntryFailed,
+    currentTimeEntrySuccess,
+    loadTimeEntriesStarted,
+    loadTimeEntriesSuccess,
+    loadTimeEntriesFailed,
+    selectTimeRange
+} from './timeentrySlice'
 
 const sampleState = {
     currentTimeEntry: undefined,
     error: undefined,
+    timeentries: [],
+    loading: false,
+    from: undefined,
+    to: undefined,
+    clientId: undefined
 };
 
 describe('timeentrySlice', () => {
@@ -25,6 +37,7 @@ describe('timeentrySlice', () => {
                     }
             })
         ).toEqual({
+            ...sampleState,
             error: undefined,
             currentTimeEntry: {
                 amount: 1000,
@@ -47,8 +60,63 @@ describe('timeentrySlice', () => {
                 payload: 'Hilfe!!'
             })
         ).toEqual({
+            ...sampleState,
             currentTimeEntry: undefined,
             error: 'Hilfe!!'
+        })
+    });
+    it('handles loadTimeEntriesStarted correctly', () => {
+        expect(
+            timeentry(sampleState, {
+                type: loadTimeEntriesStarted.type
+            })
+        ).toEqual({
+            ...sampleState,
+            timeentries: [],
+            loading: true
+        })
+    });
+    it('handles loadTimeEntriesSuccess correctly', () => {
+        expect(
+            timeentry(sampleState, {
+                type: loadTimeEntriesSuccess.type,
+                payload: [{a: 'b'}]
+            })
+        ).toEqual({
+            ...sampleState,
+            error: undefined,
+            timeentries: [{
+                a: 'b'
+            }]
+        })
+    });
+    it('handles loadTimeEntriesFailed correctly', () => {
+        expect(
+            timeentry(sampleState, {
+                type: loadTimeEntriesFailed.type,
+                payload: 'Hilfe!!'
+            })
+        ).toEqual({
+            ...sampleState,
+            currentTimeEntry: undefined,
+            error: 'Hilfe!!'
+        })
+    });
+    it('handles loadTimeEntriesFailed correctly', () => {
+        expect(
+            timeentry(sampleState, {
+                type: selectTimeRange.type,
+                payload: {
+                    from: '2010-01-01',
+                    to: '2019-01-01',
+                    clientId: 'test'
+                }
+            })
+        ).toEqual({
+            ...sampleState,
+            from: '2010-01-01',
+            to: '2019-01-01',
+            clientId: 'test'
         })
     });
 });

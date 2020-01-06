@@ -108,7 +108,7 @@ class UserService(val repository: UserRepository, val clientRepository: ClientRe
         val clients =
                 clientRepository
                         .findAllForUser(user.email)
-                        .map { it -> UserClientDto(it.clientId, it.name) }
+                        .map { UserClientDto(it.clientId, it.name) }
                         .collectList()
 
         return clients.map {

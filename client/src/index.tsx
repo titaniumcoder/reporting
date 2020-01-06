@@ -6,14 +6,7 @@ import * as serviceWorker from './serviceWorker';
 
 import {library} from '@fortawesome/fontawesome-svg-core'
 import {
-    faCheck,
-    faCog,
-    faFileExcel,
-    faPlayCircle,
-    faSignOutAlt,
-    faStopCircle,
-    faPlus,
-    faUndo, faPen, faTrash, faTimes
+    faCheck, faCog, faFileExcel, faPlayCircle, faSignOutAlt, faStopCircle, faPlus, faUndo, faPen, faTrash, faTimes, faToggleOn
 } from "@fortawesome/free-solid-svg-icons";
 import {Provider} from "react-redux";
 import rootReducer from "./rootReducer";
@@ -30,6 +23,7 @@ library.add(faPlus);
 library.add(faPen);
 library.add(faTrash);
 library.add(faTimes);
+library.add(faToggleOn);
 
 const store = configureStore({
     reducer: rootReducer

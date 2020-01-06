@@ -19,7 +19,7 @@ import {
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {RootState} from "../rootReducer";
 import Checkbox from "../components/Checkbox";
-import {fetchClients} from "./clientSlice";
+import {fetchClientList, fetchClients} from "./clientSlice";
 import reportingApi, {Client, UpdatingClient} from "../api/reportingApi";
 import Modal from "reactstrap/lib/Modal";
 import ShowHours, {toHours, toMinutes} from "../components/ShowHours";
@@ -60,6 +60,7 @@ const ClientAdmin = () => {
         setEditing(false);
         setNewRecord(false);
         dispatch(fetchClients());
+        dispatch(fetchClientList());
     };
 
     const deleteRecord = async (id: string) => {
@@ -67,6 +68,7 @@ const ClientAdmin = () => {
         setDeleting(false);
         setInstance(EMPTY_CLIENT_FORM);
         dispatch(fetchClients());
+        dispatch(fetchClientList());
     };
 
     const toClientForm = (client: Client) => ({

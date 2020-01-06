@@ -26,7 +26,7 @@ class TimeEntrySseController(val service: TimeEntryService, val tokenServices: R
                 .filter { it.isAuthenticated && checkBooking(it) }
                 .map { it.principal as String }
                 .flatMapMany {p ->
-                    Flux.interval(Duration.ofSeconds(30))
+                    Flux.interval(Duration.ofSeconds(0), Duration.ofSeconds(30))
                             .flatMap { service.activeTimeEntry(p) }
                 }
     }

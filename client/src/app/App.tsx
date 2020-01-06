@@ -5,7 +5,6 @@ import Navigation from "../Navigation";
 import {Container} from "reactstrap";
 import Clients from "../clients/Clients";
 import ClientInfo from "../clients/ClientInfo";
-import TimeLog from "../TimeLog";
 import Login from "../auth/Login";
 import {useSelector} from "react-redux";
 import UserAdmin from "../users/UserAdmin";
@@ -13,6 +12,7 @@ import {RootState} from "../rootReducer";
 import ClientAdmin from "../clients/ClientAdmin";
 import ProjectAdmin from "../projects/ProjectAdmin";
 import CurrentTimeEntry from "../timeentry/CurrentTimeEntry";
+import TimeEntries from "../timeentry/TimeEntries";
 
 const App = () => {
     const auth = useSelector((state: RootState) => state.auth);
@@ -52,7 +52,7 @@ const App = () => {
                                         <hr/>
                                     </div>
                                 </Route>
-                                <TimeLog/>
+                                <TimeEntries />
                             </Route>
                         </Switch>
                     </Container>

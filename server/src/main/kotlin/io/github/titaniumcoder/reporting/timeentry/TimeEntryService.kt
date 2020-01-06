@@ -156,5 +156,17 @@ class TimeEntryService(val repository: TimeEntryRepository, val projectService: 
     fun deleteTimeEntry(id: Long) =
         findById(id)
                 .flatMap { repository.delete(it) }
+
+    fun retrieveTimeEntries(from: LocalDateTime?, to: LocalDateTime?, clientId: String?, allEntries: Boolean) =
+        repository.findAllWithin(from, to, clientId, allEntries)
+                .flatMap { toDto(it) }
+
+    fun togglTimeEntries(ids: List<Long>): Mono<Long> =
+        repository.findAllById(ids)
+                .map {
+                    it.copy(billed = !it.billed)
+                }
+                .map { repository.save(it) }
+                .count()
 }
 
