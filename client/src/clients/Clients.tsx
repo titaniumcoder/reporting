@@ -26,9 +26,9 @@ const Clients = () => {
             <NavItem>
                 <NavLink to='' activeClassName="active" className="nav-link" exact>None</NavLink>
             </NavItem>
-            {clientList.map(({id, name}) =>
-                <NavItem key={id}>
-                    <NavLink to={`/client/${id}`} activeClassName="active"
+            {clientList.map(({clientId, name}) =>
+                <NavItem key={clientId}>
+                    <NavLink to={`/client/${clientId}`} activeClassName="active"
                              className="nav-link">{name}</NavLink>
                 </NavItem>
             )}

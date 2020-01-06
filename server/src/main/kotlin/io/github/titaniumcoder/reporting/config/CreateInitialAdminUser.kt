@@ -13,10 +13,13 @@ class CreateInitialAdminUser(val service: UserService, val config: ReportingConf
 
     @EventListener(ApplicationReadyEvent::class)
     fun onStartup() {
-        if (!service.usersExists()) {
-            val u = UserUpdateDto(config.adminEmail, true, true, true, listOf())
-            service.saveUser(u)
-            log.info("Created inital admin user with email \"${config.adminEmail}\"")
-        }
+        service.usersExists()
+                .subscribe { e ->
+                    if (!e) {
+                        val u = UserUpdateDto(config.adminEmail, true, true, true, listOf())
+                        service.saveUser(u)
+                        log.info("Created inital admin user with email \"${config.adminEmail}\"")
+                    }
+                }
     }
 }

@@ -1,7 +1,7 @@
 package io.github.titaniumcoder.reporting.user
 
-import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.repository.reactive.ReactiveCrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface UserRepository : JpaRepository<User, String>
+interface UserRepository : ReactiveCrudRepository<User, String>

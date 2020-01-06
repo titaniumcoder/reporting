@@ -111,7 +111,6 @@ const CurrentTimeEntry = () => {
                 sse.close()
             };
         } else {
-
             return () => {
             }
         }
@@ -119,6 +118,8 @@ const CurrentTimeEntry = () => {
 
     const stopCurrentEntry = async () => {
         const result = await reportingApi.stopTimeEntry(currentTimeEntry?.id || -1);
+
+        dispatch(currentTimeEntrySuccess(undefined));
 
         const {id, description, projectId, billable, billed, starting, ending, username} = result.data;
 
@@ -136,7 +137,8 @@ const CurrentTimeEntry = () => {
         setIsOpen(true);
     };
     const startNewEntry = async () => {
-        await reportingApi.startTimeEntry(undefined);
+        const result = await reportingApi.startTimeEntry(undefined);
+        dispatch(currentTimeEntrySuccess(result.data));
     };
 
     let starting = '';
@@ -220,7 +222,6 @@ interface UpdateDialogProps {
 const UpdateDialog = ({savingTimeEntry, validateTimeEntry, updateTimeEntry, closeModal, remoteError, isOpen}: UpdateDialogProps) => {
     const {values, errors, submitDisabled, doSubmit, handleChange, handleChecked} =
         FormHandler<SavingTimeEntry>(savingTimeEntry, validateTimeEntry, updateTimeEntry);
-
 
     return (
         <Form onSubmit={doSubmit}>

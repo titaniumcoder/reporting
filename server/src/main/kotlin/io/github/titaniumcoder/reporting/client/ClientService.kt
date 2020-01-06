@@ -1,36 +1,51 @@
 package io.github.titaniumcoder.reporting.client
 
-import io.github.titaniumcoder.reporting.exceptions.ForbiddenException
 import io.github.titaniumcoder.reporting.user.UserService
-import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 
 @Service
 @Transactional
 class ClientService(val repository: ClientRepository, val userService: UserService) {
-    fun clients(): List<Client> =
-            repository.findAll(Sort.by("name"))
+    fun clients(): Flux<Client> =
+            repository.findAllSortedById()
 
-    fun saveClient(client: Client): Client {
-        return repository.save(client)
+    fun saveClient(clientDto: ClientUpdatingDto): Mono<Client> {
+        return repository.existsById(clientDto.clientId)
+                .map {
+                    Client(
+                            clientId = clientDto.clientId,
+                            active = clientDto.active,
+                            maxMinutes = clientDto.maxMinutes,
+                            name = clientDto.name,
+                            newClient = !it,
+                            notes = clientDto.notes,
+                            rateInCentsPerHour = clientDto.rateInCentsPerHour
+                    )
+                }
+                .flatMap { repository.save(it) }
     }
 
-    fun deleteClient(id: String) {
-        repository.deleteById(id)
-    }
+    fun deleteClient(id: String) =
+            repository.deleteById(id)
 
-    fun clientList(): List<ClientListDto> {
-        val user = userService.currentUser() ?: throw ForbiddenException()
+    fun clientList(): Flux<ClientListDto> {
+        val user = userService.reactiveCurrentUserDto()
 
-        val clients = repository.findActives().map { ClientListDto(it.id, it.name) }
+        val clients = repository.findActives().map { ClientListDto(it.clientId, it.name) }
 
-        return if (user.admin) {
-            clients
-        } else {
-            val userClients = user.clients.map { it.id }
-            clients.filter { userClients.contains(it.id) }
-        }
+        return user
+                .flux()
+                .flatMap { u ->
+                    if (u.admin) {
+                        clients
+                    } else {
+                        clients
+                                .filter { u.clients.map { c -> c.clientId }.contains(it.clientId) }
+                    }
+                }
     }
 }
 

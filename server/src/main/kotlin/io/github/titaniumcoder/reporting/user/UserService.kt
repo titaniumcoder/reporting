@@ -1,86 +1,130 @@
 package io.github.titaniumcoder.reporting.user
 
-import io.github.titaniumcoder.reporting.client.Client
 import io.github.titaniumcoder.reporting.client.ClientRepository
 import io.github.titaniumcoder.reporting.project.Project
-import org.springframework.data.repository.findByIdOrNull
+import org.springframework.data.r2dbc.core.DatabaseClient
+import org.springframework.data.r2dbc.query.Criteria.where
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @Service
 @Transactional
-class UserService(val repository: UserRepository, val clientRepository: ClientRepository) {
-    fun usersExists(): Boolean =
-            repository.count() > 0
+class UserService(val repository: UserRepository, val clientRepository: ClientRepository, val databaseClient: DatabaseClient) {
+    fun usersExists(): Mono<Boolean> =
+            repository.count().map { it > 0 }
 
-    fun listUsers(): List<UserDto> =
+    fun listUsers(): Flux<UserDto> =
             repository.findAll()
-                    .map { toDto(it) }
+                    .flatMap { toDto(it).flux() }
 
-    fun findByEmail(email: String): User? =
-            repository.findByIdOrNull(email)
+    fun findByEmail(email: String): Mono<User> =
+            repository.findById(email)
 
-    fun saveUser(user: UserUpdateDto): UserDto {
-        val clients = user.clients.map { clientRepository.findByIdOrNull(it) }
+    fun saveUser(user: UserUpdateDto): Mono<UserDto> {
+        return repository.existsById(user.email)
+                .flatMap { exists ->
+                    val newUser = User(
+                            email = user.email,
+                            canBook = user.canBook,
+                            canViewMoney = user.canViewMoney,
+                            admin = user.admin,
+                            newUser = !exists
+                    )
 
-        if (clients.any { it == null }) {
-            throw java.lang.RuntimeException("Unknown client in $user")
+                    repository.save(newUser)
+                            .flatMap { u ->
+                                saveClients(u, user.clients)
+                            }
+                            .flatMap { toDto(it) }
+                }
+    }
+
+    private fun saveClients(user: User, clients: List<String>): Mono<User> {
+        val table = "Client_User"
+        val clientIdField = "client_id"
+        val emailField = "email"
+
+        val currentIds = databaseClient.select()
+                .from(table)
+                .project(clientIdField)
+                .matching(where(emailField).`is`(user.email))
+                .map { t -> t.get(clientIdField, String::class.java)!! }
+                .all()
+                .collectList()
+
+        return currentIds.flatMap { currentList ->
+            val toDelete = currentList - clients
+            val toInsert = clients - currentList
+
+            val deleted =
+                    if (toDelete.isNotEmpty()) {
+                        databaseClient.delete()
+                                .from(table)
+                                .matching(where(emailField).`in`(*toDelete.toTypedArray()))
+                                .fetch()
+                                .rowsUpdated()
+                    } else Mono.just(0)
+
+            val inserted = Flux.fromIterable(toInsert)
+                    .flatMap { c ->
+                        databaseClient.insert()
+                                .into(table)
+                                .value(emailField, user.email)
+                                .value(clientIdField, c)
+                                .fetch()
+                                .rowsUpdated()
+                    }
+                    .collectList()
+                    .map { it.sum() }
+
+            deleted.zipWith(inserted)
+                    .map { it.t1 + it.t2 }
+                    .log()
         }
-
-        val newUser = User(
-                user.email,
-                user.canBook,
-                user.canViewMoney,
-                user.admin,
-                user.clients.mapNotNull { clientRepository.findByIdOrNull(it) }
-        )
-        return toDto(repository.save(newUser))
+                .map { user }
     }
 
     @Transactional
-    // FIXME this does not work: lazy loading
     fun reactiveCurrentUser(): Mono<User> {
         return ReactiveSecurityContextHolder
                 .getContext()
                 .map { it.authentication }
-                .flatMap { Mono.justOrEmpty(findByEmail(it.principal as String)) }
+                .flatMap { findByEmail(it.principal as String) }
     }
 
     @Transactional
-    // FIXME this does not work: lazy loading
-    fun reactiveCurrentUserDto(): Mono<UserDto> {
-        return reactiveCurrentUser()
-                .map { toDto(it) }
+    fun reactiveCurrentUserDto(): Mono<UserDto> =
+            reactiveCurrentUser()
+                    .flatMap { toDto(it) }
+
+    fun deleteUser(email: String): Mono<Void> {
+        return repository.deleteById(email)
     }
 
-    fun currentUser(): User? {
-        val a1 = SecurityContextHolder.getContext().authentication
+    private fun toDto(user: User): Mono<UserDto> {
+        val clients =
+                clientRepository
+                        .findAllForUser(user.email)
+                        .map { it -> UserClientDto(it.clientId, it.name) }
+                        .collectList()
 
-        return findByEmail(a1.principal as String)
+        return clients.map {
+            UserDto(
+                    user.email,
+                    user.canBook,
+                    user.canViewMoney,
+                    user.admin,
+                    it
+            )
+        }
     }
 
-    fun currentUserDto(): UserDto? = currentUser()?.let { toDto(it) }
+    fun userHasAccessToClient(user: User, clientId: String): Mono<Boolean> =
+            toDto(user).map { it.clients.map { c -> c.clientId }.contains(clientId) }
 
-    fun deleteUser(email: String) {
-        repository.deleteById(email)
-    }
-
-    private fun toDto(user: User): UserDto {
-        return UserDto(
-                user.email,
-                user.canBook,
-                user.canViewMoney,
-                user.admin,
-                user.clients.map { UserClient(it.id, it.name) }
-        )
-    }
-
-    fun userHasAccessToClient(user: User, client: Client): Boolean =
-            user.clients.contains(client)
-
-    fun userHasAccessToProject(user: User, project: Project): Boolean =
-            userHasAccessToClient(user, project.client)
+    fun userHasAccessToProject(user: User, project: Project): Mono<Boolean> =
+            userHasAccessToClient(user, project.clientId)
 }

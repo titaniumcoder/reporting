@@ -6,7 +6,7 @@ type ClientState = {
     loading: boolean;
     error?: string;
     clients: Client[];
-    clientList: { id: string, name: string }[]
+    clientList: { clientId: string, name: string }[]
     selectedClient: string | undefined
 }
 

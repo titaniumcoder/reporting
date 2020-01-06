@@ -16,18 +16,17 @@ class ProjectController(val service: ProjectService) {
 
     @Secured("isAuthenticated()")
     @GetMapping("/project-list")
-    fun projectList(): List<ProjectList> = service.projectList()
+    fun projectList() = service.projectList()
 
     @Secured(Admin)
     @PostMapping("/projects")
-    fun save(@RequestBody @Validated project: ProjectAdminDto): ProjectAdminDto {
-        return service.saveProject(project)
-    }
+    fun save(@RequestBody @Validated project: ProjectAdminDto) = service.saveProject(project)
 
     @Secured(Admin)
     @DeleteMapping("/projects/{id}")
-    fun delete(@PathVariable("id") id: Long): ResponseEntity<Unit> {
-        service.deleteProject(id)
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
-    }
+    fun delete(@PathVariable("id") id: Long) =
+            service.deleteProject(id)
+                    .map {
+                        ResponseEntity.status(HttpStatus.NO_CONTENT).build<Void>()
+                    }
 }

@@ -24,19 +24,33 @@ configurations {
 
 repositories {
     mavenCentral()
+
+    maven { url = uri("https://repo.spring.io/milestone") }
 }
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+
+    // TODO remove this completely
+    // implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-cache")
+    implementation("org.springframework.boot:spring-boot-starter-mail")
 
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+
+    // for r2dbc
+    implementation("org.springframework.boot.experimental:spring-boot-actuator-autoconfigure-r2dbc")
+    implementation("org.springframework.boot.experimental:spring-boot-starter-data-r2dbc")
+
+    // for rsocket support
+    implementation("org.springframework.boot:spring-boot-starter-rsocket")
+    implementation("org.springframework.security:spring-security-messaging")
+    implementation("org.springframework.security:spring-security-rsocket")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
@@ -50,6 +64,9 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
     implementation("org.flywaydb:flyway-core")
 
+    // Postgres for r2dbc
+    runtimeOnly("io.r2dbc:r2dbc-postgresql")
+
     // for creating the excel sheets
     implementation("org.apache.poi:poi-ooxml:4.1.0")
 
@@ -60,6 +77,15 @@ dependencies {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
     testImplementation("org.springframework.security:spring-security-test")
+
+    // for r2dbc
+    testImplementation("org.springframework.boot.experimental:spring-boot-test-autoconfigure-r2dbc")
+}
+
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.boot.experimental:spring-boot-bom-r2dbc:0.1.0.M3")
+    }
 }
 
 tasks.withType<Test> {

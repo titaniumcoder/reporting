@@ -1,7 +1,6 @@
 package io.github.titaniumcoder.reporting.config
 
 import io.github.titaniumcoder.reporting.user.UserRepository
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
@@ -12,7 +11,7 @@ import reactor.core.publisher.Mono
 class JpaReactiveUserDetailsService(val repository: UserRepository) : ReactiveUserDetailsService {
     override fun findByUsername(username: String?): Mono<UserDetails> =
             Mono.justOrEmpty(username)
-                    .flatMap { Mono.justOrEmpty(repository.findByIdOrNull(it)) }
+                    .flatMap { repository.findById(it) }
                     .map {
                         User.builder()
                                 .authorities(*roles(it))

@@ -28,7 +28,7 @@ import {FormErrors, FormHandler} from "../components/FormHandler";
 
 const EMPTY_CLIENT_FORM: UpdatingClient = {
     active: true,
-    id: '',
+    clientId: '',
     maxHours: '',
     name: '',
     notes: '',
@@ -71,7 +71,7 @@ const ClientAdmin = () => {
 
     const toClientForm = (client: Client) => ({
         active: client.active,
-        id: client.id,
+        clientId: client.clientId,
         name: client.name,
         notes: client.notes || '',
         maxHours: client.maxMinutes ? toHours(client.maxMinutes, false) : '0:00',
@@ -80,7 +80,7 @@ const ClientAdmin = () => {
 
     const toClient = (client: UpdatingClient) => ({
         active: client.active,
-        id: client.id,
+        clientId: client.clientId,
         name: client.name,
         notes: client.notes === '' ? undefined : client.notes,
         maxMinutes: toMinutes(client.maxHours),
@@ -91,7 +91,7 @@ const ClientAdmin = () => {
         setInstance(toClientForm(client));
         setEditing(true);
         setNewRecord(false);
-        setEditingId(client.id);
+        setEditingId(client.clientId);
     };
 
     useEffect(() => {
@@ -143,16 +143,16 @@ const ClientAdmin = () => {
                 </thead>
                 <tbody>
                 {clients.map(client => (
-                        (editing && !newRecord && editingId === client.id) ? (
-                            <tr key={client.id}>
+                        (editing && !newRecord && editingId === client.clientId) ? (
+                            <tr key={client.clientId}>
                                 <td colSpan={6}>
                                     <UpdateForm instance={instance} cancel={cancelEditing} update={updateRecord}/>
                                 </td>
                             </tr>
                         ) : (
-                            <tr key={client.id} className="row">
+                            <tr key={client.clientId} className="row">
                                 <td className="col-1 text-center"><Checkbox value={client.active}/></td>
-                                <td className="col-1">{client.id}</td>
+                                <td className="col-1">{client.clientId}</td>
                                 <td className="col-3">{client.name}</td>
                                 <td className="col">{client.notes}</td>
                                 <td className="col-1"><ShowHours minutes={client.maxMinutes}/></td>
@@ -237,17 +237,17 @@ const UpdateForm = ({instance, cancel, update}: UpdateFormProps) => {
                         {' '}Active?</Label>
                 </FormGroup>
                 <FormGroup>
-                    <Label for="id">Id:</Label>
+                    <Label for="clientId">Id:</Label>
                     <Input
                         autoFocus={true}
                         type="text"
-                        name="id"
-                        valid={!errors['id']}
-                        invalid={!!errors['id']}
-                        value={values.id}
+                        name="clientId"
+                        valid={!errors['clientId']}
+                        invalid={!!errors['clientId']}
+                        value={values.clientId}
                         onChange={handleChange}
                     />
-                    <FormFeedback>{errors['id']}</FormFeedback>
+                    <FormFeedback>{errors['clientId']}</FormFeedback>
                 </FormGroup>
                 <FormGroup>
                     <Label for="name">Name:</Label>
@@ -322,7 +322,7 @@ const DeleteDialog = ({instance, cancel, execute, shown}: IDeleteDialogProps) =>
 
     const handleDelete = async () => {
         try {
-            await execute(instance.id);
+            await execute(instance.clientId);
         } catch (err) {
             setRemoteError(err.toString());
         }

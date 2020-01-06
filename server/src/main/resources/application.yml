@@ -4,6 +4,11 @@ spring:
     username: ${JDBC_DATABASE_USER:reporting}
     password: ${JDBC_DATABASE_PASSWORD:""}
     driverClassName: org.postgresql.Driver
+  r2dbc:
+# TODO this will not work on heroku!!
+    url: ${JDBC_DATABASE_URL:r2dbc:postgresql://db:5432/reporting}
+    username: ${JDBC_DATABASE_USER:reporting}
+    password: ${JDBC_DATABASE_PASSWORD:""}
   jpa:
     hibernate:
       ddl-auto: none
@@ -29,3 +34,10 @@ reporting:
   clientId: 483387557047-olrn4mkp6m7gltp5fqhgr76094q6qf6e.apps.googleusercontent.com
   adminEmail: rico.metzger@gmail.com
 
+
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          r2dbc: DEBUG

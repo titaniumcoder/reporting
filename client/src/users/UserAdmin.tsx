@@ -276,7 +276,7 @@ const UpdateForm = ({instance, cancel, update}: UpdateFormProps) => {
                         value={values.clients}
                     >
                         {clients.map(client => (
-                            <option key={client.id} value={client.id}>{client.name}</option>
+                            <option key={client.clientId} value={client.clientId}>{client.name}</option>
                         ))}
                     </Input>
                 </FormGroup>

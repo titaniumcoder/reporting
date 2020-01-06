@@ -64,8 +64,8 @@ const ProjectAdmin = () => {
         dispatch(fetchProjects());
     };
 
-    const deleteRecord = async (id: string) => {
-        await reportingApi.deleteClient(id);
+    const deleteRecord = async (id: number) => {
+        await reportingApi.deleteProject(id);
         setDeleting(false);
         setInstance(EMPTY_PROJECT_FORM);
         dispatch(fetchProjects());
@@ -73,6 +73,7 @@ const ProjectAdmin = () => {
 
     const toProjectForm = (project: Project) => ({
         clientId: project.clientId,
+        billable: project.billable,
         id: project.id,
         name: project.name,
         maxHours: project.maxMinutes ? toHours(project.maxMinutes, false) : '0:00',
@@ -271,7 +272,7 @@ const UpdateForm = ({instance, cancel, update}: UpdateFormProps) => {
                         onChange={handleChange}>
                         <option value=''>-- Please choose a client --</option>
                         {clientList.map(client => (
-                            <option key={client.id} value={client.id}>{client.name}</option>
+                            <option key={client.clientId} value={client.clientId}>{client.name}</option>
                         ))}
                     </Input>
                     <FormFeedback>{errors['name']}</FormFeedback>

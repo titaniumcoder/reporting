@@ -42,7 +42,7 @@ export interface ProjectList {
 }
 
 export interface Client {
-    id: string;
+    clientId: string;
     active: boolean;
     name: string;
     notes?: string;
@@ -51,12 +51,12 @@ export interface Client {
 }
 
 export interface ClientList {
-    id: string;
+    clientId: string;
     name: string;
 }
 
 export interface UpdatingClient {
-    id: string;
+    clientId: string;
     active: boolean;
     name: string;
     notes: string;

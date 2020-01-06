@@ -20,14 +20,13 @@ class ClientController(val service: ClientService) {
 
     @Secured(Admin)
     @PostMapping("/clients")
-    fun save(@RequestBody @Validated client: Client): Client {
-        return service.saveClient(client)
-    }
+    fun save(@RequestBody @Validated client: ClientUpdatingDto) = service.saveClient(client)
 
     @Secured(Admin)
     @DeleteMapping("/clients/{id}")
-    fun delete(@PathVariable("id") id: String): ResponseEntity<Unit> {
-        service.deleteClient(id)
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
-    }
+    fun delete(@PathVariable("id") id: String) =
+            service.deleteClient(id)
+                    .map {
+                        ResponseEntity.status(HttpStatus.NO_CONTENT).build<Void>()
+                    }
 }

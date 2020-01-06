@@ -5,13 +5,9 @@ interface HoursInput {
     decimal?: boolean;
 }
 
-type ToHoursFunc = (minutes: number | undefined, decimal: boolean | undefined) => (undefined | string);
+type ToHoursFunc = (minutes: number, decimal: boolean | undefined) => (undefined | string);
 
 export const toHours: ToHoursFunc = (minutes, decimal) => {
-    if (!minutes) {
-        return undefined;
-    }
-
     const dec = !!decimal;
 
     const hours = Math.floor(minutes / 60);
@@ -51,10 +47,10 @@ export const toMinutes: ToMinutesFunc = (hours) => {
 };
 
 const ShowHours = ({minutes, decimal}: HoursInput) => {
-    const hours = toHours(minutes, decimal);
-    if (!hours) {
-        return null;
+    if (!minutes || minutes < 0) {
+        return <span>{decimal ? '0.00' : '0:00'}</span>;
     }
+    const hours = toHours(minutes, decimal);
 
     return (
         <span>{hours}</span>
