@@ -113,7 +113,7 @@ const CurrentTimeEntry = () => {
                 {starting} - {ending}
             </Col>
             <Col xs="auto" className="my-auto">
-                Projekt:
+                Project:
             </Col>
             <Col xs={2} className="my-auto">
                 {currentTimeEntry.projectName}
@@ -136,8 +136,9 @@ const CurrentTimeEntry = () => {
         </Row> :
         <Row className="bg-light mt-2 mb-2">
             <Col/>
-            <Col xs={1}><Button size="lg" onClick={startNewEntry} color="info"><FontAwesomeIcon
-                icon="play-circle"/></Button></Col>
+            <Col xs={1}><Button size="lg" onClick={startNewEntry} color="info">
+                <FontAwesomeIcon icon="play-circle"/>
+            </Button></Col>
         </Row>;
 
     const closeModal = () => {
@@ -187,7 +188,8 @@ const UpdateDialog = ({savingTimeEntry, validateTimeEntry, updateTimeEntry, clos
                     {remoteError &&
                     <Alert color="danger">{remoteError}</Alert>
                     }
-                    <TimeEntryForm errors={errors} values={values} handleChange={handleChange} handleChecked={handleChecked} projectList={projectList}/>
+                    <TimeEntryForm errors={errors} values={values} handleChange={handleChange}
+                                   handleChecked={handleChecked} projectList={projectList}/>
                 </ModalBody>
                 <ModalFooter>
                     <Button type="submit" color="primary"

@@ -104,7 +104,7 @@ class UserService(val repository: UserRepository, val clientRepository: ClientRe
         return repository.deleteById(email)
     }
 
-    private fun toDto(user: User): Mono<UserDto> {
+    fun toDto(user: User): Mono<UserDto> {
         val clients =
                 clientRepository
                         .findAllForUser(user.email)
@@ -123,8 +123,11 @@ class UserService(val repository: UserRepository, val clientRepository: ClientRe
     }
 
     fun userHasAccessToClient(user: User, clientId: String): Mono<Boolean> =
-            toDto(user).map { it.clients.map { c -> c.clientId }.contains(clientId) }
+            toDto(user).map { userHasAccessToClient(it, clientId) }
 
-    fun userHasAccessToProject(user: User, project: Project): Mono<Boolean> =
+    fun userHasAccessToClient(user: UserDto, clientId: String): Boolean =
+            user.clients.map { c -> c.clientId }.contains(clientId)
+
+    fun userHasAccessToProject(user: UserDto, project: Project): Boolean =
             userHasAccessToClient(user, project.clientId)
 }

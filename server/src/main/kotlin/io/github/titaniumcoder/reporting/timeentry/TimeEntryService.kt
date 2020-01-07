@@ -3,12 +3,14 @@ package io.github.titaniumcoder.reporting.timeentry
 import io.github.titaniumcoder.reporting.client.Client
 import io.github.titaniumcoder.reporting.project.ProjectAdminDto
 import io.github.titaniumcoder.reporting.project.ProjectService
+import io.github.titaniumcoder.reporting.user.UserDto
 import io.github.titaniumcoder.reporting.user.UserService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Mono
 import reactor.util.function.Tuple2
 import java.time.Duration
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
@@ -18,15 +20,14 @@ import java.util.*
 class TimeEntryService(val repository: TimeEntryRepository, val projectService: ProjectService, val userService: UserService) {
     fun activeTimeEntry(principal: String) =
             userService.findByEmail(principal)
-                    .flatMap { u ->
-                        repository.findLastOpenEntry(u.email)
-                    }
-                    .flatMap { toDto(it) }
+                    .flatMap { userService.toDto(it) }
+                    .flatMap { u -> repository.findLastOpenEntry(u.email).map { Pair(it, u) } }
+                    .flatMap { toDto(it.first, it.second) }
 
     fun findById(id: Long): Mono<TimeEntry> {
         val monoTe = repository.findById(id)
 
-        val monoUser = userService.reactiveCurrentUser()
+        val monoUser = userService.reactiveCurrentUserDto()
 
         return monoTe
                 .zipWith(monoUser)
@@ -38,7 +39,7 @@ class TimeEntryService(val repository: TimeEntryRepository, val projectService: 
                         user.admin -> Mono.just(te)
                         user.canBook && te.projectId == null -> Mono.just(te)
                         user.canBook && te.projectId != null ->
-                            projectService.findProject(te.projectId).flatMap {
+                            projectService.findProject(te.projectId, user).map {
                                 userService.userHasAccessToProject(user, it)
                             }
                                     .filter { true }
@@ -54,7 +55,7 @@ class TimeEntryService(val repository: TimeEntryRepository, val projectService: 
                 .map { Optional.of(it) }
                 .switchIfEmpty(Mono.just(Optional.empty<TimeEntry>()))
 
-        val currentUser = userService.reactiveCurrentUser()
+        val currentUser = userService.reactiveCurrentUserDto()
 
         return referencedTimeEntry
                 .zipWith(currentUser)
@@ -72,47 +73,51 @@ class TimeEntryService(val repository: TimeEntryRepository, val projectService: 
                             billable = ref.map { it.billable }.orElse(true),
                             billed = false
                     ))
+                            .flatMap { toDto(it, user) }
                 }
-                .flatMap { toDto(it) }
     }
 
     fun stopTimeEntry(id: Long): Mono<TimeEntryDto> {
         val entry = repository.findById(id)
 
-        return entry.flatMap {
-            repository.save(it.copy(ending = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)))
-        }
-                .flatMap { toDto(it) }
+        val user = userService.reactiveCurrentUserDto()
+
+        return entry
+                .zipWith(user)
+                .flatMap { t ->
+                    repository.save(t.t1.copy(ending = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)))
+                            .flatMap { toDto(it, t.t2) }
+                }
     }
 
     fun updateTimeEntry(entry: TimeEntryUpdateDto): Mono<TimeEntryDto> {
         val oldEntryMono = repository.findById(entry.id) // TODO may be make this a little bit more robus
 
-        val userMono = userService.reactiveCurrentUser()
+        val userMono = userService.reactiveCurrentUserDto()
 
         return oldEntryMono
                 .zipWith(userMono)
-                .map { t ->
+                .flatMap { t ->
                     val oldEntry = t.t1
                     val user = t.t2
 
-                    oldEntry.copy(
-                            projectId = entry.projectId,
-                            billable = entry.billable,
-                            billed = entry.billed,
-                            description = entry.description,
-                            ending = entry.ending,
-                            starting = entry.starting,
-                            email = user.email
-                    )
+                    repository.save(
+                            oldEntry.copy(
+                                    projectId = entry.projectId,
+                                    billable = entry.billable,
+                                    billed = entry.billed,
+                                    description = entry.description,
+                                    ending = entry.ending,
+                                    starting = entry.starting,
+                                    email = user.email
+                            )
+                    ).flatMap { toDto(it, user) }
                 }
-                .flatMap { repository.save(it) }
-                .flatMap { toDto(it) }
     }
 
-    private fun toDto(te: TimeEntry): Mono<TimeEntryDto> {
+    private fun toDto(te: TimeEntry, userDto: UserDto): Mono<TimeEntryDto> {
         val projectClientMono = Mono.justOrEmpty(te.projectId)
-                .flatMap { projectService.findProjectAdminDto(it).zipWith(projectService.findClientForProject(it)) }
+                .flatMap { projectService.findProjectAdminDto(it, userDto).zipWith(projectService.findClientForProject(it, userDto)) }
                 .map { Optional.of(it) }
                 .switchIfEmpty(Mono.just(Optional.empty()))
 
@@ -154,19 +159,27 @@ class TimeEntryService(val repository: TimeEntryRepository, val projectService: 
     }
 
     fun deleteTimeEntry(id: Long) =
-        findById(id)
-                .flatMap { repository.delete(it) }
+            findById(id)
+                    .flatMap { repository.delete(it) }
 
-    fun retrieveTimeEntries(from: LocalDateTime?, to: LocalDateTime?, clientId: String?, allEntries: Boolean) =
-        repository.findAllWithin(from, to, clientId, allEntries)
-                .flatMap { toDto(it) }
+    fun retrieveTimeEntries(from: LocalDate?, to: LocalDate?, clientId: String?, allEntries: Boolean) =
+            userService.reactiveCurrentUserDto().flux()
+                    .flatMap { user ->
+                        if (allEntries) {
+                            repository.findAllWithin(from, to, clientId)
+                                    .flatMap { toDto(it, user) }
+                        } else {
+                            repository.findNonBilled(clientId)
+                                    .flatMap { toDto(it, user) }
+                        }
+                    }
 
     fun togglTimeEntries(ids: List<Long>): Mono<Long> =
-        repository.findAllById(ids)
-                .map {
-                    it.copy(billed = !it.billed)
-                }
-                .map { repository.save(it) }
-                .count()
+            repository.findAllById(ids)
+                    .map {
+                        it.copy(billed = !it.billed)
+                    }
+                    .flatMap { repository.save(it) }
+                    .count()
 }
 

@@ -4,6 +4,7 @@ import io.github.titaniumcoder.reporting.client.Client
 import io.github.titaniumcoder.reporting.client.ClientRepository
 import io.github.titaniumcoder.reporting.config.Roles.Admin
 import io.github.titaniumcoder.reporting.config.Roles.Booking
+import io.github.titaniumcoder.reporting.user.UserDto
 import io.github.titaniumcoder.reporting.user.UserService
 import org.springframework.security.access.annotation.Secured
 import org.springframework.stereotype.Service
@@ -54,24 +55,24 @@ class ProjectService(val repository: ProjectRepository, val clientRepository: Cl
     }
 
     @Secured(Admin, Booking)
-    fun findProject(id: Long): Mono<Project> {
+    fun findProject(id: Long, user: UserDto): Mono<Project> {
         val project = repository.findById(id)
 
-        return project.zipWith(userService.reactiveCurrentUserDto())
+        return project
                 .filter {
-                    it.t2.admin || it.t1.clientId in it.t2.clients.map { c -> c.clientId }
+                    user.admin || it.clientId in user.clients.map { c -> c.clientId }
                 }
-                .map { it.t1 }
+                .map { it }
     }
 
     @Secured(Admin, Booking)
-    fun findProjectAdminDto(id: Long): Mono<ProjectAdminDto> =
-            findProject(id)
+    fun findProjectAdminDto(id: Long, user: UserDto): Mono<ProjectAdminDto> =
+            findProject(id, user)
                     .flatMap { toAdminDto(it) }
 
     @Secured(Admin, Booking)
-    fun findClientForProject(id: Long): Mono<Client> =
-            findProject(id)
+    fun findClientForProject(id: Long, user: UserDto): Mono<Client> =
+            findProject(id, user)
                     .flatMap {
                         clientRepository.findById(it.clientId)
                     }

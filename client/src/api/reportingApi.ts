@@ -207,7 +207,7 @@ export class ReportingApi implements IReportingApi {
     }
 
     async startTimeEntry(ref: number | undefined) {
-        return await axios.post<TimeEntry>('start-timeentry' + (ref ? '/' + ref : ''), {}, {
+        return await axios.post<TimeEntry>('start-timeentry', {}, {
             params: {ref}
         });
     }

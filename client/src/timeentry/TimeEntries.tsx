@@ -2,7 +2,19 @@ import React, {useEffect, useMemo, useState} from 'react';
 
 import './TimeEntries.css';
 import {useDispatch, useSelector} from "react-redux";
-import {Alert, Button, ButtonGroup, Form, ModalBody, ModalFooter, ModalHeader, Table, Input} from "reactstrap";
+import {
+    Alert,
+    Button,
+    ButtonGroup,
+    Form,
+    ModalBody,
+    ModalFooter,
+    ModalHeader,
+    Table,
+    Input,
+    Col,
+    Row, FormGroup, Label
+} from "reactstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {RootState} from "../rootReducer";
 import Checkbox from "../components/Checkbox";
@@ -12,7 +24,7 @@ import ShowHours from "../components/ShowHours";
 import ShowRate from "../components/ShowRate";
 import {FormHandler} from "../components/FormHandler";
 import {fetchClientList} from "../clients/clientSlice";
-import {fetchTimeEntries} from "./timeentrySlice";
+import {currentTimeEntrySuccess, fetchTimeEntries, selectTimeRange} from "./timeentrySlice";
 import {SavingTimeEntry, TimeEntryForm, validateTimeEntry} from "./TimeEntryForm";
 import moment from "moment";
 
@@ -33,14 +45,16 @@ const TimeEntries = () => {
     const [instance, setInstance] = useState(EMPTY_TIMEENTRY_FORM);
     const [editingId, setEditingId] = useState(undefined as number | undefined);
     const [selectedItems, setSelectedItems] = useState<number[]>([]);
-    
+
     const nothingSelected = useMemo(() => selectedItems.length === 0, [selectedItems]);
 
     const dispatch = useDispatch();
-    const {loggedIn, admin, canBook, canViewMoney, from, to, clientId, allEntries, timeentries, error, loading, currentTimeEntry} =
+    const {loggedIn, admin, canBook, canViewMoney, from, to, selectedClient, allEntries, timeentries, error, loading, currentTimeEntry} =
         useSelector((state: RootState) => {
             const {loggedIn, admin, canBook, canViewMoney} = state.auth;
-            const {from, to, clientId, allEntries, timeentries, error, loading, currentTimeEntry} = state.timeentry;
+            const {from, to, allEntries, timeentries, error, loading, currentTimeEntry} = state.timeentry;
+            const {selectedClient} = state.client;
+
             return {
                 loggedIn,
                 admin,
@@ -48,7 +62,7 @@ const TimeEntries = () => {
                 canViewMoney,
                 from,
                 to,
-                clientId,
+                selectedClient,
                 allEntries,
                 timeentries,
                 error,
@@ -57,18 +71,20 @@ const TimeEntries = () => {
             };
         });
 
+    const timeStatus = useMemo(() => !!currentTimeEntry?.starting, [currentTimeEntry]);
+
     useEffect(() => {
         if (loggedIn) {
-            dispatch(fetchTimeEntries(from, to, clientId, allEntries));
+            dispatch(fetchTimeEntries(from, to, selectedClient, allEntries));
         }
-    }, [dispatch, loggedIn, from, to, clientId, currentTimeEntry, allEntries, currentTimeEntry]);
+    }, [dispatch, loggedIn, from, to, selectedClient, allEntries, timeStatus]);
 
     const updateRecord = async (updatingTimeEntry: UpdatingTimeEntry) => {
         await reportingApi.updateTimeEntry(updatingTimeEntry);
         setInstance(EMPTY_TIMEENTRY_FORM);
         setEditingId(undefined);
         setEditing(false);
-        dispatch(fetchTimeEntries(from, to, clientId, allEntries));
+        dispatch(fetchTimeEntries(from, to, selectedClient, allEntries));
     };
 
     const deleteRecord = async (ids: number[]) => {
@@ -77,7 +93,7 @@ const TimeEntries = () => {
         ));
         setDeleting(false);
         setSelectedItems([]);
-        dispatch(fetchTimeEntries(from, to, clientId, allEntries));
+        dispatch(fetchTimeEntries(from, to, selectedClient, allEntries));
     };
 
     const selectItem = (evt) => {
@@ -121,6 +137,11 @@ const TimeEntries = () => {
         setEditingId(timeEntry.id);
     };
 
+    const startingDuplicateEntry = async (timeEntry: TimeEntry) => {
+        const result = await reportingApi.startTimeEntry(timeEntry.id);
+        dispatch(currentTimeEntrySuccess(result.data));
+    };
+
     const cancelEditing = () => {
         setInstance(EMPTY_TIMEENTRY_FORM);
         setEditingId(undefined);
@@ -139,9 +160,8 @@ const TimeEntries = () => {
 
     const togglBilled = async (evt) => {
         evt.preventDefault();
-        // TODO find selected items and change them all (after validating they are all the same!)
         await reportingApi.togglTimeEntries(selectedItems);
-        dispatch(fetchTimeEntries(from, to, clientId, allEntries));
+        dispatch(fetchTimeEntries(from, to, selectedClient, allEntries));
     };
 
     return (
@@ -150,7 +170,89 @@ const TimeEntries = () => {
             {error &&
             <Alert>{error}</Alert>
             }
-            <p>From: {from}<br/>To: {to}<br/>ClientId: {clientId}<br/>AllEntries <Checkbox value={allEntries}/></p>
+            <Form onSubmit={(e) => {
+                e.preventDefault();
+
+
+            }}>
+                <Row>
+                    <Col>
+                        <FormGroup>
+                            <Label for="from">From:</Label>
+                            <Input type="date"
+                                   value={from}
+                                   disabled={!allEntries}
+                                   onChange={(e) => dispatch(selectTimeRange({
+                                       from: e.target.value,
+                                       to,
+                                       clientId: selectedClient,
+                                       allEntries
+                                   }))}/>
+                        </FormGroup>
+                    </Col>
+                    <Col>
+                        <FormGroup>
+                            <Label for="to">To:</Label>
+                            <Input type="date"
+                                   value={to}
+                                   disabled={!allEntries}
+                                   onChange={(e) => dispatch(selectTimeRange({
+                                       from,
+                                       to: e.target.value,
+                                       clientId: selectedClient,
+                                       allEntries
+                                   }))}/>
+                        </FormGroup>
+                    </Col>
+                    <Col>
+                        <FormGroup check>
+                            <Label check>
+                                <Input
+                                    type="checkbox"
+                                    checked={allEntries}
+                                    onChange={(e) => {
+                                        const checked = e.target.checked;
+                                        if (checked) {
+                                            let iFrom = from;
+                                            let iTo = to;
+                                            if (!from) {
+                                                iFrom = moment().startOf("month").format("YYYY-MM-DD");
+                                            }
+                                            if (!from) {
+                                                iTo = moment().endOf("month").format("YYYY-MM-DD");
+                                            }
+                                            dispatch(selectTimeRange({
+                                                from: iFrom, to: iTo, clientId: selectedClient, allEntries: true
+                                            }));
+                                        } else {
+                                            dispatch(selectTimeRange({
+                                                from, to, clientId: selectedClient, allEntries: false
+                                            }));
+                                        }
+                                    }}
+                                    name="allEntries"
+                                />
+                                {' '}All Entries?</Label>
+                        </FormGroup>
+                    </Col>
+                    <Col className="text-right" xs="auto">
+                        <Button color="light" onClick={() => {
+                            dispatch(selectTimeRange({
+                                from: moment(from).add(-1, "month").format("YYYY-MM-DD"),
+                                to: moment(to).add(-1, "month").format("YYYY-MM-DD"),
+                                clientId: selectedClient, allEntries
+                            }))
+                        }}>Previous Month</Button><br />
+                        <Button color="light" onClick={() => {
+                            dispatch(selectTimeRange({
+                                from: moment(from).add(1, "month").format("YYYY-MM-DD"),
+                                to: moment(to).add(1, "month").format("YYYY-MM-DD"),
+                                clientId: selectedClient, allEntries
+                            }))
+                        }}>Next Month</Button><br/>
+                    </Col>
+                </Row>
+            </Form>
             <Table color={loading ? 'dark' : 'light'}>
                 <thead>
                 <tr>
@@ -191,8 +293,10 @@ const TimeEntries = () => {
                 </tr>
                 </thead>
                 <tbody>
-                {timeentries.map(timeentry => {
+                {timeentries.map((timeentry, idx, entries) => {
                         const selected = selectedItems.indexOf(timeentry.id || -1) >= 0;
+
+                        const sameDate = idx > 0 && entries[idx - 1].date === timeentry.date;
 
                         return (
                             (editing && editingId === timeentry.id) ? (
@@ -211,9 +315,9 @@ const TimeEntries = () => {
                                                onChange={selectItem}/>
                                     </td>
                                     }
-                                    <td><ShowDate date={timeentry.date} /></td>
-                                    <td><ShowTime time={timeentry.starting} /></td>
-                                    <td><ShowTime time={timeentry.ending} /></td>
+                                    <td>{sameDate || <ShowDate date={timeentry.date}/>}</td>
+                                    <td><ShowTime time={timeentry.starting}/></td>
+                                    <td><ShowTime time={timeentry.ending}/></td>
                                     <td>{timeentry.projectName}</td>
                                     <td>{timeentry.username}</td>
                                     <td><Checkbox value={timeentry.billable}/></td>
@@ -226,6 +330,11 @@ const TimeEntries = () => {
                                         {(admin || canBook) &&
                                         <Button color="light" onClick={() => updatingRecord(timeentry)}>
                                             <FontAwesomeIcon icon="pen"/>
+                                        </Button>
+                                        }
+                                        {(admin || canBook) && !timeStatus &&
+                                        <Button color="light" onClick={() => startingDuplicateEntry(timeentry)}>
+                                            <FontAwesomeIcon icon="play-circle"/>
                                         </Button>
                                         }
                                     </td>
@@ -342,7 +451,7 @@ const DeleteDialog = ({instances, cancel, execute, shown}: IDeleteDialogProps) =
 
 const ShowDate = ({date}) => {
     if (!date) {
-        return <span />
+        return <span/>
     } else {
         const x = moment(date).format("DD.MM.YY")
         return <span>{x}</span>
@@ -351,7 +460,7 @@ const ShowDate = ({date}) => {
 
 const ShowTime = ({time}) => {
     if (!time) {
-        return <span />
+        return <span/>
     } else {
         const x = moment(time).format("HH:mm")
         return <span>{x}</span>
