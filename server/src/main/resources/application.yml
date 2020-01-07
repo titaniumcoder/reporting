@@ -19,20 +19,11 @@ spring:
     cache-names: tokens
     caffeine:
       spec: maximumSize=100,expireAfterAccess=60s # TODO may be optimize later
-  #    type: none
-management:
-  endpoint:
-    beans:
-      enabled: true
-  endpoints:
-    web:
-      exposure:
-        include: health,info,beans
-
+  webflux:
+    static-path-pattern: /static/**
 reporting:
   clientId: 483387557047-olrn4mkp6m7gltp5fqhgr76094q6qf6e.apps.googleusercontent.com
   adminEmail: rico.metzger@gmail.com
-
 
 logging:
   level:

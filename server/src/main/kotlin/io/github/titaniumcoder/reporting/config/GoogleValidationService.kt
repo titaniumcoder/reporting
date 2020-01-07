@@ -3,15 +3,11 @@ package io.github.titaniumcoder.reporting.config
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
+import io.github.titaniumcoder.reporting.exceptions.InvalidTokenException
 import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
-import java.lang.RuntimeException
-
-interface TokenValidationService {
-    fun validateIdToken(idToken: String): Mono<String>
-}
 
 @Service
 class GoogleValidationService(val config: ReportingConfiguration) : TokenValidationService {
@@ -52,4 +48,3 @@ class GoogleValidationService(val config: ReportingConfiguration) : TokenValidat
     }
 }
 
-class InvalidTokenException(token: String) : RuntimeException("Invalid Token: $token")
