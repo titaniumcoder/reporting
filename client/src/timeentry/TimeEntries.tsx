@@ -61,7 +61,7 @@ const TimeEntries = () => {
         if (loggedIn) {
             dispatch(fetchTimeEntries(from, to, clientId, allEntries));
         }
-    }, [dispatch, loggedIn, from, to, clientId, currentTimeEntry, allEntries]);
+    }, [dispatch, loggedIn, from, to, clientId, currentTimeEntry, allEntries, currentTimeEntry]);
 
     const updateRecord = async (updatingTimeEntry: UpdatingTimeEntry) => {
         await reportingApi.updateTimeEntry(updatingTimeEntry);

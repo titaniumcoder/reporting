@@ -33,7 +33,6 @@ const projectSlice = createSlice({
         loadProjectsStarted(state) {
             state.loading = true;
             state.error = undefined;
-            state.projects = [];
         },
         loadProjectListSuccess(state, action: PayloadAction<ProjectList[]>) {
             state.loading = false;
@@ -48,7 +47,6 @@ const projectSlice = createSlice({
         loadProjectListStarted(state) {
             state.loading = true;
             state.error = undefined;
-            state.projectList = [];
         }
     }
 });

@@ -52,7 +52,6 @@ const timeentrySlice = createSlice({
         loadTimeEntriesStarted(state) {
             state.loading = true;
             state.error = undefined;
-            state.timeentries = [];
         },
         selectTimeRange(state, action: PayloadAction<TimeentryRangeSelection>) {
             state.from = action.payload.from;

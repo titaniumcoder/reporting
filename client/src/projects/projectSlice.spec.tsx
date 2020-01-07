@@ -10,7 +10,7 @@ const sampleState: {projects: Project[], projectList: ProjectList[], error: stri
             clientName: 'CN2',
             billable: true,
             maxMinutes: 100,
-            rateInCentsPerHours: 10
+            rateInCentsPerHour: 10
         }
     ],
     projectList: [
@@ -35,10 +35,9 @@ describe('projectSlice', () => {
                 type: loadProjectsStarted().type
             })
         ).toEqual({
+            ...sampleState,
             error: undefined,
-            loading: true,
-            projects: [],
-            projectList: sampleState.projectList
+            loading: true
         })
     });
     it('handles loadProjectsSuccess correctly', () => {
@@ -96,10 +95,9 @@ describe('projectSlice', () => {
                 type: loadProjectListStarted().type
             })
         ).toEqual({
+            ...sampleState,
             error: undefined,
-            loading: true,
-            projects: sampleState.projects,
-            projectList: []
+            loading: true
         })
     });
     it('handles loadProjectListSuccess correctly', () => {

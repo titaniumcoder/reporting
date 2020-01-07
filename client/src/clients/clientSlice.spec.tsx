@@ -4,16 +4,16 @@ const sampleState = {
     clients: [
         {
             active: false,
-            id: 'ff',
+            clientId: 'ff',
             maxMinutes: undefined,
             name: 'FFFF',
             notes: undefined,
-            rateInCentsPerHours: undefined
+            rateInCentsPerHour: undefined
         }
     ],
     clientList: [
         {
-            id: 'ff',
+            clientId: 'ff',
             name: 'FFFF'
         }
     ],
@@ -33,10 +33,9 @@ describe('clientSlice', () => {
                 type: loadClientsStarted.type
             })
         ).toEqual({
+            ...sampleState,
             error: undefined,
-            loading: true,
-            clients: [],
-            clientList: sampleState.clientList
+            loading: true
         })
     });
     it('handles loadClientsSuccess correctly', () => {
@@ -92,10 +91,9 @@ describe('clientSlice', () => {
                 type: loadClientListStarted.type
             })
         ).toEqual({
+            ...sampleState,
             error: undefined,
-            loading: true,
-            clients: sampleState.clients,
-            clientList: []
+            loading: true
         })
     });
     it('handles loadClientListSuccess correctly', () => {

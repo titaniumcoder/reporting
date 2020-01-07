@@ -35,7 +35,6 @@ const clientSlice = createSlice({
         loadClientsStarted(state) {
             state.loading = true;
             state.error = undefined;
-            state.clients = [];
         },
         loadClientListSuccess(state, action: PayloadAction<ClientList[]>) {
             state.loading = false;
@@ -50,7 +49,6 @@ const clientSlice = createSlice({
         loadClientListStarted(state) {
             state.loading = true;
             state.error = undefined;
-            state.clientList = [];
         },
         selectClient(state, action: PayloadAction<string | undefined>) {
             state.selectedClient = action.payload;
