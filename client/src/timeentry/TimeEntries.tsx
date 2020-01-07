@@ -166,7 +166,7 @@ const TimeEntries = () => {
 
     return (
         <div className="timeEntry">
-            <h1>Time-Entries</h1>
+            <h1 className="mt-4">Time-Entries</h1>
             {error &&
             <Alert>{error}</Alert>
             }
@@ -204,7 +204,7 @@ const TimeEntries = () => {
                                    }))}/>
                         </FormGroup>
                     </Col>
-                    <Col>
+                    <Col className="my-auto">
                         <FormGroup check>
                             <Label check>
                                 <Input
@@ -236,14 +236,14 @@ const TimeEntries = () => {
                         </FormGroup>
                     </Col>
                     <Col className="text-right" xs="auto">
-                        <Button color="light" onClick={() => {
+                        <Button color="light" disabled={!allEntries} onClick={() => {
                             dispatch(selectTimeRange({
                                 from: moment(from).add(-1, "month").format("YYYY-MM-DD"),
                                 to: moment(to).add(-1, "month").format("YYYY-MM-DD"),
                                 clientId: selectedClient, allEntries
                             }))
-                        }}>Previous Month</Button><br />
-                        <Button color="light" onClick={() => {
+                        }}>Previous Month</Button><br/>
+                        <Button color="light" disabled={!allEntries} onClick={() => {
                             dispatch(selectTimeRange({
                                 from: moment(from).add(1, "month").format("YYYY-MM-DD"),
                                 to: moment(to).add(1, "month").format("YYYY-MM-DD"),
@@ -265,16 +265,16 @@ const TimeEntries = () => {
                         />
                     </th>
                     }
-                    <th>Date</th>
-                    <th>Start</th>
-                    <th>End</th>
+                    <th className="text-center">Date</th>
+                    <th className="text-center">Start</th>
+                    <th className="text-center">End</th>
                     <th>Project</th>
                     <th>User</th>
-                    <th>Billable</th>
-                    <th>Billed</th>
-                    <th>Duration</th>
+                    <th className="text-center">Billable</th>
+                    <th className="text-center">Billed</th>
+                    <th className="text-right">Duration</th>
                     {(canViewMoney || admin) &&
-                    <th>Earning</th>
+                    <th className="text-right">Earning</th>
                     }
                     <th className="text-right">
                         <ButtonGroup>
@@ -309,22 +309,22 @@ const TimeEntries = () => {
                                 <tr key={timeentry.id}>
                                     {(canBook || admin) &&
                                     <td className="text-center">
-                                        <Input type="checkbox"
+                                        <input type="checkbox"
                                                name={`id-${timeentry.id}`}
                                                checked={selected}
                                                onChange={selectItem}/>
                                     </td>
                                     }
-                                    <td>{sameDate || <ShowDate date={timeentry.date}/>}</td>
-                                    <td><ShowTime time={timeentry.starting}/></td>
-                                    <td><ShowTime time={timeentry.ending}/></td>
+                                    <td className="text-center">{sameDate || <ShowDate date={timeentry.date}/>}</td>
+                                    <td className="text-center"><ShowTime time={timeentry.starting}/></td>
+                                    <td className="text-center"><ShowTime time={timeentry.ending}/></td>
                                     <td>{timeentry.projectName}</td>
                                     <td>{timeentry.username}</td>
-                                    <td><Checkbox value={timeentry.billable}/></td>
-                                    <td><Checkbox value={timeentry.billed}/></td>
-                                    <td><ShowHours minutes={timeentry.timeUsed}/></td>
+                                    <td className="text-center"><Checkbox value={timeentry.billable}/></td>
+                                    <td className="text-center"><Checkbox value={timeentry.billed}/></td>
+                                    <td className="text-right"><ShowHours minutes={timeentry.timeUsed}/></td>
                                     {(canViewMoney || admin) &&
-                                    <td><ShowRate rate={timeentry.amount}/></td>
+                                    <td className="text-right"><ShowRate rate={timeentry.amount * 100}/></td>
                                     }
                                     <td className="text-right">
                                         {(admin || canBook) &&

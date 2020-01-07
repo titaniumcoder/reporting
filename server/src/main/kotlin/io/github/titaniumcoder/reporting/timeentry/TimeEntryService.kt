@@ -129,13 +129,13 @@ class TimeEntryService(val repository: TimeEntryRepository, val projectService: 
             val project = projectClient?.t1
             val client = projectClient?.t2
 
-            val projectRate = project?.rateInCentsPerHour
+            val projectRate = project?.rateInCentsPerHour?.let { if (it == 0) null else it }
             val clientRate = client?.rateInCentsPerHour
 
             val finalRate = projectRate ?: clientRate ?: 0
             val running: Long = Duration.between(te.starting, realEnding).toMinutes()
 
-            val amount = (running / 60.0) * finalRate / 100.0
+            val amount = running * finalRate  / 60.0 / 100.0
 
             TimeEntryDto(
                     id = te.id,
