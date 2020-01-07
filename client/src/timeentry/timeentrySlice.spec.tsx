@@ -14,7 +14,8 @@ const sampleState = {
     loading: false,
     from: undefined,
     to: undefined,
-    clientId: undefined
+    clientId: undefined,
+    allEntries: false
 };
 
 describe('timeentrySlice', () => {
@@ -109,14 +110,16 @@ describe('timeentrySlice', () => {
                 payload: {
                     from: '2010-01-01',
                     to: '2019-01-01',
-                    clientId: 'test'
+                    clientId: 'test',
+                    allEntries: true
                 }
             })
         ).toEqual({
             ...sampleState,
             from: '2010-01-01',
             to: '2019-01-01',
-            clientId: 'test'
+            clientId: 'test',
+            allEntries: true
         })
     });
 });

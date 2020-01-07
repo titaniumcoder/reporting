@@ -45,6 +45,8 @@ const App = () => {
                                 <CurrentTimeEntry/>
                                 }
 
+                                <ClientInfo />
+
                                 <Clients />
                                 <Route path="/client/:client">
                                     <div className="mt-3">

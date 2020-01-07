@@ -26,14 +26,22 @@ class ProjectService(val repository: ProjectRepository, val clientRepository: Cl
 
         return repository
                 .findAllSortedByName()
-                .zipWith(currentUser.flux())
-                .filter { p ->
-                    p.t2.admin || p.t2.clients.map { c -> c.clientId }.contains(p.t1.clientId)
+                .flatMap { p ->
+                    currentUser
+                            .map { u ->
+                                u.admin || p.clientId in u.clients.map { c -> c.clientId }
+                            }.flatMap {
+                                if (it) {
+                                    Mono.just(p)
+                                } else {
+                                    Mono.empty()
+                                }
+                            }
                 }
                 .flatMap {
-                    clientRepository.findById(it.t1.clientId)
+                    clientRepository.findById(it.clientId)
                             .map { client ->
-                                ProjectList(it.t1.projectId, client.name, it.t1.name)
+                                ProjectList(it.projectId, client.name, it.name)
                             }
                 }
     }

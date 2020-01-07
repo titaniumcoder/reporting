@@ -20,7 +20,7 @@ const ClientInfo = () => {
 
     return (
         <div>
-            <div><h4>For Current Client:</h4></div>
+            <div><h4>For Current Client ({client}):</h4></div>
             <div>
                 <ul>
                     <li>Time Status</li>
