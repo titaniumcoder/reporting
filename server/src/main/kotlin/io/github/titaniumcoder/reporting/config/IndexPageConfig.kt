@@ -8,7 +8,7 @@ import org.springframework.web.reactive.function.server.router
 import java.net.URI
 
 @Configuration
-class StaticConfig {
+class IndexPageConfig {
     @Bean
     fun indexRouter(): RouterFunction<ServerResponse> {
         val redirectToIndex =

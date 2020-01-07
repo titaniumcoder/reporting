@@ -5,7 +5,7 @@ spring:
     password: ${JDBC_DATABASE_PASSWORD:""}
     driverClassName: org.postgresql.Driver
   r2dbc:
-    url: ${JDBC_DATABASE_URL:r2dbc:postgresql://db:5432/reporting}
+    url: ${R2DBC_DATABASE_URL:r2dbc:postgresql://db:5432/reporting}
     username: ${JDBC_DATABASE_USER:reporting}
     password: ${JDBC_DATABASE_PASSWORD:""}
   jpa:
