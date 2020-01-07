@@ -76,4 +76,4 @@ data class ProjectDto(
         val amountRemaining: Double?
 )
 
-data class ProjectList(val id: Long?, val clientName: String, val name: String)
+data class ProjectList(val id: Long?, val clientName: String, val name: String, val billable: Boolean)

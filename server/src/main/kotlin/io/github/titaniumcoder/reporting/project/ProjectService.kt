@@ -41,7 +41,7 @@ class ProjectService(val repository: ProjectRepository, val clientRepository: Cl
                 .flatMap {
                     clientRepository.findById(it.clientId)
                             .map { client ->
-                                ProjectList(it.projectId, client.name, it.name)
+                                ProjectList(it.projectId, client.name, it.name, it.billable)
                             }
                 }
     }

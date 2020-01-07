@@ -85,7 +85,7 @@ export const TimeEntryForm = ({errors, values, handleChange, handleChecked, proj
                 invalid={!!errors['projectId']}
                 value={values.projectId}
                 onChange={handleChange}>
-                <option value={-1}>- No Project -</option>
+                <option value={undefined}>- No Project -</option>
                 {projectList.map(p =>
                     <option key={p.id} value={p.id}>{p.name} ({p.clientName})</option>
                 )}

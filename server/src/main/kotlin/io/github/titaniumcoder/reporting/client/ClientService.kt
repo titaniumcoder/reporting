@@ -47,5 +47,35 @@ class ClientService(val repository: ClientRepository, val userService: UserServi
                     }
                 }
     }
+
+    fun clientInfo(id: String?): Flux<ClientInfo> {
+        TODO()
+    }
 }
 
+data class ClientInfo(
+        val id: String,
+        val name: String,
+        val rateInCentsPerHour: Int? = null,
+        val maxMinutes: Int? = null,
+        val billedMinutes: Int,
+        val billedAmount: Double? = null,
+        val openMinutes: Int,
+        val openAmount: Double? = null,
+        val remaniningMinutes: Int? = null,
+        val remainingAmount: Double? = null,
+        val projects: List<ProjectInfo>
+)
+
+data class ProjectInfo(
+        val projectId: Long? = null,
+        val name: String,
+        val rateInCentsPerHour: Int? = null,
+        val maxMinutes: Int? = null,
+        val billedMinutes: Int,
+        val billedAmount: Double? = null,
+        val openMinutes: Int,
+        val openAmount: Double? = null,
+        val remaniningMinutes: Int? = null,
+        val remainingAmount: Double? = null
+)

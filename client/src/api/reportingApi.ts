@@ -39,6 +39,7 @@ export interface ProjectList {
     id?: number;
     clientName: string;
     name: string;
+    billable: boolean;
 }
 
 export interface Client {
