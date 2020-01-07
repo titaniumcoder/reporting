@@ -26,7 +26,7 @@ class ProjectService(val repository: ProjectRepository, val clientRepository: Cl
 
         return repository
                 .findAllSortedByName()
-                .zipWith(currentUser)
+                .zipWith(currentUser.flux())
                 .filter { p ->
                     p.t2.admin || p.t2.clients.map { c -> c.clientId }.contains(p.t1.clientId)
                 }

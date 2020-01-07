@@ -21,7 +21,7 @@ const CurrentTimeEntry = () => {
         projectId: -1,
         description: '',
         id: -1,
-        billable: false,
+        billable: true,
         billed: false
     });
 

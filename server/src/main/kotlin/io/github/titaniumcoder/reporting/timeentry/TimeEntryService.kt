@@ -135,7 +135,7 @@ class TimeEntryService(val repository: TimeEntryRepository, val projectService: 
             val finalRate = projectRate ?: clientRate ?: 0
             val running: Long = Duration.between(te.starting, realEnding).toMinutes()
 
-            val amount = running * finalRate  / 60.0 / 100.0
+            val amount = if (te.billable) running * finalRate  / 60.0 / 100.0 else 0.0
 
             TimeEntryDto(
                     id = te.id,
