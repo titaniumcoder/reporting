@@ -19,7 +19,7 @@ class R2dbcConfiguration {
     @Conditional(WithJdbcSystemProperty::class)
     fun connectionFactory(properties: R2dbcProperties,
                           customizers: List<ConnectionFactoryOptionsBuilderCustomizer>): ConnectionFactory? {
-        properties.url ="r2dbc" + System.getenv(JDBC_DATABASE_URL_ENV)
+        properties.url ="r2dbc:" + System.getenv(JDBC_DATABASE_URL_ENV)
 
         return ConnectionFactoryBuilder
                 .create(properties)
