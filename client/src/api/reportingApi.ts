@@ -100,6 +100,35 @@ export interface UpdatingTimeEntry {
     billed: boolean;
 }
 
+export interface ClientInfo {
+    id: string;
+    name: string;
+    rateInCentsPerHour?: number;
+    maxMinutes?: number;
+    billedMinutes: number;
+    billedAmount?: number;
+    openMinutes: number;
+    openAmount?: number;
+    remainingMinutes?: number;
+    remainingAmount?: number;
+
+    projects: ProjectInfo[];
+}
+
+export interface ProjectInfo {
+    projectId?: number;
+    name: string;
+    billable: boolean;
+    rateInCentsPerHour?: number;
+    maxMinutes?: number;
+    billedMinutes: number;
+    billedAmount?: number;
+    openMinutes: number;
+    openAmount?: number;
+    remainingMinutes?: number;
+    remainingAmount?: number;
+}
+
 export interface IReportingApi {
     auth(idToken: string): Promise<AxiosResponse<ICurrentUser>>;
 
@@ -135,7 +164,9 @@ export interface IReportingApi {
 
     deleteTimeEntry(id: number): Promise<AxiosResponse<void>>
 
-    fetchTimeEntries(from?: number, to?: number, clientId?: number, allEntries?: boolean): Promise<AxiosResponse<TimeEntry[]>>
+    loadTimeEntries(from?: number, to?: number, clientId?: number, allEntries?: boolean): Promise<AxiosResponse<TimeEntry[]>>
+
+    loadClientinfo(clientId?: number | undefined): Promise<AxiosResponse<ClientInfo[]>>;
 
     togglTimeEntries(ids: number[]): Promise<AxiosResponse<void>>
 }
@@ -225,7 +256,7 @@ export class ReportingApi implements IReportingApi {
         return await axios.delete<void>(`timeentries/${id}`);
     }
 
-    async fetchTimeEntries(from?: number, to?: number, clientId?: number, allEntries?: boolean) {
+    async loadTimeEntries(from?: number, to?: number, clientId?: number, allEntries?: boolean) {
         return await axios.get<TimeEntry[]>('timeentries', {
             params: {
                 from, to, clientId, allEntries
@@ -236,6 +267,15 @@ export class ReportingApi implements IReportingApi {
     async togglTimeEntries(ids: number[]) {
         return await axios.post<void>('toggl-timeentries', ids);
     }
+
+    async loadClientinfo(clientId?: number | undefined) {
+        return await axios.get<ClientInfo[]>('client-info', {
+            params: {
+                clientId
+            }
+        });
+    }
+
 }
 
 export default new ReportingApi();

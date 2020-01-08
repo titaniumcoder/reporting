@@ -71,6 +71,8 @@ const TimeEntries = () => {
             };
         });
 
+    const noClientSelected = useMemo(() => selectedClient === undefined, [selectedClient]);
+
     const timeStatus = useMemo(() => !!currentTimeEntry?.starting, [currentTimeEntry]);
 
     useEffect(() => {
@@ -164,6 +166,14 @@ const TimeEntries = () => {
         dispatch(fetchTimeEntries(from, to, selectedClient, allEntries));
     };
 
+    const createExcel = async(evt) => {
+        evt.preventDefault();
+
+        // TODO call axios
+
+        // TODO download with file-saver
+    };
+
     return (
         <div className="timeEntry">
             <h1 className="mt-4">Time-Entries</h1>
@@ -181,7 +191,6 @@ const TimeEntries = () => {
                             <Label for="from">From:</Label>
                             <Input type="date"
                                    value={from}
-                                   disabled={!allEntries}
                                    onChange={(e) => dispatch(selectTimeRange({
                                        from: e.target.value,
                                        to,
@@ -195,7 +204,6 @@ const TimeEntries = () => {
                             <Label for="to">To:</Label>
                             <Input type="date"
                                    value={to}
-                                   disabled={!allEntries}
                                    onChange={(e) => dispatch(selectTimeRange({
                                        from,
                                        to: e.target.value,
@@ -235,15 +243,18 @@ const TimeEntries = () => {
                                 {' '}All Entries?</Label>
                         </FormGroup>
                     </Col>
+                    <Col className="text-right my-auto" xs="auto">
+                        <Button color="primary" disabled={noClientSelected} onClick={createExcel}>Create Excel</Button><br/>
+                    </Col>
                     <Col className="text-right" xs="auto">
-                        <Button color="light" disabled={!allEntries} onClick={() => {
+                        <Button color="light" onClick={() => {
                             dispatch(selectTimeRange({
                                 from: moment(from).add(-1, "month").format("YYYY-MM-DD"),
                                 to: moment(to).add(-1, "month").format("YYYY-MM-DD"),
                                 clientId: selectedClient, allEntries
                             }))
                         }}>Previous Month</Button><br/>
-                        <Button color="light" disabled={!allEntries} onClick={() => {
+                        <Button color="light" onClick={() => {
                             dispatch(selectTimeRange({
                                 from: moment(from).add(1, "month").format("YYYY-MM-DD"),
                                 to: moment(to).add(1, "month").format("YYYY-MM-DD"),
@@ -253,7 +264,7 @@ const TimeEntries = () => {
                     </Col>
                 </Row>
             </Form>
-            <Table color={loading ? 'dark' : 'light'}>
+            <Table color={loading ? 'dark' : 'light'} size="sm">
                 <thead>
                 <tr>
                     {(canBook || admin) &&
@@ -405,8 +416,6 @@ const UpdateForm = ({instance, cancel, update}: UpdateFormProps) => {
     );
 };
 
-type NumberArray = number[];
-
 interface IDeleteDialogProps {
     instances: number[];
     cancel: () => void;
@@ -453,7 +462,7 @@ const ShowDate = ({date}) => {
     if (!date) {
         return <span/>
     } else {
-        const x = moment(date).format("DD.MM.YY")
+        const x = moment(date).format("DD.MM.YY");
         return <span>{x}</span>
     }
 };
@@ -462,7 +471,7 @@ const ShowTime = ({time}) => {
     if (!time) {
         return <span/>
     } else {
-        const x = moment(time).format("HH:mm")
+        const x = moment(time).format("HH:mm");
         return <span>{x}</span>
     }
 };

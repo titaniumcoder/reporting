@@ -1,13 +1,14 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import reportingApi, {Client, ClientList} from "../api/reportingApi";
+import reportingApi, {Client, ClientInfo, ClientList} from "../api/reportingApi";
 import {AppThunk} from "../store";
 
 type ClientState = {
     loading: boolean;
     error?: string;
     clients: Client[];
-    clientList: { clientId: string, name: string }[]
-    selectedClient: string | undefined
+    clientList: { clientId: string, name: string }[];
+    selectedClient: string | undefined;
+    clientInfo: ClientInfo[];
 }
 
 let initialState: ClientState = {
@@ -15,7 +16,8 @@ let initialState: ClientState = {
     loading: false,
     error: undefined,
     clientList: [],
-    selectedClient: undefined
+    selectedClient: undefined,
+    clientInfo: []
 };
 
 const clientSlice = createSlice({
@@ -52,6 +54,21 @@ const clientSlice = createSlice({
         },
         selectClient(state, action: PayloadAction<string | undefined>) {
             state.selectedClient = action.payload;
+        },
+
+        loadClientinfoStarted(state) {
+            state.loading = true;
+            state.error = undefined;
+        },
+        loadClientInfoSuccess(state, action: PayloadAction<any>) { // TODO Clientinfo
+            state.loading = false;
+            state.error = undefined;
+            state.clientInfo = action.payload;
+        },
+        loadClientInfoFailed(state, action: PayloadAction<string>) {
+            state.loading = false;
+            state.error = action.payload;
+            state.clientInfo = [];
         }
     }
 });
@@ -63,7 +80,10 @@ export const {
     loadClientListSuccess,
     loadClientListFailed,
     loadClientListStarted,
-    selectClient
+    selectClient,
+    loadClientinfoStarted,
+    loadClientInfoSuccess,
+    loadClientInfoFailed
 } = clientSlice.actions;
 
 export default clientSlice.reducer;
@@ -75,6 +95,17 @@ export const fetchClientList = (): AppThunk => async dispatch => {
         dispatch(loadClientListSuccess(clients.data));
     } catch (err) {
         dispatch(loadClientListFailed(err.toString()));
+    }
+};
+
+export const selectClientWithInfo = (clientId): AppThunk => async dispatch => {
+    try {
+        dispatch(selectClient(clientId));
+        dispatch(loadClientinfoStarted());
+        const clientInfos = await reportingApi.loadClientinfo(clientId);
+        dispatch(loadClientInfoSuccess(clientInfos.data));
+    } catch (err) {
+        dispatch(loadClientInfoFailed(err.toString()));
     }
 };
 

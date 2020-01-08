@@ -1,32 +1,27 @@
 package io.github.titaniumcoder.reporting.reporting
 
+import org.springframework.format.annotation.DateTimeFormat
+import org.springframework.http.HttpHeaders
+import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import java.io.ByteArrayInputStream
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @RestController
 @RequestMapping("/api")
 class ReportingController(val service: ReportingService) {
-    @GetMapping("/info")
+    @GetMapping("/client-info")
     @Secured("isAuthenticated()")
-    fun info(@RequestParam("client", required = false)clientId: String?) =
-            service.info(clientId)
-    /*
-    @Secured("isAuthenticated()")
-    @GetMapping("/client/{clientId}")
-    fun entries(
-            @PathVariable("clientId") clientId: Long,
-            @RequestParam("from") @DateTimeFormat(pattern = "yyyy-MM-dd") from: LocalDate?,
-            @RequestParam("to") @DateTimeFormat(pattern = "yyyy-MM-dd") to: LocalDate?
-    ) =
-            service.entries(clientId, from, to)
+    fun info(@RequestParam("clientId", required = false) clientId: String?,
+             @RequestParam("from") @DateTimeFormat(pattern = "yyyy-MM-dd") from: LocalDate?,
+             @RequestParam("to") @DateTimeFormat(pattern = "yyyy-MM-dd") to: LocalDate?) = service.info(clientId, from, to)
 
     @Secured("isAuthenticated()")
-    @GetMapping("/timesheet/{clientId}")
+    @GetMapping("/timesheet/{clientId}", produces = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"])
     fun timesheet(
-            @PathVariable("clientId") clientId: Long,
+            @PathVariable("clientId") clientId: String,
             @RequestParam("from") @DateTimeFormat(pattern = "yyyy-MM-dd") from: LocalDate,
             @RequestParam("to") @DateTimeFormat(pattern = "yyyy-MM-dd") to: LocalDate
     ): ResponseEntity<ByteArray> {
@@ -34,11 +29,11 @@ class ReportingController(val service: ReportingService) {
 
         val filename = "${sheet.name.toUpperCase()}-${sheet.date.format(DateTimeFormatter.ofPattern("yyyy-MM"))}.xlsx"
 
-        val input = ByteArrayInputStream(sheet.excel)
+        val input = ByteArrayInputStream(sheet.excel).readBytes()
 
-        TODO("create response entity")
-
-        // return StreamedFile(input, MediaType.of("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")).attach(filename)
+        return ResponseEntity
+                .ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = $filename")
+                .body(input)
     }
-     */
 }

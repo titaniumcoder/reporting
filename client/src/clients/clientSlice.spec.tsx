@@ -1,25 +1,12 @@
-import client, {loadClientsFailed, loadClientsSuccess, loadClientsStarted, loadClientListFailed, loadClientListSuccess, loadClientListStarted, selectClient} from './clientSlice'
+import client, {loadClientsFailed, loadClientsSuccess, loadClientsStarted, loadClientListFailed, loadClientListSuccess, loadClientListStarted, selectClient, loadClientinfoStarted, loadClientInfoSuccess, loadClientInfoFailed} from './clientSlice'
 
 const sampleState = {
-    clients: [
-        {
-            active: false,
-            clientId: 'ff',
-            maxMinutes: undefined,
-            name: 'FFFF',
-            notes: undefined,
-            rateInCentsPerHour: undefined
-        }
-    ],
-    clientList: [
-        {
-            clientId: 'ff',
-            name: 'FFFF'
-        }
-    ],
+    clients: [],
+    clientList: [],
     error: undefined,
     loading: false,
-    selectedClient: undefined
+    selectedClient: undefined,
+    clientInfo: []
 };
 
 describe('clientSlice', () => {
@@ -55,6 +42,7 @@ describe('clientSlice', () => {
                     ]
             })
         ).toEqual({
+            ...sampleState,
             error: undefined,
             clients: [{
                 active: true,
@@ -63,9 +51,7 @@ describe('clientSlice', () => {
                 name: 'FFFF1',
                 notes: 'Notes',
                 rateInCentsPerHours: 150
-            }],
-            clientList: sampleState.clientList,
-            loading: false
+            }]
         })
     });
     it('handles loadClientsFailed correctly', () => {
@@ -75,10 +61,10 @@ describe('clientSlice', () => {
                 payload: 'Hilfe!!'
             })
         ).toEqual({
+            ...sampleState,
             clients: [],
             loading: false,
-            error: 'Hilfe!!',
-            clientList: sampleState.clientList
+            error: 'Hilfe!!'
         })
     });
     it('handles loadClientListStarted correctly', () => {
@@ -109,8 +95,8 @@ describe('clientSlice', () => {
                     ]
             })
         ).toEqual({
+            ...sampleState,
             error: undefined,
-            clients: sampleState.clients,
             clientList: [{
                 id: 'ff1',
                 name: 'FFFF1'
@@ -125,10 +111,60 @@ describe('clientSlice', () => {
                 payload: 'Hilfe!!'
             })
         ).toEqual({
-            clients: sampleState.clients,
+            ...sampleState,
             loading: false,
             error: 'Hilfe!!',
             clientList: []
+        })
+    });
+    it('handles loadClientinfoStarted correctly', () => {
+        expect(
+            client({
+                ...sampleState,
+                error: 'blabla',
+                loading: false
+            }, {
+                type: loadClientinfoStarted.type
+            })
+        ).toEqual({
+            ...sampleState,
+            error: undefined,
+            loading: true
+        })
+    });
+    it('handles loadClientInfoSuccess correctly', () => {
+        expect(
+            client(sampleState, {
+                type: loadClientInfoSuccess.type,
+                payload:
+                    [
+                        {
+                            id: 'abc',
+                            name: 'def',
+
+                        }
+                    ]
+            })
+        ).toEqual({
+            ...sampleState,
+            clientInfo: [{
+                id: 'abc',
+                name: 'def',
+
+            }]
+        })
+    });
+    it('handles loadClientInfoFailed correctly', () => {
+        expect(
+            client(sampleState, {
+                type: loadClientInfoFailed.type,
+                payload: 'Hilfe!!'
+            })
+        ).toEqual({
+            ...sampleState,
+            loading: false,
+            error: 'Hilfe!!',
+            clientInfo: []
         })
     });
     it('allows selection of a client', () => {

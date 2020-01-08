@@ -1,16 +1,20 @@
 package io.github.titaniumcoder.reporting.reporting
 
-import io.github.titaniumcoder.reporting.transformers.ViewModel
+import io.github.titaniumcoder.reporting.timeentry.TimeEntryDto
+import io.github.titaniumcoder.reporting.user.UserService
+import org.springframework.data.r2dbc.core.DatabaseClient
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
+import reactor.core.publisher.toFlux
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 class ExcelSheet(val name: String, val date: LocalDate, @Suppress("unused") val excel: ByteArray)
 
 @Service
-class ReportingService {
+class ReportingService(val client: DatabaseClient, val userService: UserService) {
     @Suppress("unused", "UNUSED_PARAMETER")
-    private fun generateExcel(name: String, model: ViewModel.ReportingModel): ByteArray {
+    private fun generateExcel(name: String, clientInfo: ClientInfo): ByteArray {
         fun tableheader(cell: Cell) {
             cell.apply {
                 bold = true
@@ -21,7 +25,6 @@ class ReportingService {
             }
         }
         return excel {
-            /*
             sheet(name) {
                 // ---- header ----
                 cell(0, 0) {
@@ -31,7 +34,7 @@ class ReportingService {
                     alignment = HorizontalAlignment.Left
 
                     format = "\"Arbeitszeit \"MMMM yyyy"
-                    content = model.timeEntries.flatMap { te -> te.map { it.startdate } }.last()
+                    content = "2019-05-05" // TODO: model.timeEntries.flatMap { te -> te.map { /* TODO it.startdate */ LocalDate.now() } }.last()
                 }
 
                 cell(0, 5) {
@@ -79,8 +82,11 @@ class ReportingService {
                 var row = 3
 
                 // ---- Time Entries ----
-                model.timeEntries.forEach { te ->
-                    val sum = te.sumBy { it.minutes }
+                // TODO:
+                run {
+                    val te: List<TimeEntryDto> = listOf(TimeEntryDto(null, LocalDate.now(), LocalDateTime.now(), LocalDateTime.now(), null, "ABC", "DEF", "GHI", true, false, 100, 1000.0))
+
+                    val sum = te.sumBy { it.timeUsed?.toInt() ?: 0 }
 
                     te.forEachIndexed { idx, entry ->
                         val firstRowInDay = idx == 0
@@ -91,7 +97,7 @@ class ReportingService {
 
                         if (firstRowInDay) {
                             cell(row, 0) {
-                                content = entry.day
+                                content = entry.date
                                 format = "dd.MM.yyyy"
                                 top = topBorder
                                 left = 1
@@ -112,7 +118,7 @@ class ReportingService {
                         }
 
                         cell(row, 2) {
-                            content = entry.startdate
+                            content = entry.starting
                             format = "hh:mm"
                             alignment = HorizontalAlignment.Center
 
@@ -122,7 +128,7 @@ class ReportingService {
                             bottom = bottomBorder
                         }
                         cell(row, 3) {
-                            content = entry.enddate
+                            content = entry.ending
                             format = "hh:mm"
                             alignment = HorizontalAlignment.Center
 
@@ -132,7 +138,7 @@ class ReportingService {
                             bottom = bottomBorder
                         }
                         cell(row, 4) {
-                            content = formatTime(entry.minutes)
+                            content = formatTime(entry.timeUsed?.toInt() ?: 0)
                             format = "[h]:mm"
                             alignment = HorizontalAlignment.Right
 
@@ -142,7 +148,7 @@ class ReportingService {
                             bottom = bottomBorder
                         }
                         cell(row, 5) {
-                            content = entry.project
+                            content = entry.projectName
 
                             left = 1
                             right = 1
@@ -165,13 +171,16 @@ class ReportingService {
                 // ---- Footer ----
                 row += 1
 
-                val total = model.timeEntries.sumBy { it.sumBy { d -> d.minutes } }
-                val totalPerProject = model
-                        .timeEntries
-                        .flatten()
-                        .groupBy { it.project ?: "<<< Kein Projekt >>>" }
-                        .map { entry -> entry.key to entry.value.sumBy { it.minutes } }
-                        .toMap()
+                val total = 1000 // TODO model.timeEntries.sumBy { it.sumBy { d -> d.minutes } }
+                val totalPerProject = mapOf(Pair("ref", 100))
+
+                /* model
+                .timeEntries
+                .flatten()
+                .groupBy { it.project ?: "<<< Kein Projekt >>>" }
+                .map { entry -> entry.key to entry.value.sumBy { it.minutes } }
+                .toMap()
+                 */
 
                 cell(row, 0) {
                     content = "Summen:"
@@ -258,37 +267,22 @@ class ReportingService {
                             }
                         }
             }
-             */
         }
                 .render()
     }
 
 
     @Suppress("unused")
-    fun timesheet(clientId: Long, from: LocalDate, to: LocalDate): ExcelSheet = TODO() /*{
-        val originalEntries = service.entries(clientId, from, to)
+    fun timesheet(clientId: String, from: LocalDate, to: LocalDate): ExcelSheet {
+        val clientInfo = info(clientId, from, to)
+                .blockFirst()!! // TODO replace this
 
-        val entries =
-                originalEntries
-                        .copy(data = originalEntries.data.filter { x -> x.isBillable && !x.tags.contains("billed") })
+        val name = clientInfo.name
 
-        val name = entries.data.firstOrNull()?.client?.toLowerCase() ?: "unbekannt"
-
-        val body = generateExcel(name, transformer.transformInput(entries, from, to, clientId))
+        val body = generateExcel(name, clientInfo)
 
         return ExcelSheet(name, from, body)
     }
-    */
-
-    @Suppress("unused")
-    fun entries(clientId: Long, from: LocalDate?, to: LocalDate?): ViewModel.ReportingModel = TODO() /*{
-        val definiteTo = to ?: (LocalDate.now().plusMonths(1).withDayOfMonth(1).minusDays(1))
-        val definiteFrom = from ?: (definiteTo.withDayOfMonth(1))
-
-        val entries = service.entries(clientId, definiteFrom, definiteTo)
-        return transformer.transformInput(entries, definiteFrom, definiteTo, clientId)
-    }
-    */
 
     @Suppress("unused")
     private fun formatTime(minutes: Int): Double = minutes.toDouble() / 1440
@@ -296,8 +290,110 @@ class ReportingService {
     @Suppress("unused")
     private fun formatNumeric(minutes: Int): Double = minutes.toDouble() / 60
 
-    fun info(clientId: String?): Flux<ClientInfo> {
-        TODO("not implemented")
+    fun info(clientId: String?, from: LocalDate?, to: LocalDate?): Flux<ClientInfo> {
+        return userService.reactiveCurrentUserDto()
+                .flatMapMany { user ->
+                    val canSeeMoney = user.admin || user.canViewMoney
+
+                    client.execute("select * from client_overview " + (if (clientId != null) "where client_id = '$clientId'" else ""))
+                            .map { row ->
+                                ClientInfo(
+                                        id = row.get("client_id", String::class.java) ?: "<<ID>>",
+                                        name = row.get("client_name", String::class.java) ?: "<<<< NAME >>>>>",
+                                        maxMinutes = row.get("client_max_minutes", Integer::class.java)?.toInt(),
+                                        rateInCentsPerHour = row.get("client_rate_in_cents_per_hour", Integer::class.java)?.toInt(),
+                                        billedAmount = null,
+                                        billedMinutes = 0,
+                                        openAmount = null,
+                                        openMinutes = 0,
+                                        remainingAmount = null,
+                                        remainingMinutes = null,
+                                        projects = listOf(
+                                                ProjectInfo(
+                                                        projectId = row.get("project_id", java.lang.Long::class.java)?.toLong(),
+                                                        name = row.get("project_name", String::class.java)
+                                                                ?: "<<< NAME >>>>",
+                                                        maxMinutes = row.get("project_max_minutes", Integer::class.java)?.toInt(),
+                                                        billable = row.get("project_billable", java.lang.Boolean::class.java)?.booleanValue()
+                                                                ?: false,
+                                                        rateInCentsPerHour = row.get("project_rate_in_cents_per_hour", Integer::class.java)?.toInt(),
+                                                        billedMinutes = row.get("project_billed_minutes", Integer::class.java)?.toInt()
+                                                                ?: 0,
+                                                        billedAmount = null,
+                                                        openMinutes = row.get("project_open_minutes", Integer::class.java)?.toInt()
+                                                                ?: 0,
+                                                        openAmount = null,
+                                                        remainingMinutes = null,
+                                                        remainingAmount = null
+                                                )
+                                        )
+                                )
+                            }
+                            .all()
+                            .collectList()
+                            .flatMapMany { clientInfos ->
+                                Flux.fromIterable(
+                                        clientInfos
+                                                .groupBy { it.id }
+                                                .map { e ->
+                                                    val client = e.value.first()
+                                                    val projects =
+                                                            e.value
+                                                                    .flatMap { it.projects }
+
+                                                    val imProjects =
+                                                            projects.map { project ->
+                                                                project.copy(
+                                                                        remainingMinutes = project.maxMinutes?.let { Math.max(it - project.billedMinutes - project.openMinutes, 0) }
+                                                                )
+                                                            }
+
+                                                    val cProjects =
+                                                            if (canSeeMoney) {
+                                                                imProjects
+                                                                        .map { project ->
+                                                                            val rateN = if (project.billable) project.rateInCentsPerHour?.let { if (it == 0) null else it }
+                                                                                    ?: client.rateInCentsPerHour else null
+                                                                            project.copy(
+                                                                                    rateInCentsPerHour = rateN,
+                                                                                    billedAmount = rateN?.let { rate -> project.billedMinutes * rate / 60.0 },
+                                                                                    openAmount = rateN?.let { rate -> project.openMinutes * rate / 60.0 },
+                                                                                    remainingAmount = rateN?.let { rate -> project.remainingMinutes?.let { it * rate / 60.0 } }
+                                                                            )
+                                                                        }
+                                                            } else
+                                                                projects
+
+
+                                                    val imClient = client.copy(
+                                                            rateInCentsPerHour = if (canSeeMoney) client.rateInCentsPerHour else null,
+                                                            projects = cProjects.sortedBy { it.name }
+                                                    )
+
+                                                    val imClient2 = imClient.copy(
+                                                            billedMinutes = imClient.projects.filter { it.billable }.sumBy { it.billedMinutes },
+                                                            openMinutes = imClient.projects.filter { it.billable }.sumBy { it.openMinutes }
+                                                    )
+
+                                                    val remainingMinutes = imClient2.maxMinutes?.let { mm -> mm - imClient2.billedMinutes - imClient2.openMinutes }
+
+                                                    val imClient3 = imClient2.copy(
+                                                            remainingMinutes = remainingMinutes,
+
+                                                            billedAmount = imClient2.rateInCentsPerHour?.let { rate -> rate * imClient2.billedMinutes / 60.0 },
+                                                            openAmount = imClient.rateInCentsPerHour?.let { rate -> rate * imClient2.openMinutes / 60.0 },
+                                                            remainingAmount = imClient.rateInCentsPerHour?.let { rate -> remainingMinutes?.let { rate * it / 60.0 } }
+                                                    )
+
+                                                    if (clientId == null) {
+                                                        imClient3.copy(projects = listOf())
+                                                    } else {
+                                                        imClient3
+                                                    }
+                                                }
+                                )
+                            }
+                }
     }
 }
 
@@ -310,7 +406,7 @@ data class ClientInfo(
         val billedAmount: Double? = null,
         val openMinutes: Int,
         val openAmount: Double? = null,
-        val remaniningMinutes: Int? = null,
+        val remainingMinutes: Int? = null,
         val remainingAmount: Double? = null,
         val projects: List<ProjectInfo>
 )
@@ -318,12 +414,13 @@ data class ClientInfo(
 data class ProjectInfo(
         val projectId: Long? = null,
         val name: String,
+        val billable: Boolean,
         val rateInCentsPerHour: Int? = null,
         val maxMinutes: Int? = null,
         val billedMinutes: Int,
         val billedAmount: Double? = null,
         val openMinutes: Int,
         val openAmount: Double? = null,
-        val remaniningMinutes: Int? = null,
+        val remainingMinutes: Int? = null,
         val remainingAmount: Double? = null
 )

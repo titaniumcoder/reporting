@@ -21,7 +21,12 @@ class TimeEntryService(val repository: TimeEntryRepository, val projectService: 
     fun activeTimeEntry(principal: String) =
             userService.findByEmail(principal)
                     .flatMap { userService.toDto(it) }
-                    .flatMap { u -> repository.findLastOpenEntry(u.email).map { Pair(it, u) } }
+                    .flatMap { u ->
+                        repository
+                                .findLastOpenEntry(u.email)
+                                .switchIfEmpty(Mono.just(TimeEntry(null, LocalDateTime.now(), null, null, null, u.email, true, false)))
+                                .map { Pair(it, u) }
+                    }
                     .flatMap { toDto(it.first, it.second) }
 
     fun findById(id: Long): Mono<TimeEntry> {
@@ -135,7 +140,7 @@ class TimeEntryService(val repository: TimeEntryRepository, val projectService: 
             val finalRate = projectRate ?: clientRate ?: 0
             val running: Long = Duration.between(te.starting, realEnding).toMinutes()
 
-            val amount = if (te.billable) running * finalRate  / 60.0 / 100.0 else 0.0
+            val amount = if (te.billable) running * finalRate / 60.0 / 100.0 else 0.0
 
             TimeEntryDto(
                     id = te.id,

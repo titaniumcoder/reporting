@@ -13,11 +13,10 @@ import ClientAdmin from "../clients/ClientAdmin";
 import ProjectAdmin from "../projects/ProjectAdmin";
 import CurrentTimeEntry from "../timeentry/CurrentTimeEntry";
 import TimeEntries from "../timeentry/TimeEntries";
+import ClientSelector from "../clients/ClientSelector";
 
 const App = () => {
-    const auth = useSelector((state: RootState) => state.auth);
-
-    const {loggedIn, admin, canBook} = auth;
+    const {loggedIn, admin, canBook} = useSelector((state: RootState) => state.auth);
 
     if (!loggedIn) {
         return <Login/>
@@ -45,16 +44,12 @@ const App = () => {
                                 <CurrentTimeEntry/>
                                 }
 
-                                <ClientInfo />
-
-                                <Clients />
-                                <Route path="/client/:client">
-                                    <div className="mt-3">
-                                        <ClientInfo />
-                                        <hr/>
-                                    </div>
-                                </Route>
-                                <TimeEntries />
+                                <Clients/>
+                                <ClientSelector/>
+                                <div className="mt-3">
+                                    <ClientInfo/>
+                                </div>
+                                <TimeEntries/>
                             </Route>
                         </Switch>
                     </Container>

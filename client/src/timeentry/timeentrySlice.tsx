@@ -76,7 +76,7 @@ export default timeentrySlice.reducer;
 export const fetchTimeEntries = (from, to, clientId, allEntries): AppThunk => async dispatch => {
     try {
         dispatch(loadTimeEntriesStarted());
-        const projects = await reportingApi.fetchTimeEntries(from, to, clientId, allEntries);
+        const projects = await reportingApi.loadTimeEntries(from, to, clientId, allEntries);
         dispatch(loadTimeEntriesSuccess(projects.data));
     } catch (err) {
         dispatch(loadTimeEntriesFailed(err.toString()));

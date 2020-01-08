@@ -16,6 +16,7 @@ export const toHours: ToHoursFunc = (minutes, decimal) => {
 
     return '' + hours + (dec ? '.' : ':') + remaining.toLocaleString('de-CH', {
         minimumIntegerDigits: 2,
+        maximumSignificantDigits: 2,
         maximumFractionDigits: 0
     });
 };

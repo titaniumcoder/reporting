@@ -1,44 +1,67 @@
-import React, {useEffect} from "react";
-import {useDispatch, useSelector} from "react-redux";
+import React from "react";
+import {useSelector} from "react-redux";
 import {RootState} from "../rootReducer";
-import {selectClient} from "./clientSlice";
-import {useParams} from 'react-router-dom';
+import ShowRate from "../components/ShowRate";
+import ShowHours from "../components/ShowHours";
+import {Table} from "reactstrap";
 
 const ClientInfo = () => {
-    const canViewMoney = useSelector((state: RootState) => state.auth.canViewMoney);
+    const clientInfo = useSelector((state: RootState) => state.client.clientInfo);
 
-    const dispatch = useDispatch();
+    if (clientInfo.length === 0) {
+        return <div/>;
+    }
 
-    let { client } = useParams();
+    const divs = clientInfo.map(ci => {
+        const projs = ci.projects && ci.projects.length > 0;
 
-    useEffect(() => {
-        dispatch(selectClient(client));
-        return () => {
-            dispatch(selectClient(undefined));
-        }
-    }, [client, dispatch]);
+        return (
+            <>
+                <tr className="row bg-light">
+                    <td className="col">{ci.name}</td>
+                    <td className="col-1 text-center"><ShowHours minutes={ci.maxMinutes}/>{ci.rateInCentsPerHour && <br/>}<ShowRate
+                        rate={ci.rateInCentsPerHour}/></td>
+                    <td className="col-1 text-center"><ShowHours minutes={ci.billedMinutes}/>{ci.billedAmount && <br/>}<ShowRate
+                        rate={ci.billedAmount}/></td>
+                    <td className="col-1 text-center"><ShowHours minutes={ci.openMinutes}/>{ci.openAmount && <br/>}<ShowRate rate={ci.openAmount}/>
+                    </td>
+                    <td className="col-1 text-center"><ShowHours minutes={ci.remainingMinutes}/>{ci.remainingAmount && <br/>}<ShowRate
+                        rate={ci.remainingAmount}/></td>
+                </tr>
+
+                {ci.projects && ci.projects.map(p =>
+                    <tr key={p.projectId} className="row">
+                        <td className="pl-4 col">{p.name}</td>
+                        <td className="col-1 text-center"><ShowHours minutes={p.maxMinutes}/>{p.rateInCentsPerHour && <br/>}<ShowRate
+                            rate={p.rateInCentsPerHour}/></td>
+                        <td className="col-1 text-center"><ShowHours minutes={p.billedMinutes}/>{p.billedAmount && <br/>}<ShowRate
+                            rate={ci.billedAmount}/></td>
+                        <td className="col-1 text-center"><ShowHours minutes={p.openMinutes}/>{p.openAmount && <br/>}<ShowRate rate={p.openAmount}/>
+                        </td>
+                        <td className="col-1 text-center"><ShowHours minutes={p.remainingMinutes}/>{p.remainingAmount && <br/>}<ShowRate
+                            rate={p.remainingAmount}/></td>
+                    </tr>
+                )}
+            </>
+        );
+    });
+
 
     return (
-        <div>
-            <div><h4>For Current Client ({client}):</h4></div>
-            <div>
-                <ul>
-                    <li>Time Status</li>
-                    {canViewMoney &&
-                    <li>Money</li>
-                    }
-                    <li>Project List:
-                        <ul>
-                            <li>Name</li>
-                            <li>Time Status</li>
-                            {canViewMoney &&
-                            <li>Money</li>
-                            }
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </div>
+        <Table>
+            <thead>
+            <tr className="row">
+                <th className="col">Name</th>
+                <th className="col-1 text-center">Max / Rate</th>
+                <th className="col-1 text-center">Billed</th>
+                <th className="col-1 text-center">Open</th>
+                <th className="col-1 text-center">Remaining</th>
+            </tr>
+            </thead>
+            <tbody>
+            {divs}
+            </tbody>
+        </Table>
     );
 };
 
