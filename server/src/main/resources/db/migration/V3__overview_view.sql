@@ -19,4 +19,5 @@ select c.id                     as client_id,
         where t.project_id = p.id
           and billed = false)   as project_open_minutes
 from client c
-         left join project p on c.id = p.client_id;
+         left join project p on c.id = p.client_id
+order by c.id, p.name;

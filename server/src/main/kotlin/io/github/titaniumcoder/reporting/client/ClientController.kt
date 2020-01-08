@@ -29,7 +29,4 @@ class ClientController(val service: ClientService) {
                     .map {
                         ResponseEntity.status(HttpStatus.NO_CONTENT).build<Void>()
                     }
-
-    fun clientInfo(@RequestParam("client") id: String?) =
-            service.clientInfo(id)
 }

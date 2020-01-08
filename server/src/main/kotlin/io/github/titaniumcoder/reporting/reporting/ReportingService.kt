@@ -2,6 +2,7 @@ package io.github.titaniumcoder.reporting.reporting
 
 import io.github.titaniumcoder.reporting.transformers.ViewModel
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
 import java.time.LocalDate
 
 class ExcelSheet(val name: String, val date: LocalDate, @Suppress("unused") val excel: ByteArray)
@@ -294,4 +295,35 @@ class ReportingService {
 
     @Suppress("unused")
     private fun formatNumeric(minutes: Int): Double = minutes.toDouble() / 60
+
+    fun info(clientId: String?): Flux<ClientInfo> {
+        TODO("not implemented")
+    }
 }
+
+data class ClientInfo(
+        val id: String,
+        val name: String,
+        val rateInCentsPerHour: Int? = null,
+        val maxMinutes: Int? = null,
+        val billedMinutes: Int,
+        val billedAmount: Double? = null,
+        val openMinutes: Int,
+        val openAmount: Double? = null,
+        val remaniningMinutes: Int? = null,
+        val remainingAmount: Double? = null,
+        val projects: List<ProjectInfo>
+)
+
+data class ProjectInfo(
+        val projectId: Long? = null,
+        val name: String,
+        val rateInCentsPerHour: Int? = null,
+        val maxMinutes: Int? = null,
+        val billedMinutes: Int,
+        val billedAmount: Double? = null,
+        val openMinutes: Int,
+        val openAmount: Double? = null,
+        val remaniningMinutes: Int? = null,
+        val remainingAmount: Double? = null
+)
