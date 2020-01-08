@@ -13,11 +13,13 @@ select c.id                     as client_id,
        (select EXTRACT(EPOCH FROM sum(t.ending - t.starting)) / 60
         from time_entry t
         where t.project_id = p.id
-          and billed = true)    as project_billed_minutes,
+          and billed = true
+          and billable = true)  as project_billed_minutes,
        (select EXTRACT(EPOCH FROM sum(t.ending - t.starting)) / 60
         from time_entry t
         where t.project_id = p.id
-          and billed = false)   as project_open_minutes
+          and billed = false
+          and billable = true)  as project_open_minutes
 from client c
          left join project p on c.id = p.client_id
 order by c.id, p.name;
