@@ -3,10 +3,22 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import * as serviceWorker from './serviceWorker';
+import {BrowserRouter as Router} from 'react-router-dom'
 
 import {library} from '@fortawesome/fontawesome-svg-core'
 import {
-    faCheck, faCog, faFileExcel, faPlayCircle, faSignOutAlt, faStopCircle, faPlus, faUndo, faPen, faTrash, faTimes, faToggleOn
+    faCheck,
+    faCog,
+    faFileExcel,
+    faPen,
+    faPlayCircle,
+    faPlus,
+    faSignOutAlt,
+    faStopCircle,
+    faTimes,
+    faToggleOn,
+    faTrash,
+    faUndo
 } from "@fortawesome/free-solid-svg-icons";
 import {Provider} from "react-redux";
 import rootReducer from "./rootReducer";
@@ -34,7 +46,9 @@ const render = () => {
 
     ReactDOM.render(
         <Provider store={store}>
-            <App/>
+            <Router>
+                <App/>
+            </Router>
         </Provider>,
         document.getElementById('root'));
 };

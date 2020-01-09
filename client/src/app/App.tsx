@@ -46,39 +46,37 @@ const App = () => {
         return <Login/>
     } else {
         return (
-            <Router>
-                <div>
-                    <Container fluid={true}>
-                        <Navigation/>
-                        <Switch>
-                            {admin &&
-                            <Route path="/admin">
-                                {
-                                    admin ? (
-                                        <div>
-                                            <UserAdmin/>
-                                            <ClientAdmin/>
-                                            <ProjectAdmin/>
-                                        </div>) : <Redirect to="/"/>
-                                }
-                            </Route>
+            <div>
+                <Container fluid={true}>
+                    <Navigation/>
+                    <Switch>
+                        {admin &&
+                        <Route path="/admin">
+                            {
+                                admin ? (
+                                    <div>
+                                        <UserAdmin/>
+                                        <ClientAdmin/>
+                                        <ProjectAdmin/>
+                                    </div>) : <Redirect to="/"/>
                             }
-                            <Route path="/">
-                                {canBook &&
-                                <CurrentTimeEntry/>
-                                }
+                        </Route>
+                        }
+                        <Route path="/">
+                            {canBook &&
+                            <CurrentTimeEntry/>
+                            }
 
-                                <Clients/>
-                                <ClientSelector/>
-                                <div className="mt-3">
-                                    <ClientInfo/>
-                                </div>
-                                <TimeEntries/>
-                            </Route>
-                        </Switch>
-                    </Container>
-                </div>
-            </Router>
+                            <Clients/>
+                            <ClientSelector/>
+                            <div className="mt-3">
+                                <ClientInfo/>
+                            </div>
+                            <TimeEntries/>
+                        </Route>
+                    </Switch>
+                </Container>
+            </div>
         );
     }
 };

@@ -41,6 +41,7 @@ class CreateInitialAdminUser(val service: UserService, val config: ReportingConf
                     if (!e) {
                         val u = UserUpdateDto(config.adminEmail, true, true, true, listOf())
                         service.saveUser(u)
+                                .subscribe()
                         log.info("Created inital admin user with email \"${config.adminEmail}\"")
                     }
                 }

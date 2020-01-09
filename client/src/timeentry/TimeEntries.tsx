@@ -302,16 +302,16 @@ const TimeEntries = () => {
                         />
                     </th>
                     }
-                    <th className="text-center">Date</th>
+                    <th className="text-center d-none d-md-table-cell">Date</th>
                     <th className="text-center">Start</th>
                     <th className="text-center">End</th>
-                    <th>Project</th>
+                    <th className="d-none d-md-table-cell">Project</th>
                     <th>Description</th>
-                    <th className="d-none d-md-block">User</th>
-                    <th className="text-center d-none d-md-block">Billed</th>
-                    <th className="text-right">Duration</th>
+                    <th className="d-none d-md-table-cell">User</th>
+                    <th className="text-center d-none d-md-table-cell">Billed</th>
+                    <th className="text-right d-none d-md-table-cell">Duration</th>
                     {(canViewMoney || admin) &&
-                    <th className="text-right d-none d-md-block">Earning</th>
+                    <th className="text-right d-none d-md-table-cell">Earning</th>
                     }
                     <th className="text-right">
                         <ButtonGroup>
@@ -352,16 +352,19 @@ const TimeEntries = () => {
                                                onChange={selectItem}/>
                                     </td>
                                     }
-                                    <td className="text-center d-none d-md-block">{sameDate || <ShowDate date={timeentry.date}/>}</td>
+                                    <td className="text-center d-none d-md-table-cell">{sameDate ||
+                                    <ShowDate date={timeentry.date}/>}</td>
                                     <td className="text-center"><ShowTime time={timeentry.starting}/></td>
                                     <td className="text-center"><ShowTime time={timeentry.ending}/></td>
-                                    <td>{timeentry.projectName}</td>
+                                    <td className="d-none d-md-table-cell">{timeentry.projectName}</td>
                                     <td>{timeentry.description}</td>
-                                    <td className="d-none d-md-block">{timeentry.username}</td>
-                                    <td className="text-center d-none d-md-block"><Checkbox value={timeentry.billed}/></td>
-                                    <td className="text-right"><ShowHours minutes={timeentry.timeUsed}/></td>
+                                    <td className="d-none d-md-table-cell">{timeentry.username}</td>
+                                    <td className="text-center d-none d-md-table-cell"><Checkbox value={timeentry.billed}/>
+                                    </td>
+                                    <td className="text-right d-none d-md-table-cell"><ShowHours minutes={timeentry.timeUsed}/></td>
                                     {(canViewMoney || admin) &&
-                                    <td className="text-right d-none d-md-block"><ShowRate rate={timeentry.amount * 100}/></td>
+                                    <td className="text-right d-none d-md-table-cell"><ShowRate
+                                        rate={timeentry.amount * 100}/></td>
                                     }
                                     <td className="text-right">
                                         {(admin || canBook) &&
@@ -382,7 +385,6 @@ const TimeEntries = () => {
                 )}
                 </tbody>
             </Table>
-
             <DeleteDialog shown={deleting} instances={selectedItems} cancel={cancelDeleting} execute={deleteRecord}/>
         </div>
     );
