@@ -4,7 +4,7 @@ spring:
     username: ${JDBC_DATABASE_USER:reporting}
     password: ${JDBC_DATABASE_PASSWORD:""}
   flyway:
-    enabled: true
+    enabled: false
   cache:
     type: caffeine
     cache-names: tokens
@@ -15,13 +15,3 @@ spring:
 reporting:
   clientId: 483387557047-olrn4mkp6m7gltp5fqhgr76094q6qf6e.apps.googleusercontent.com
   adminEmail: rico.metzger@gmail.com
-
-logging:
-  level:
-    root: INFO
-    org:
-      springframework:
-        data:
-          r2dbc:
-            core: INFO
-            connectionfactory: WARN
