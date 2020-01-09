@@ -306,11 +306,12 @@ const TimeEntries = () => {
                     <th className="text-center">Start</th>
                     <th className="text-center">End</th>
                     <th>Project</th>
-                    <th>User</th>
-                    <th className="text-center">Billed</th>
+                    <th>Description</th>
+                    <th className="d-none d-md-block">User</th>
+                    <th className="text-center d-none d-md-block">Billed</th>
                     <th className="text-right">Duration</th>
                     {(canViewMoney || admin) &&
-                    <th className="text-right">Earning</th>
+                    <th className="text-right d-none d-md-block">Earning</th>
                     }
                     <th className="text-right">
                         <ButtonGroup>
@@ -351,15 +352,16 @@ const TimeEntries = () => {
                                                onChange={selectItem}/>
                                     </td>
                                     }
-                                    <td className="text-center">{sameDate || <ShowDate date={timeentry.date}/>}</td>
+                                    <td className="text-center d-none d-md-block">{sameDate || <ShowDate date={timeentry.date}/>}</td>
                                     <td className="text-center"><ShowTime time={timeentry.starting}/></td>
                                     <td className="text-center"><ShowTime time={timeentry.ending}/></td>
                                     <td>{timeentry.projectName}</td>
-                                    <td>{timeentry.username}</td>
-                                    <td className="text-center"><Checkbox value={timeentry.billed}/></td>
+                                    <td>{timeentry.description}</td>
+                                    <td className="d-none d-md-block">{timeentry.username}</td>
+                                    <td className="text-center d-none d-md-block"><Checkbox value={timeentry.billed}/></td>
                                     <td className="text-right"><ShowHours minutes={timeentry.timeUsed}/></td>
                                     {(canViewMoney || admin) &&
-                                    <td className="text-right"><ShowRate rate={timeentry.amount * 100}/></td>
+                                    <td className="text-right d-none d-md-block"><ShowRate rate={timeentry.amount * 100}/></td>
                                     }
                                     <td className="text-right">
                                         {(admin || canBook) &&

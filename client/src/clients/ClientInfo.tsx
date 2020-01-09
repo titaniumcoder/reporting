@@ -21,11 +21,11 @@ const ClientInfo = () => {
                     <td className="col">{ci.name}</td>
                     <td className="col-1 text-center"><ShowHours minutes={ci.maxMinutes}/>{!!ci.rateInCentsPerHour && <br/>}<ShowRate
                         rate={ci.rateInCentsPerHour}/></td>
-                    <td className="col-1 text-center"><ShowHours minutes={ci.billedMinutes}/>{!!ci.billedAmount && <br/>}<ShowRate
+                    <td className="col-1 text-center d-none d-md-block"><ShowHours minutes={ci.billedMinutes}/>{!!ci.billedAmount && <br/>}<ShowRate
                         rate={ci.billedAmount}/></td>
                     <td className="col-1 text-center"><ShowHours minutes={ci.openMinutes}/>{!!ci.openAmount && <br/>}<ShowRate rate={ci.openAmount}/>
                     </td>
-                    <td className="col-1 text-center"><ShowHours minutes={ci.remainingMinutes}/>{!!ci.remainingAmount && <br/>}<ShowRate
+                    <td className="col-1 text-center d-none d-md-block"><ShowHours minutes={ci.remainingMinutes}/>{!!ci.remainingAmount && <br/>}<ShowRate
                         rate={ci.remainingAmount}/></td>
                 </tr>
 
@@ -34,11 +34,11 @@ const ClientInfo = () => {
                         <td className="pl-4 col">{p.name}</td>
                         <td className="col-1 text-center"><ShowHours minutes={p.maxMinutes}/>{!!p.rateInCentsPerHour && <br/>}<ShowRate
                             rate={p.rateInCentsPerHour}/></td>
-                        <td className="col-1 text-center"><ShowHours minutes={p.billedMinutes}/>{!!p.billedAmount && <br/>}<ShowRate
+                        <td className="col-1 text-center d-none d-md-block"><ShowHours minutes={p.billedMinutes}/>{!!p.billedAmount && <br/>}<ShowRate
                             rate={ci.billedAmount}/></td>
                         <td className="col-1 text-center"><ShowHours minutes={p.openMinutes}/>{!!p.openAmount && <br/>}<ShowRate rate={p.openAmount}/>
                         </td>
-                        <td className="col-1 text-center"><ShowHours minutes={p.remainingMinutes}/>{!!p.remainingAmount && <br/>}<ShowRate
+                        <td className="col-1 text-center d-none d-md-block"><ShowHours minutes={p.remainingMinutes}/>{!!p.remainingAmount && <br/>}<ShowRate
                             rate={p.remainingAmount}/></td>
                     </tr>
                 )}
@@ -53,9 +53,9 @@ const ClientInfo = () => {
             <tr className="row">
                 <th className="col">Name</th>
                 <th className="col-1 text-center">Max / Rate</th>
-                <th className="col-1 text-center">Billed</th>
+                <th className="col-1 text-center d-none d-md-block">Billed</th>
                 <th className="col-1 text-center">Next Billing</th>
-                <th className="col-1 text-center">Remaining</th>
+                <th className="col-1 text-center d-none d-md-block">Remaining</th>
             </tr>
             </thead>
             <tbody>
