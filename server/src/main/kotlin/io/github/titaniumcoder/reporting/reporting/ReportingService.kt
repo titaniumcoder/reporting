@@ -104,20 +104,18 @@ class ReportingService(
                                                 .groupBy { it.id }
                                                 .map { e ->
                                                     val client = e.value.first()
-                                                    val projects =
-                                                            e.value
-                                                                    .flatMap { it.projects }
+                                                    val projects = e.value.flatMap { it.projects }
 
-                                                    val imProjects =
+                                                    val projectWithRemainingMinutes =
                                                             projects.map { project ->
                                                                 project.copy(
-                                                                        remainingMinutes = project.maxMinutes?.let { Math.max(it - project.billedMinutes - project.openMinutes, 0) }
+                                                                        remainingMinutes = project.maxMinutes?.let { max(it - project.billedMinutes - project.openMinutes, 0) }
                                                                 )
                                                             }
 
                                                     val cProjects =
                                                             if (canSeeMoney) {
-                                                                imProjects
+                                                                projectWithRemainingMinutes
                                                                         .map { project ->
                                                                             val rateN = if (project.billable) project.rateInCentsPerHour?.let { if (it == 0) null else it }
                                                                                     ?: client.rateInCentsPerHour else null
@@ -129,7 +127,7 @@ class ReportingService(
                                                                             )
                                                                         }
                                                             } else
-                                                                projects
+                                                                projectWithRemainingMinutes
 
 
                                                     val clientBase = client.copy(
