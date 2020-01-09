@@ -5,6 +5,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
+import reactor.core.publisher.Mono
 import java.io.ByteArrayInputStream
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -22,18 +23,18 @@ class ReportingController(val service: ReportingService) {
     @GetMapping("/timesheet/{clientId}", produces = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"])
     fun timesheet(
             @PathVariable("clientId") clientId: String,
-            @RequestParam("from") @DateTimeFormat(pattern = "yyyy-MM-dd") from: LocalDate,
-            @RequestParam("to") @DateTimeFormat(pattern = "yyyy-MM-dd") to: LocalDate
-    ): ResponseEntity<ByteArray> {
-        val sheet = service.timesheet(clientId, from, to)
+            @RequestParam("billableOnly") billableOnly: Boolean
+    ): Mono<ResponseEntity<ByteArray>> =
+            service.timesheet(clientId, billableOnly)
+                    .map { sheet ->
+                        val filename = "${sheet.name.toUpperCase()}-${sheet.date.format(DateTimeFormatter.ofPattern("yyyy-MM"))}.xlsx"
 
-        val filename = "${sheet.name.toUpperCase()}-${sheet.date.format(DateTimeFormatter.ofPattern("yyyy-MM"))}.xlsx"
+                        val input = ByteArrayInputStream(sheet.excel).readBytes()
 
-        val input = ByteArrayInputStream(sheet.excel).readBytes()
+                        ResponseEntity
+                                .ok()
+                                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = $filename")
+                                .body(input)
+                    }
 
-        return ResponseEntity
-                .ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = $filename")
-                .body(input)
-    }
 }

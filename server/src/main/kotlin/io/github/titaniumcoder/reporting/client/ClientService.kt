@@ -9,8 +9,7 @@ import reactor.core.publisher.Mono
 @Service
 @Transactional
 class ClientService(val repository: ClientRepository, val userService: UserService) {
-    fun clients(): Flux<Client> =
-            repository.findAllSortedById()
+    fun clients(): Flux<Client> = repository.findAllSortedById()
 
     fun saveClient(clientDto: ClientUpdatingDto): Mono<Client> {
         return repository.existsById(clientDto.clientId)
@@ -47,5 +46,7 @@ class ClientService(val repository: ClientRepository, val userService: UserServi
                     }
                 }
     }
+
+    fun findById(clientId: String) = repository.findById(clientId)
 }
 

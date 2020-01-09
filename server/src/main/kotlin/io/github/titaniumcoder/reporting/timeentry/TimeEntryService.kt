@@ -167,14 +167,16 @@ class TimeEntryService(val repository: TimeEntryRepository, val projectService: 
             findById(id)
                     .flatMap { repository.delete(it) }
 
-    fun retrieveTimeEntries(from: LocalDate?, to: LocalDate?, clientId: String?, allEntries: Boolean) =
+    fun retrieveTimeEntries(from: LocalDate?, to: LocalDate?, clientId: String?, allEntries: Boolean, billableOnly: Boolean) =
             userService.reactiveCurrentUserDto().flux()
                     .flatMap { user ->
                         if (allEntries) {
-                            repository.findAllWithin(from, to, clientId, if (user.admin) null else user.email)
+                            repository
+                                    .findAllWithin(from, to, clientId, if (user.admin) null else user.email)
                                     .flatMap { toDto(it, user) }
                         } else {
-                            repository.findNonBilled(clientId, if (user.admin) null else user.email)
+                            repository
+                                    .findNonBilled(clientId, billableOnly, if (user.admin) null else user.email)
                                     .flatMap { toDto(it, user) }
                         }
                     }

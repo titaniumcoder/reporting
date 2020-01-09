@@ -26,7 +26,7 @@ class TimeEntryController(val service: TimeEntryService) {
             @RequestParam("to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @JsonFormat(pattern = "yyyy-MM-dd") to: LocalDate?,
             @RequestParam("clientId", required = false) clientId: String?,
             @RequestParam("allEntries", required = false, defaultValue = "false") allEntries: Boolean
-    ) = service.retrieveTimeEntries(from, to, clientId, allEntries)
+    ) = service.retrieveTimeEntries(from, to, clientId, allEntries, false)
 
     @Secured(Booking, Admin)
     @PostMapping("/timeentries")

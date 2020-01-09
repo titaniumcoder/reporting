@@ -71,7 +71,7 @@ const TimeEntries = () => {
             };
         });
 
-    const noClientSelected = useMemo(() => selectedClient === undefined, [selectedClient]);
+    const noClientSelected = useMemo(() => !selectedClient, [selectedClient]);
 
     const timeStatus = useMemo(() => !!currentTimeEntry?.starting, [currentTimeEntry]);
 
@@ -244,7 +244,14 @@ const TimeEntries = () => {
                         </FormGroup>
                     </Col>
                     <Col className="text-right my-auto" xs="auto">
-                        <Button color="primary" disabled={noClientSelected} onClick={createExcel}>Create Excel</Button><br/>
+                        {canViewMoney ?
+                            <>
+                                <Button color="primary" disabled={noClientSelected} onClick={createExcel}>Create
+                                    Worksheet</Button><br/>
+                                <Button color="secondary" disabled={noClientSelected} onClick={createExcel}>Create Full
+                                    Sheet</Button>
+                            </> : <div/>
+                        }
                     </Col>
                     <Col className="text-right" xs="auto">
                         <Button color="light" onClick={() => {
