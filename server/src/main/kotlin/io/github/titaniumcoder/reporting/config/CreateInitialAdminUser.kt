@@ -19,7 +19,7 @@ class CreateInitialAdminUser(val service: UserService, val config: ReportingConf
         val flyway =
                 if (System.getenv().containsKey("DATABASE_URL")) {
                     val url = URI.create(System.getenv("DATABASE_URL"))
-                    val userinfo = url.rawUserInfo?.split(";") ?: listOf(r2Config.username, r2Config.password)
+                    val userinfo = url.rawUserInfo?.split(":") ?: listOf(r2Config.username, r2Config.password)
 
                     Flyway
                             .configure()
