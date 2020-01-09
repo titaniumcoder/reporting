@@ -171,10 +171,10 @@ class TimeEntryService(val repository: TimeEntryRepository, val projectService: 
             userService.reactiveCurrentUserDto().flux()
                     .flatMap { user ->
                         if (allEntries) {
-                            repository.findAllWithin(from, to, clientId)
+                            repository.findAllWithin(from, to, clientId, if (user.admin) null else user.email)
                                     .flatMap { toDto(it, user) }
                         } else {
-                            repository.findNonBilled(clientId)
+                            repository.findNonBilled(clientId, if (user.admin) null else user.email)
                                     .flatMap { toDto(it, user) }
                         }
                     }

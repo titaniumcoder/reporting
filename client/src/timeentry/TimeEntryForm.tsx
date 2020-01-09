@@ -37,8 +37,8 @@ export const toUpdatingTimeEntry = (timeEntry: SavingTimeEntry) => ({
         id: timeEntry.id,
         ending: timeEntry.ending ? timeEntry.ending : undefined,
         description: timeEntry.description ? timeEntry.description : undefined,
-        billed: false,
-        billable: false
+        billed: timeEntry.billed,
+        billable: timeEntry.billable
     } as UpdatingTimeEntry);
 
 interface TimeEntryFormProps {

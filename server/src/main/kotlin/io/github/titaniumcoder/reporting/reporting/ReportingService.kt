@@ -294,8 +294,20 @@ class ReportingService(val client: DatabaseClient, val userService: UserService)
         return userService.reactiveCurrentUserDto()
                 .flatMapMany { user ->
                     val canSeeMoney = user.admin || user.canViewMoney
+                    val email = if (user.admin) null else user.email
 
-                    client.execute("select * from client_overview " + (if (clientId != null) "where client_id = '$clientId'" else ""))
+                    var sql = "select * from client_overview "
+                    var where: Boolean = false
+                    if (clientId != null) {
+                        sql = sql + "where client_id = '$clientId'"
+                        where = true
+                    }
+                    if (email != null) {
+                        sql = sql + if (where) " and " else " where "
+                        sql = sql + "(client_id in (select c1.id from client c1 join client_user cu on cu.client_id = c1.id where cu.email = '$email'))"
+                    }
+
+                    client.execute(sql)
                             .map { row ->
                                 ClientInfo(
                                         id = row.get("client_id", String::class.java) ?: "<<ID>>",

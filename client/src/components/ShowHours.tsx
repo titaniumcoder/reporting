@@ -12,13 +12,9 @@ export const toHours: ToHoursFunc = (minutes, decimal) => {
 
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
-    const remaining = dec ? remainingMinutes * 100 / 60 : remainingMinutes;
+    const remaining = ("0" + (dec ? remainingMinutes * 100 / 60 : remainingMinutes)).slice(-2);
 
-    return '' + hours + (dec ? '.' : ':') + remaining.toLocaleString('de-CH', {
-        minimumIntegerDigits: 2,
-        maximumSignificantDigits: 2,
-        maximumFractionDigits: 0
-    });
+    return '' + hours + (dec ? '.' : ':') + remaining;
 };
 
 type ToMinutesFunc = (hours: string | undefined) => (number | undefined);
@@ -28,7 +24,7 @@ export const toMinutes: ToMinutesFunc = (hours) => {
         return undefined
     }
 
-    const dec = hours.indexOf('.') > 0;
+    const dec = hours.indexOf(':') < 0;
     if (dec) {
         return Number.parseFloat(hours) * 60;
     } else {
