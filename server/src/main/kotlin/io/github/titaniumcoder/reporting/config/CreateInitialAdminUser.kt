@@ -23,7 +23,7 @@ class CreateInitialAdminUser(val service: UserService, val config: ReportingConf
 
                     Flyway
                             .configure()
-                            .dataSource("jdbc:${url.host}:${url.port}${url.rawPath}", userinfo[0], userinfo[1])
+                            .dataSource("jdbc:postgresql://${url.host}:${url.port}${url.rawPath}", userinfo[0], userinfo[1])
                             .load()
                 } else {
                     Flyway
