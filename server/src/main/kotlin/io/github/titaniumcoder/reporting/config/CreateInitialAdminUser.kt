@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.r2dbc.R2dbcProperties
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
+import java.net.URI
 
 @Service
 class CreateInitialAdminUser(val service: UserService, val config: ReportingConfiguration, val r2Config: R2dbcProperties) {
@@ -15,10 +16,21 @@ class CreateInitialAdminUser(val service: UserService, val config: ReportingConf
 
     @EventListener(ApplicationReadyEvent::class)
     fun onStartup() {
-        val flyway = Flyway
-                .configure()
-                .dataSource(r2Config.url.replace("r2dbc:", "jdbc:"), r2Config.username, r2Config.password)
-                .load()
+        val flyway =
+                if (System.getenv().containsKey("DATABASE_URL")) {
+                    val url = URI.create(System.getenv("DATABASE_URL"))
+                    val userinfo = url.rawUserInfo?.split(";") ?: listOf(r2Config.username, r2Config.password)
+
+                    Flyway
+                            .configure()
+                            .dataSource("jdbc:${url.host}:${url.port}${url.rawPath}", userinfo[0], userinfo[1])
+                            .load()
+                } else {
+                    Flyway
+                            .configure()
+                            .dataSource(r2Config.url.replace("r2dbc:", "jdbc:"), r2Config.username, r2Config.password)
+                            .load()
+                }
 
         val version = flyway.migrate()
 
