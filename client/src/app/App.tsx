@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {BrowserRouter as Router, Redirect, Route, Switch, useHistory} from 'react-router-dom'
+import {Redirect, Route, Switch, useHistory} from 'react-router-dom'
 import './App.css';
 import Navigation from "../Navigation";
 import {Container} from "reactstrap";
