@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {BrowserRouter as Router, Redirect, Route, Switch} from 'react-router-dom'
+import {BrowserRouter as Router, Redirect, Route, Switch, useHistory} from 'react-router-dom'
 import './App.css';
 import Navigation from "../Navigation";
 import {Container} from "reactstrap";
@@ -14,21 +14,18 @@ import ProjectAdmin from "../projects/ProjectAdmin";
 import CurrentTimeEntry from "../timeentry/CurrentTimeEntry";
 import TimeEntries from "../timeentry/TimeEntries";
 import ClientSelector from "../clients/ClientSelector";
-import { logout } from '../auth/authSlice';
+import {logout} from '../auth/authSlice';
 
 const App = () => {
     const {loggedIn, admin, canBook, authExpiration} = useSelector((state: RootState) => state.auth);
 
     const dispatch = useDispatch();
+    const history = useHistory();
 
     useEffect(() => {
         const timeout = setTimeout(() => {
-            console.log('Auth expired');
-
             dispatch(logout());
         }, authExpiration - Date.now());
-
-        console.log('Created Timeout in ', authExpiration - Date.now());
 
         return () => {
             if (timeout) {
@@ -36,6 +33,14 @@ const App = () => {
             }
         }
     });
+
+    // when loggedin go back to root on the rouet
+    useEffect(() => {
+        if (!loggedIn) {
+            // TODO redirect
+            history.push("/");
+        }
+    }, [loggedIn, history]);
 
     if (!loggedIn) {
         return <Login/>
