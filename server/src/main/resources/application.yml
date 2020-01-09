@@ -18,7 +18,10 @@ reporting:
 
 logging:
   level:
+    root: INFO
     org:
       springframework:
         data:
-          r2dbc: DEBUG
+          r2dbc:
+            core: INFO
+            connectionfactory: WARN

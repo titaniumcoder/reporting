@@ -1,4 +1,4 @@
-import React from "react";
+import React, {Fragment} from "react";
 import {useSelector} from "react-redux";
 import {RootState} from "../rootReducer";
 import ShowRate from "../components/ShowRate";
@@ -16,7 +16,7 @@ const ClientInfo = () => {
         const projs = ci.projects && ci.projects.length > 0;
 
         return (
-            <>
+            <Fragment key={ci.id}>
                 <tr className="row bg-light">
                     <td className="col">{ci.name}</td>
                     <td className="col-1 text-center"><ShowHours minutes={ci.maxMinutes}/>{!!ci.rateInCentsPerHour && <br/>}<ShowRate
@@ -29,7 +29,7 @@ const ClientInfo = () => {
                         rate={ci.remainingAmount}/></td>
                 </tr>
 
-                {ci.projects && ci.projects.map(p =>
+                {projs && ci.projects.map(p =>
                     <tr key={p.projectId} className="row">
                         <td className="pl-4 col">{p.name}</td>
                         <td className="col-1 text-center"><ShowHours minutes={p.maxMinutes}/>{!!p.rateInCentsPerHour && <br/>}<ShowRate
@@ -42,7 +42,7 @@ const ClientInfo = () => {
                             rate={p.remainingAmount}/></td>
                     </tr>
                 )}
-            </>
+            </Fragment>
         );
     });
 

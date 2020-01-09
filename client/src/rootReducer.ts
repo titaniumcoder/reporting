@@ -1,11 +1,11 @@
 import {combineReducers} from "redux";
-import authSlice from "./auth/authSlice";
+import authSlice, {logout} from "./auth/authSlice";
 import userSlice from "./users/userSlice";
 import projectSlice from "./projects/projectSlice";
 import clientSlice from "./clients/clientSlice";
 import timeentrySlice from "./timeentry/timeentrySlice";
 
-const rootReducer = combineReducers({
+const appReducer = combineReducers({
         auth: authSlice,
         user: userSlice,
         project: projectSlice,
@@ -13,6 +13,14 @@ const rootReducer = combineReducers({
         timeentry: timeentrySlice
     }
 );
+
+const rootReducer = (state, action) => {
+    if (action.type === logout.type) {
+        return appReducer(undefined, action);
+    }
+
+    return appReducer(state, action);
+};
 
 export type RootState = ReturnType<typeof rootReducer>;
 

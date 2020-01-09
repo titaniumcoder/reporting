@@ -24,7 +24,14 @@ class TimeEntryService(val repository: TimeEntryRepository, val projectService: 
                     .flatMap { u ->
                         repository
                                 .findLastOpenEntry(u.email)
-                                .switchIfEmpty(Mono.just(TimeEntry(null, LocalDateTime.now(), null, null, null, u.email, true, false)))
+                                .switchIfEmpty(Mono.just(TimeEntry(
+                                        id = null,
+                                        starting = LocalDateTime.now(),
+                                        ending = null,
+                                        projectId = null,
+                                        description = null,
+                                        email = u.email,
+                                        billed = false)))
                                 .map { Pair(it, u) }
                     }
                     .flatMap { toDto(it.first, it.second) }
@@ -75,7 +82,6 @@ class TimeEntryService(val repository: TimeEntryRepository, val projectService: 
                             projectId = ref.map { it.projectId }.orElse(null),
                             description = ref.map { it.description }.orElse(null),
                             email = user.email,
-                            billable = ref.map { it.billable }.orElse(true),
                             billed = false
                     ))
                             .flatMap { toDto(it, user) }
@@ -109,7 +115,6 @@ class TimeEntryService(val repository: TimeEntryRepository, val projectService: 
                     repository.save(
                             oldEntry.copy(
                                     projectId = entry.projectId,
-                                    billable = entry.billable,
                                     billed = entry.billed,
                                     description = entry.description,
                                     ending = entry.ending,
@@ -140,12 +145,11 @@ class TimeEntryService(val repository: TimeEntryRepository, val projectService: 
             val finalRate = projectRate ?: clientRate ?: 0
             val running: Long = Duration.between(te.starting, realEnding).toMinutes()
 
-            val amount = if (te.billable) running * finalRate / 60.0 / 100.0 else 0.0
+            val amount = if (project?.billable != false) running * finalRate / 60.0 / 100.0 else 0.0
 
             TimeEntryDto(
                     id = te.id,
                     starting = te.starting,
-                    billable = te.billable,
                     billed = te.billed,
                     description = te.description,
                     ending = te.ending,

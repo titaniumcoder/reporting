@@ -21,7 +21,6 @@ const CurrentTimeEntry = () => {
         projectId: -1,
         description: '',
         id: -1,
-        billable: true,
         billed: false
     });
 
@@ -75,13 +74,12 @@ const CurrentTimeEntry = () => {
 
         dispatch(currentTimeEntrySuccess(undefined));
 
-        const {id, description, projectId, billable, billed, starting, ending, username} = result.data;
+        const {id, description, projectId, billed, starting, ending, username} = result.data;
 
         setSavingTimeEntry({
             id: id || -1,
             description: description || '',
             projectId: projectId || -1,
-            billable,
             billed,
             starting,
             ending: ending || '',

@@ -23,7 +23,6 @@ data class TimeEntry(
 
         val email: String,
 
-        var billable: Boolean = true,
         var billed: Boolean = false
 )
 
@@ -46,7 +45,6 @@ data class TimeEntryDto(
 
         val username: String,
 
-        val billable: Boolean,
         val billed: Boolean,
 
         val timeUsed: Long?,
@@ -68,6 +66,5 @@ data class TimeEntryUpdateDto(
 
         val username: String,
 
-        val billable: Boolean,
         val billed: Boolean
 )

@@ -15,7 +15,6 @@ export interface SavingTimeEntry {
     username: string;
 
     billed: boolean;
-    billable: boolean;
 }
 
 export const validateTimeEntry = (te: SavingTimeEntry) => {
@@ -37,8 +36,7 @@ export const toUpdatingTimeEntry = (timeEntry: SavingTimeEntry) => ({
         id: timeEntry.id,
         ending: timeEntry.ending ? timeEntry.ending : undefined,
         description: timeEntry.description ? timeEntry.description : undefined,
-        billed: timeEntry.billed,
-        billable: timeEntry.billable
+        billed: timeEntry.billed
     } as UpdatingTimeEntry);
 
 interface TimeEntryFormProps {
@@ -115,16 +113,6 @@ export const TimeEntryForm = ({errors, values, handleChange, handleChecked, proj
                 onChange={handleChange}
             />
             <FormFeedback>{errors['username']}</FormFeedback>
-        </FormGroup>
-        <FormGroup check>
-            <Label check>
-                <Input
-                    type="checkbox"
-                    checked={values.billable}
-                    onChange={handleChecked}
-                    name="billable"
-                />
-                {' '}Billable?</Label>
         </FormGroup>
         <FormGroup check>
             <Label check>

@@ -34,7 +34,9 @@ class ReportingController(val service: ReportingService) {
                         ResponseEntity
                                 .ok()
                                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = $filename")
+                                .header("filename", filename)
                                 .body(input)
                     }
+                    .switchIfEmpty(Mono.just(ResponseEntity.noContent().build()))
 
 }

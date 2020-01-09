@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {BrowserRouter as Router, Redirect, Route, Switch} from 'react-router-dom'
 import './App.css';
 import Navigation from "../Navigation";
@@ -6,7 +6,7 @@ import {Container} from "reactstrap";
 import Clients from "../clients/Clients";
 import ClientInfo from "../clients/ClientInfo";
 import Login from "../auth/Login";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import UserAdmin from "../users/UserAdmin";
 import {RootState} from "../rootReducer";
 import ClientAdmin from "../clients/ClientAdmin";
@@ -14,9 +14,28 @@ import ProjectAdmin from "../projects/ProjectAdmin";
 import CurrentTimeEntry from "../timeentry/CurrentTimeEntry";
 import TimeEntries from "../timeentry/TimeEntries";
 import ClientSelector from "../clients/ClientSelector";
+import { logout } from '../auth/authSlice';
 
 const App = () => {
-    const {loggedIn, admin, canBook} = useSelector((state: RootState) => state.auth);
+    const {loggedIn, admin, canBook, authExpiration} = useSelector((state: RootState) => state.auth);
+
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            console.log('Auth expired');
+
+            dispatch(logout());
+        }, authExpiration - Date.now());
+
+        console.log('Created Timeout in ', authExpiration - Date.now());
+
+        return () => {
+            if (timeout) {
+                clearTimeout(timeout);
+            }
+        }
+    });
 
     if (!loggedIn) {
         return <Login/>

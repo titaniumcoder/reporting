@@ -27,6 +27,7 @@ import {fetchClientList} from "../clients/clientSlice";
 import {currentTimeEntrySuccess, fetchTimeEntries, selectTimeRange} from "./timeentrySlice";
 import {SavingTimeEntry, TimeEntryForm, validateTimeEntry} from "./TimeEntryForm";
 import moment from "moment";
+import * as filesaver from 'file-saver';
 
 const EMPTY_TIMEENTRY_FORM: SavingTimeEntry = {
     id: -1,
@@ -35,8 +36,7 @@ const EMPTY_TIMEENTRY_FORM: SavingTimeEntry = {
     ending: '',
     projectId: -1,
     description: '',
-    billed: false,
-    billable: true
+    billed: false
 };
 
 const TimeEntries = () => {
@@ -45,6 +45,7 @@ const TimeEntries = () => {
     const [instance, setInstance] = useState(EMPTY_TIMEENTRY_FORM);
     const [editingId, setEditingId] = useState(undefined as number | undefined);
     const [selectedItems, setSelectedItems] = useState<number[]>([]);
+    const [remoteError, setRemoteError] = useState<string | undefined>(undefined);
 
     const nothingSelected = useMemo(() => selectedItems.length === 0, [selectedItems]);
 
@@ -105,7 +106,7 @@ const TimeEntries = () => {
         const currentIdx = current.indexOf(id);
 
         if (currentIdx >= 0) {
-            current.splice(currentIdx, 1)
+            current.splice(currentIdx, 1);
             const target = [...current];
             setSelectedItems(target);
         } else {
@@ -129,7 +130,6 @@ const TimeEntries = () => {
         ending: te.ending || '',
         username: te.username,
         description: te.description || '',
-        billable: te.billable,
         billed: te.billed
     } as SavingTimeEntry);
 
@@ -166,24 +166,41 @@ const TimeEntries = () => {
         dispatch(fetchTimeEntries(from, to, selectedClient, allEntries));
     };
 
-    const createExcel = async(evt) => {
+    const createExcel = async (evt) => {
         evt.preventDefault();
 
-        // TODO call axios
+        const name = evt.target.value;
 
-        // TODO download with file-saver
+        if (selectedClient != null) {
+            setRemoteError(undefined);
+            try {
+                const timesheet = await reportingApi.timesheet(selectedClient, name !== 'fullsheet');
+                if (timesheet.status === 204) {
+                    setRemoteError('No data for the timesheet available');
+                } else {
+                    filesaver.saveAs(timesheet.data, timesheet.headers['filename'], {
+                        autoBom: false
+                    })
+                }
+            } catch (err) {
+                setRemoteError('Error while trying to get excel: ' + err.toString());
+            }
+        } else {
+            setRemoteError('Select a client first');
+        }
     };
 
     return (
         <div className="timeEntry">
             <h1 className="mt-4">Time-Entries</h1>
             {error &&
-            <Alert>{error}</Alert>
+            <Alert color="danger">{error}</Alert>
+            }
+            {remoteError &&
+            <Alert color="danger">{remoteError}</Alert>
             }
             <Form onSubmit={(e) => {
                 e.preventDefault();
-
-
             }}>
                 <Row>
                     <Col>
@@ -246,9 +263,11 @@ const TimeEntries = () => {
                     <Col className="text-right my-auto" xs="auto">
                         {canViewMoney ?
                             <>
-                                <Button color="primary" disabled={noClientSelected} onClick={createExcel}>Create
+                                <Button color="primary" value="worksheet" disabled={noClientSelected}
+                                        onClick={createExcel}>Create
                                     Worksheet</Button><br/>
-                                <Button color="secondary" disabled={noClientSelected} onClick={createExcel}>Create Full
+                                <Button color="secondary" value="fullsheet" disabled={noClientSelected}
+                                        onClick={createExcel}>Create Full
                                     Sheet</Button>
                             </> : <div/>
                         }
@@ -288,7 +307,6 @@ const TimeEntries = () => {
                     <th className="text-center">End</th>
                     <th>Project</th>
                     <th>User</th>
-                    <th className="text-center">Billable</th>
                     <th className="text-center">Billed</th>
                     <th className="text-right">Duration</th>
                     {(canViewMoney || admin) &&
@@ -338,7 +356,6 @@ const TimeEntries = () => {
                                     <td className="text-center"><ShowTime time={timeentry.ending}/></td>
                                     <td>{timeentry.projectName}</td>
                                     <td>{timeentry.username}</td>
-                                    <td className="text-center"><Checkbox value={timeentry.billable}/></td>
                                     <td className="text-center"><Checkbox value={timeentry.billed}/></td>
                                     <td className="text-right"><ShowHours minutes={timeentry.timeUsed}/></td>
                                     {(canViewMoney || admin) &&

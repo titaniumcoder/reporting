@@ -78,7 +78,6 @@ export interface TimeEntry {
 
     username: string;
 
-    billable: boolean;
     billed: boolean;
 
     timeUsed: number;
@@ -96,7 +95,6 @@ export interface UpdatingTimeEntry {
 
     username: string;
 
-    billable: boolean;
     billed: boolean;
 }
 
@@ -276,6 +274,13 @@ export class ReportingApi implements IReportingApi {
         });
     }
 
+    async timesheet(id: string, billableOnly: boolean) {
+        return await axios.get<Blob>(`timesheet/${id}`, {
+            params: {billableOnly},
+            maxContentLength: 10000000,
+            responseType: 'blob'
+        });
+    }
 }
 
 export default new ReportingApi();
