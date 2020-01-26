@@ -34,3 +34,10 @@ cache:
   directories:
     - $HOME/.gradle/caches/modules-2/
     - $HOME/.gradle/wrapper/dists/
+
+deploy:
+  provider: heroku
+  api_key:
+    secure: "3473f587-de8b-4711-8215-08cfa378682f"
+  on:
+    branch: master
