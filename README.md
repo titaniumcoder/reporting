@@ -1,10 +1,10 @@
 # Toggl Reporting Sample App
 
-[![Build Status](https://travis-ci.com/titaniumcoder/toggl-reporting.svg?branch=master)](https://travis-ci.com/titaniumcoder/toggl-reporting)
-[![codecov](https://codecov.io/gh/titaniumcoder/toggl-reporting/branch/master/graph/badge.svg)](https://codecov.io/gh/titaniumcoder/toggl-reporting)
+[![Build Status](https://travis-ci.com/titaniumcoder/reporting.svg?branch=master)](https://travis-ci.com/titaniumcoder/toggl-reporting)
+[![codecov](https://codecov.io/gh/titaniumcoder/reporting/branch/master/graph/badge.svg)](https://codecov.io/gh/titaniumcoder/reporting)
 
 This is a demonstration app just to test out some of the newest features around
-Spring and Kotlin. The application itself uses the [Toggl Api](https://github.com/toggl/toggl_api_docs) to access
+Spring and Kotlin (at the time of the writing). The application itself uses the [Toggl Api](https://github.com/toggl/toggl_api_docs) to access
 a Toggl Project and generate reports. I use this to generate for myself an excel.
 
 Feel free to copy the work around, mentions are welcome. Be aware that I normally only use the software for myself, so 
