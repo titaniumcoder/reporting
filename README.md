@@ -1,7 +1,6 @@
 # Toggl Reporting Sample App
 
 [![Build Status](https://travis-ci.com/titaniumcoder/reporting.svg?branch=master)](https://travis-ci.com/titaniumcoder/toggl-reporting)
-[![codecov](https://codecov.io/gh/titaniumcoder/reporting/branch/master/graph/badge.svg)](https://codecov.io/gh/titaniumcoder/reporting)
 
 This is a demonstration app just to test out some of the newest features around
 Spring and Kotlin (at the time of the writing). The application itself uses the [Toggl Api](https://github.com/toggl/toggl_api_docs) to access
