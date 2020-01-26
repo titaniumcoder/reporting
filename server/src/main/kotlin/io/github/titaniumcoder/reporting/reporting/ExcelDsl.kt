@@ -218,6 +218,7 @@ class Cell(private val row: Int, private val col: Int) {
         val c = getCell(sheet, row, col)
 
         when (val currentContent = content) {
+            is ExcelFormula -> c.cellFormula = currentContent.formula
             is String -> c.setCellValue(currentContent)
             is Double -> c.setCellValue(currentContent)
             is LocalDateTime -> c.setCellValue(toDate(currentContent))
@@ -266,3 +267,6 @@ fun excel(init: Excel.() -> Unit): Excel {
     excel.init()
     return excel
 }
+
+// for formulas at simple places
+data class ExcelFormula(val formula: String)

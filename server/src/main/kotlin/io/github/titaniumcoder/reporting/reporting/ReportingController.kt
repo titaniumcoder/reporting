@@ -27,15 +27,13 @@ class ReportingController(val service: ReportingService) {
     ): Mono<ResponseEntity<ByteArray>> =
             service.timesheet(clientId, billableOnly)
                     .map { sheet ->
-                        val filename = "${sheet.name.toUpperCase()}-${sheet.date.format(DateTimeFormatter.ofPattern("yyyy-MM"))}.xlsx"
-
-                        val input = ByteArrayInputStream(sheet.excel).readBytes()
+                        val filename = "${sheet.name.toUpperCase()}.xlsx"
 
                         ResponseEntity
                                 .ok()
                                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = $filename")
                                 .header("filename", filename)
-                                .body(input)
+                                .body(sheet.excel)
                     }
                     .switchIfEmpty(Mono.just(ResponseEntity.noContent().build()))
 
