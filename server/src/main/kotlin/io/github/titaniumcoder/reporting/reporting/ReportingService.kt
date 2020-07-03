@@ -38,7 +38,7 @@ class ReportingService(
                                     val sortedList = t.sortedBy { it.starting }.toList()
                                     val body = generateExcel(c, sortedList)
 
-                                    Mono.just(ExcelSheet(c.clientId, sortedList.first().date, body))
+                                    Mono.just(ExcelSheet(name = c.clientId, date = sortedList.first().date, excel = body))
                                 }
                             }
                 }

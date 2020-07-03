@@ -27,7 +27,8 @@ class ReportingController(val service: ReportingService) {
     ): Mono<ResponseEntity<ByteArray>> =
             service.timesheet(clientId, billableOnly)
                     .map { sheet ->
-                        val filename = "${sheet.name.toUpperCase()}.xlsx"
+                        val dateFormatted = sheet.date.format(DateTimeFormatter.ofPattern("yyyy-MM"))
+                        val filename = "${sheet.name.toUpperCase()}-$dateFormatted.xlsx"
 
                         ResponseEntity
                                 .ok()
