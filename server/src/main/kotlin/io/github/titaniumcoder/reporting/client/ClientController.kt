@@ -1,32 +1,30 @@
 package io.github.titaniumcoder.reporting.client
 
 import io.github.titaniumcoder.reporting.config.Roles.Admin
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
-import org.springframework.security.access.annotation.Secured
-import org.springframework.validation.annotation.Validated
-import org.springframework.web.bind.annotation.*
+import io.micronaut.http.annotation.*
+import io.micronaut.security.annotation.Secured
+import io.micronaut.validation.Validated
 
-@RestController
-@RequestMapping("/api")
-class ClientController(val service: ClientService) {
+@Controller("/api")
+class ClientController(
+        private val service: ClientService
+) {
     @Secured("isAuthenticated()")
-    @GetMapping("/client-list")
+    @Get("/client-list")
     fun clientList() = service.clientList()
 
     @Secured(Admin)
-    @GetMapping("/clients")
+    @Get("/clients")
     fun clients() = service.clients()
 
     @Secured(Admin)
-    @PostMapping("/clients")
-    fun save(@RequestBody @Validated client: ClientUpdatingDto) = service.saveClient(client)
+    @Post("/clients")
+    @Validated
+    fun save(@Body client: ClientUpdatingDto) = service.saveClient(client)
 
     @Secured(Admin)
-    @DeleteMapping("/clients/{id}")
-    fun delete(@PathVariable("id") id: String) =
-            service.deleteClient(id)
-                    .map {
-                        ResponseEntity.status(HttpStatus.NO_CONTENT).build<Void>()
-                    }
+    @Delete("/clients/{id}")
+    fun delete(@PathVariable("id") id: String) {
+        service.deleteClient(id)
+    }
 }

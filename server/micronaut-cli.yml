@@ -1,0 +1,6 @@
+applicationType: default
+defaultPackage: reporting
+testFramework: junit
+sourceLanguage: kotlin
+buildTool: gradle
+features: [app-name, docker, file-watch, file-watch-osx, flyway, gradle, http-client, jdbc-hikari, junit, kotlin, kotlin-application, kotlin-extension-functions, logback, netty-server, postgres, readme, security-annotations, security-jwt, shade, sql-jdbi, testcontainers, yaml]

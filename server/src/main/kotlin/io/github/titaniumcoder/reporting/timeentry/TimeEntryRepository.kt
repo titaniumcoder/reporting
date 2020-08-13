@@ -1,29 +1,26 @@
 package io.github.titaniumcoder.reporting.timeentry
 
-import org.springframework.data.r2dbc.repository.Query
-import org.springframework.data.repository.query.Param
-import org.springframework.data.repository.reactive.ReactiveCrudRepository
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
+import org.jdbi.v3.sqlobject.customizer.Bind
+import org.jdbi.v3.sqlobject.statement.SqlQuery
 import java.time.LocalDate
 
-interface TimeEntryRepository : ReactiveCrudRepository<TimeEntry, Long> {
-    @Query("select t.id, t.starting, t.ending, t.project_id, t.description, t.email, t.billed from time_entry t where t.email = :email and t.ending is null order by t.starting desc nulls first limit 1")
-    fun findLastOpenEntry(email: String): Mono<TimeEntry>
+interface TimeEntryRepository {
+    @SqlQuery("select t.id, t.starting, t.ending, t.project_id, t.description, t.email, t.billed from time_entry t where t.email = :email and t.ending is null order by t.starting desc nulls first limit 1")
+    fun findLastOpenEntry(email: String): TimeEntry?
 
-    @Query("select t.id, t.starting, t.ending, t.project_id, t.description, t.email, t.billed " +
-            "from time_entry t " +
-            "where (:from is null or t.starting >= :from) " +
-            "and (:to is null or t.ending < :to) " +
-            "and (:clientId is null or t.project_id in (select p.id from project p where p.client_id = :clientId)) " +
-            "and (:email is null or t.email = :email or t.project_id in (select p1.id from project p1 join client c1 on c1.id = p1.client_id join client_user cu on cu.client_id = c1.id where cu.email = :email)) " +
-            "order by t.starting asc")
-    fun findAllWithin(@Param("from") from: LocalDate?,
-                      @Param("to") to: LocalDate?,
-                      @Param("clientId") clientId: String?,
-                      @Param("email") email: String?): Flux<TimeEntry>
+    @SqlQuery("""select t.id, t.starting, t.ending, t.project_id, t.description, t.email, t.billed 
+            from time_entry t 
+            where (:from is null or t.starting >= :from) 
+            and (:to is null or t.ending < :to) 
+            and (:clientId is null or t.project_id in (select p.id from project p where p.client_id = :clientId)) 
+            and (:email is null or t.email = :email or t.project_id in (select p1.id from project p1 join client c1 on c1.id = p1.client_id join client_user cu on cu.client_id = c1.id where cu.email = :email)) 
+            order by t.starting """)
+    fun findAllWithin(@Bind("from") from: LocalDate?,
+                      @Bind("to") to: LocalDate?,
+                      @Bind("clientId") clientId: String?,
+                      @Bind("email") email: String?): List<TimeEntry>
 
-    @Query("""
+    @SqlQuery("""
             select t.id, t.starting, t.ending, t.project_id, t.description, t.email, t.billed 
             from time_entry t 
             where (
@@ -46,6 +43,14 @@ interface TimeEntryRepository : ReactiveCrudRepository<TimeEntry, Long> {
                     where cu.email = :email
                 )
             ) and (t.billed = false) 
-            order by t.starting asc""")
-    fun findNonBilled(@Param("clientId") clientId: String?, @Param("billableOnly") billableOnly: Boolean, @Param("email") email: String?): Flux<TimeEntry>
+            order by t.starting """)
+    fun findNonBilled(@Bind("clientId") clientId: String?, @Bind("billableOnly") billableOnly: Boolean, @Bind("email") email: String?): List<TimeEntry>
+
+    fun delete(timeentry: TimeEntry)
+
+    fun findAllById(ids: List<Long>): List<TimeEntry>
+
+    fun save(it: TimeEntry): TimeEntry
+
+    fun findById(id: Long): TimeEntry?
 }

@@ -1,21 +1,19 @@
 package io.github.titaniumcoder.reporting.timeentry
 
 import com.fasterxml.jackson.annotation.JsonFormat
-import org.springframework.data.annotation.Id
-import org.springframework.data.relational.core.mapping.Column
 import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.validation.constraints.Size
 
 data class TimeEntry(
-        @Id
+//        @Id
         var id: Long?,
 
         var starting: LocalDateTime,
 
         var ending: LocalDateTime?,
 
-        @Column("project_id")
+//        @Column("project_id")
         val projectId: Long?,
 
         @Size(max = 200)

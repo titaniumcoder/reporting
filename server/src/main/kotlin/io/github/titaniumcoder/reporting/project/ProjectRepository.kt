@@ -1,10 +1,18 @@
 package io.github.titaniumcoder.reporting.project
 
-import org.springframework.data.r2dbc.repository.Query
-import org.springframework.data.repository.reactive.ReactiveCrudRepository
-import reactor.core.publisher.Flux
+import org.jdbi.v3.sqlobject.customizer.Bind
+import org.jdbi.v3.sqlobject.statement.SqlQuery
 
-interface ProjectRepository : ReactiveCrudRepository<Project, Long> {
-    @Query("select p.id, p.client_id, p.active, p.name, p.max_minutes, p.rate_in_cents_per_hour, p.billable from project p order by p.name")
-    fun findAllSortedByName(): Flux<Project>
+interface ProjectRepository {
+    @SqlQuery("select p.id, p.client_id, p.active, p.name, p.max_minutes, p.rate_in_cents_per_hour, p.billable from project p order by p.name")
+    fun findAllSortedByName(): List<Project>
+
+    // TODO implement this
+    fun save(project: Project): Project
+
+    // TODO implement this
+    fun findById(id: Long): Project?
+
+    @SqlQuery("delete from Project p where p.id = :id")
+    fun deleteById(@Bind("id") id: Long)
 }

@@ -6,48 +6,48 @@ import io.github.titaniumcoder.reporting.config.Roles.Admin
 import io.github.titaniumcoder.reporting.config.Roles.Booking
 import io.github.titaniumcoder.reporting.user.UserDto
 import io.github.titaniumcoder.reporting.user.UserService
-import org.springframework.security.access.annotation.Secured
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
+import io.micronaut.security.annotation.Secured
+import javax.inject.Singleton
 
-@Service
-@Transactional
-class ProjectService(val repository: ProjectRepository, val clientRepository: ClientRepository, val userService: UserService) {
+@Singleton
+// FIXME @Transactional
+class ProjectService(
+        private val repository: ProjectRepository,
+        private val clientRepository: ClientRepository,
+        private val userService: UserService
+) {
     @Secured(Admin)
-    fun projects(): Flux<ProjectAdminDto> =
-            repository.findAllSortedByName()
-                    .flatMap { toAdminDto(it) }
+    fun projects(): List<ProjectAdminDto> =
+            repository.findAllSortedByName().mapNotNull { toAdminDto(it) }
 
     @Secured("isAuthenticated()")
-    fun projectList(): Flux<ProjectList> {
+    fun projectList(): List<ProjectList> {
         val currentUser = userService.reactiveCurrentUserDto()
 
         return repository
                 .findAllSortedByName()
-                .flatMap { p ->
+                .mapNotNull { p ->
                     currentUser
-                            .map { u ->
+                            ?.let { u ->
                                 u.admin || p.clientId in u.clients.map { c -> c.clientId }
-                            }.flatMap {
+                            }?.let {
                                 if (it) {
-                                    Mono.just(p)
+                                    p
                                 } else {
-                                    Mono.empty()
+                                    null
                                 }
                             }
                 }
-                .flatMap {
+                .mapNotNull {
                     clientRepository.findById(it.clientId)
-                            .map { client ->
+                            ?.let { client ->
                                 ProjectList(it.projectId, client.name, it.name, it.billable)
                             }
                 }
     }
 
     @Secured(Admin)
-    fun saveProject(dto: ProjectAdminDto): Mono<ProjectAdminDto> {
+    fun saveProject(dto: ProjectAdminDto): ProjectAdminDto? {
         val project = Project(
                 dto.id,
                 dto.clientId,
@@ -58,41 +58,36 @@ class ProjectService(val repository: ProjectRepository, val clientRepository: Cl
                 dto.billable
         )
 
-        return repository.save(project)
-                .flatMap { toAdminDto(it) }
+        return toAdminDto(repository.save(project))
     }
 
     @Secured(Admin, Booking)
-    fun findProject(id: Long, user: UserDto): Mono<Project> {
+    fun findProject(id: Long, user: UserDto): Project? {
         val project = repository.findById(id)
 
         return project
-                .filter {
-                    user.admin || it.clientId in user.clients.map { c -> c.clientId }
+                ?.let {
+                    if (user.admin || it.clientId in user.clients.map { c -> c.clientId })
+                        it
+                    else null
                 }
-                .map { it }
     }
 
     @Secured(Admin, Booking)
-    fun findProjectAdminDto(id: Long, user: UserDto): Mono<ProjectAdminDto> =
-            findProject(id, user)
-                    .flatMap { toAdminDto(it) }
+    fun findProjectAdminDto(id: Long, user: UserDto): ProjectAdminDto? = findProject(id, user)?.let { toAdminDto(it) }
 
     @Secured(Admin, Booking)
-    fun findClientForProject(id: Long, user: UserDto): Mono<Client> =
-            findProject(id, user)
-                    .flatMap {
-                        clientRepository.findById(it.clientId)
-                    }
+    fun findClientForProject(id: Long, user: UserDto): Client? =
+            findProject(id, user)?.let { clientRepository.findById(it.clientId) }
 
     @Secured(Admin)
-    fun deleteProject(id: Long): Mono<Void> {
+    fun deleteProject(id: Long) {
         return repository.deleteById(id)
     }
 
-    private fun toAdminDto(it: Project): Mono<ProjectAdminDto> =
+    private fun toAdminDto(it: Project): ProjectAdminDto? =
             clientRepository.findById(it.clientId)
-                    .map { client ->
+                    ?.let { client ->
                         ProjectAdminDto(
                                 it.projectId,
                                 client.clientId,

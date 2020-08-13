@@ -1,32 +1,28 @@
 package io.github.titaniumcoder.reporting.project
 
 import io.github.titaniumcoder.reporting.config.Roles.Admin
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
-import org.springframework.security.access.annotation.Secured
-import org.springframework.validation.annotation.Validated
-import org.springframework.web.bind.annotation.*
+import io.micronaut.http.annotation.*
+import io.micronaut.security.annotation.Secured
+import io.micronaut.validation.Validated
 
-@RestController
-@RequestMapping("/api")
+@Controller("/api")
 class ProjectController(val service: ProjectService) {
     @Secured(Admin)
-    @GetMapping("/projects")
+    @Get("/projects")
     fun projects() = service.projects()
 
     @Secured("isAuthenticated()")
-    @GetMapping("/project-list")
+    @Get("/project-list")
     fun projectList() = service.projectList()
 
     @Secured(Admin)
-    @PostMapping("/projects")
-    fun save(@RequestBody @Validated project: ProjectAdminDto) = service.saveProject(project)
+    @Post("/projects")
+    @Validated
+    fun save(@Body project: ProjectAdminDto) = service.saveProject(project)
 
     @Secured(Admin)
-    @DeleteMapping("/projects/{id}")
-    fun delete(@PathVariable("id") id: Long) =
+    @Delete("/projects/{id}")
+    fun delete(@PathVariable("id") id: Long) {
             service.deleteProject(id)
-                    .map {
-                        ResponseEntity.status(HttpStatus.NO_CONTENT).build<Void>()
-                    }
+    }
 }

@@ -5,11 +5,9 @@ import io.github.titaniumcoder.reporting.client.ClientService
 import io.github.titaniumcoder.reporting.timeentry.TimeEntryDto
 import io.github.titaniumcoder.reporting.timeentry.TimeEntryService
 import io.github.titaniumcoder.reporting.user.UserService
-import org.springframework.data.r2dbc.core.DatabaseClient
-import org.springframework.stereotype.Service
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
+import org.jdbi.v3.core.Jdbi
 import java.time.LocalDate
+import javax.inject.Singleton
 import kotlin.math.max
 
 class ExcelSheet(
@@ -18,56 +16,55 @@ class ExcelSheet(
         val excel: ByteArray
 )
 
-@Service
+@Singleton
 class ReportingService(
-        val client: DatabaseClient,
+        val jdbi: Jdbi,
         val userService: UserService,
         val timeEntryService: TimeEntryService,
         val clientService: ClientService
 ) {
-    fun timesheet(clientId: String, billableOnly: Boolean): Mono<ExcelSheet> {
+    fun timesheet(clientId: String, billableOnly: Boolean): ExcelSheet? {
         return clientService
                 .findById(clientId)
-                .flatMap { c ->
-                    timeEntryService.retrieveTimeEntries(null, null, clientId, false, billableOnly)
-                            .collectList()
-                            .flatMap { t ->
-                                if (t.isEmpty()) {
-                                    Mono.empty()
-                                } else {
-                                    val sortedList = t.sortedBy { it.starting }.toList()
-                                    val body = generateExcel(c, sortedList)
+                ?.let { c ->
+                    val t = timeEntryService.retrieveTimeEntries(null, null, clientId, false, billableOnly)
+                    if (t.isEmpty()) {
+                        null
+                    } else {
+                        val sortedList = t.sortedBy { it.starting }.toList()
+                        val body = generateExcel(c, sortedList)
 
-                                    Mono.just(ExcelSheet(name = c.clientId, date = sortedList.first().date, excel = body))
-                                }
-                            }
+                        ExcelSheet(name = c.clientId, date = sortedList.first().date, excel = body)
+                    }
                 }
     }
 
-    fun info(clientId: String?, from: LocalDate?, to: LocalDate?): Flux<ClientInfo> =
-            userService.reactiveCurrentUserDto()
-                    .flatMapMany { user ->
-                        val canSeeMoney = user.admin || user.canViewMoney
-                        val email = if (user.admin) null else user.email
+    fun info(clientId: String?, from: LocalDate?, to: LocalDate?): List<ClientInfo> {
+        return userService.reactiveCurrentUserDto()
+                ?.let { user ->
+                    val canSeeMoney = user.admin || user.canViewMoney
+                    val email = if (user.admin) null else user.email
 
-                        var sql = "select * from client_overview "
-                        var where = false
-                        if (clientId != null) {
-                            sql += "where client_id = '$clientId'"
-                            where = true
-                        }
-                        if (email != null) {
-                            sql += if (where) " and " else " where "
-                            sql += "(client_id in (select c1.id from client c1 join client_user cu on cu.client_id = c1.id where cu.email = '$email'))"
-                        }
+                    var sql = "select * from client_overview "
+                    var where = false
+                    if (clientId != null) {
+                        sql += "where client_id = '$clientId'"
+                        where = true
+                    }
+                    if (email != null) {
+                        sql += if (where) " and " else " where "
+                        sql += "(client_id in (select c1.id from client c1 join client_user cu on cu.client_id = c1.id where cu.email = '$email'))"
+                    }
 
-                        client.execute(sql)
+                    jdbi.withHandle<List<ClientInfo>, Exception> { handle ->
+                        val clientInfos = handle.createQuery(sql)
                                 .map { row ->
                                     ClientInfo(
-                                            id = row.get("client_id", String::class.java) ?: "<<ID>>",
-                                            name = row.get("client_name", String::class.java) ?: "<<<< NAME >>>>>",
-                                            maxMinutes = row.get("client_max_minutes", Integer::class.java)?.toInt(),
-                                            rateInCentsPerHour = row.get("client_rate_in_cents_per_hour", Integer::class.java)?.toInt(),
+                                            id = row.getColumn("client_id", String::class.java) ?: "<<ID>>",
+                                            name = row.getColumn("client_name", String::class.java)
+                                                    ?: "<<<< NAME >>>>>",
+                                            maxMinutes = row.getColumn("client_max_minutes", Integer::class.java)?.toInt(),
+                                            rateInCentsPerHour = row.getColumn("client_rate_in_cents_per_hour", Integer::class.java)?.toInt(),
                                             billedAmount = null,
                                             billedMinutes = 0,
                                             openAmount = null,
@@ -76,17 +73,17 @@ class ReportingService(
                                             remainingMinutes = null,
                                             projects = listOf(
                                                     ProjectInfo(
-                                                            projectId = row.get("project_id", java.lang.Long::class.java)?.toLong(),
-                                                            name = row.get("project_name", String::class.java)
+                                                            projectId = row.getColumn("project_id", java.lang.Long::class.java)?.toLong(),
+                                                            name = row.getColumn("project_name", String::class.java)
                                                                     ?: "<<< NAME >>>>",
-                                                            maxMinutes = row.get("project_max_minutes", Integer::class.java)?.toInt(),
-                                                            billable = row.get("project_billable", java.lang.Boolean::class.java)?.booleanValue()
+                                                            maxMinutes = row.getColumn("project_max_minutes", Integer::class.java)?.toInt(),
+                                                            billable = row.getColumn("project_billable", java.lang.Boolean::class.java)?.booleanValue()
                                                                     ?: false,
-                                                            rateInCentsPerHour = row.get("project_rate_in_cents_per_hour", Integer::class.java)?.toInt(),
-                                                            billedMinutes = row.get("project_billed_minutes", Integer::class.java)?.toInt()
+                                                            rateInCentsPerHour = row.getColumn("project_rate_in_cents_per_hour", Integer::class.java)?.toInt(),
+                                                            billedMinutes = row.getColumn("project_billed_minutes", Integer::class.java)?.toInt()
                                                                     ?: 0,
                                                             billedAmount = null,
-                                                            openMinutes = row.get("project_open_minutes", Integer::class.java)?.toInt()
+                                                            openMinutes = row.getColumn("project_open_minutes", Integer::class.java)?.toInt()
                                                                     ?: 0,
                                                             openAmount = null,
                                                             remainingMinutes = null,
@@ -95,69 +92,68 @@ class ReportingService(
                                             )
                                     )
                                 }
-                                .all()
-                                .collectList()
-                                .flatMapMany { clientInfos ->
-                                    Flux.fromIterable(
-                                            clientInfos
-                                                    .groupBy { it.id }
-                                                    .map { e ->
-                                                        val client = e.value.first()
-                                                        val projects = e.value.flatMap { it.projects }
+                                .list()
+                                .toList()
 
-                                                        val projectWithRemainingMinutes =
-                                                                projects.map { project ->
-                                                                    project.copy(
-                                                                            remainingMinutes = project.maxMinutes?.let { max(it - project.billedMinutes - project.openMinutes, 0) }
-                                                                    )
-                                                                }
+                        clientInfos
+                                .groupBy { it.id }
+                                .map { e ->
+                                    val client = e.value.first()
+                                    val projects = e.value.flatMap { it.projects }
 
-                                                        val cProjects =
-                                                                if (canSeeMoney) {
-                                                                    projectWithRemainingMinutes
-                                                                            .map { project ->
-                                                                                val rateN = if (project.billable) project.rateInCentsPerHour?.let { if (it == 0) null else it }
-                                                                                        ?: client.rateInCentsPerHour else null
-                                                                                project.copy(
-                                                                                        rateInCentsPerHour = rateN,
-                                                                                        billedAmount = rateN?.let { rate -> project.billedMinutes * rate / 60.0 },
-                                                                                        openAmount = rateN?.let { rate -> project.openMinutes * rate / 60.0 },
-                                                                                        remainingAmount = rateN?.let { rate -> project.remainingMinutes?.let { it * rate / 60.0 } }
-                                                                                )
-                                                                            }
-                                                                } else
-                                                                    projectWithRemainingMinutes
+                                    val projectWithRemainingMinutes =
+                                            projects.map { project ->
+                                                project.copy(
+                                                        remainingMinutes = project.maxMinutes?.let { max(it - project.billedMinutes - project.openMinutes, 0) }
+                                                )
+                                            }
 
-
-                                                        val clientBase = client.copy(
-                                                                rateInCentsPerHour = if (canSeeMoney) client.rateInCentsPerHour else null,
-                                                                projects = cProjects.sortedBy { it.name }
-                                                        )
-
-                                                        val clientWithMinutes = clientBase.copy(
-                                                                billedMinutes = clientBase.projects.filter { it.billable }.sumBy { it.billedMinutes },
-                                                                openMinutes = clientBase.projects.filter { it.billable }.sumBy { it.openMinutes }
-                                                        )
-
-                                                        val remainingMinutes = clientWithMinutes.maxMinutes?.let { mm -> max(0, mm - clientWithMinutes.billedMinutes - clientWithMinutes.openMinutes) }
-
-                                                        val clientWithProjects = clientWithMinutes.copy(
-                                                                remainingMinutes = remainingMinutes,
-
-                                                                billedAmount = clientWithMinutes.rateInCentsPerHour?.let { rate -> rate * clientWithMinutes.billedMinutes / 60.0 },
-                                                                openAmount = clientBase.rateInCentsPerHour?.let { rate -> rate * clientWithMinutes.openMinutes / 60.0 },
-                                                                remainingAmount = clientBase.rateInCentsPerHour?.let { rate -> remainingMinutes?.let { rate * it / 60.0 } }
-                                                        )
-
-                                                        if (clientId == null) {
-                                                            clientWithProjects.copy(projects = listOf())
-                                                        } else {
-                                                            clientWithProjects
+                                    val cProjects =
+                                            if (canSeeMoney) {
+                                                projectWithRemainingMinutes
+                                                        .map { project ->
+                                                            val rateN = if (project.billable) project.rateInCentsPerHour?.let { if (it == 0) null else it }
+                                                                    ?: client.rateInCentsPerHour else null
+                                                            project.copy(
+                                                                    rateInCentsPerHour = rateN,
+                                                                    billedAmount = rateN?.let { rate -> project.billedMinutes * rate / 60.0 },
+                                                                    openAmount = rateN?.let { rate -> project.openMinutes * rate / 60.0 },
+                                                                    remainingAmount = rateN?.let { rate -> project.remainingMinutes?.let { it * rate / 60.0 } }
+                                                            )
                                                         }
-                                                    }
+                                            } else
+                                                projectWithRemainingMinutes
+
+
+                                    val clientBase = client.copy(
+                                            rateInCentsPerHour = if (canSeeMoney) client.rateInCentsPerHour else null,
+                                            projects = cProjects.sortedBy { it.name }
                                     )
+
+                                    val clientWithMinutes = clientBase.copy(
+                                            billedMinutes = clientBase.projects.filter { it.billable }.sumBy { it.billedMinutes },
+                                            openMinutes = clientBase.projects.filter { it.billable }.sumBy { it.openMinutes }
+                                    )
+
+                                    val remainingMinutes = clientWithMinutes.maxMinutes?.let { mm -> max(0, mm - clientWithMinutes.billedMinutes - clientWithMinutes.openMinutes) }
+
+                                    val clientWithProjects = clientWithMinutes.copy(
+                                            remainingMinutes = remainingMinutes,
+
+                                            billedAmount = clientWithMinutes.rateInCentsPerHour?.let { rate -> rate * clientWithMinutes.billedMinutes / 60.0 },
+                                            openAmount = clientBase.rateInCentsPerHour?.let { rate -> rate * clientWithMinutes.openMinutes / 60.0 },
+                                            remainingAmount = clientBase.rateInCentsPerHour?.let { rate -> remainingMinutes?.let { rate * it / 60.0 } }
+                                    )
+
+                                    if (clientId == null) {
+                                        clientWithProjects.copy(projects = listOf())
+                                    } else {
+                                        clientWithProjects
+                                    }
                                 }
                     }
+                } ?: listOf()
+    }
 
     private fun generateExcel(client: Client, timeEntries: List<TimeEntryDto>): ByteArray {
         fun tableheader(cell: Cell) {

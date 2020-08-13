@@ -1,20 +1,16 @@
 package io.github.titaniumcoder.reporting.project
 
-import org.springframework.data.annotation.Id
-import org.springframework.data.annotation.PersistenceConstructor
-import org.springframework.data.domain.Persistable
-import org.springframework.data.relational.core.mapping.Column
 import javax.validation.constraints.Max
 import javax.validation.constraints.Min
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
 
 data class Project(
-        @Id
-        @Column("id")
+//        @Id
+//        @Column("id")
         val projectId: Long? = null,
 
-        @Column("client_id")
+//        @Column("client_id")
         val clientId: String,
 
         val active: Boolean = true,

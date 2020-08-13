@@ -1,10 +1,8 @@
 package io.github.titaniumcoder.reporting.config
 
-import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
+import io.micronaut.context.annotation.ConfigurationProperties
 
-@ConstructorBinding
-@ConfigurationProperties(prefix = "reporting")
+@ConfigurationProperties("reporting")
 data class ReportingConfiguration(
         val clientId: String,
         val adminEmail: String

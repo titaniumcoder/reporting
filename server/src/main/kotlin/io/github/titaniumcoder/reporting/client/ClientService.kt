@@ -1,50 +1,48 @@
 package io.github.titaniumcoder.reporting.client
 
 import io.github.titaniumcoder.reporting.user.UserService
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
+import javax.inject.Singleton
 
-@Service
-@Transactional
-class ClientService(val repository: ClientRepository, val userService: UserService) {
-    fun clients(): Flux<Client> = repository.findAllSortedById()
+@Singleton
+// TODO @Transactional
+class ClientService(
+        private val repository: ClientRepository,
+        private val userService: UserService
+) {
+    fun clients() = repository.findAllSortedById()
 
-    fun saveClient(clientDto: ClientUpdatingDto): Mono<Client> {
-        return repository.existsById(clientDto.clientId)
-                .map {
-                    Client(
-                            clientId = clientDto.clientId,
-                            active = clientDto.active,
-                            maxMinutes = clientDto.maxMinutes,
-                            name = clientDto.name,
-                            newClient = !it,
-                            notes = clientDto.notes,
-                            rateInCentsPerHour = clientDto.rateInCentsPerHour
-                    )
-                }
-                .flatMap { repository.save(it) }
+    fun saveClient(clientDto: ClientUpdatingDto): Client {
+        val exists = repository.existsById(clientDto.clientId) != null
+
+        return repository.save(
+                Client(
+                        clientId = clientDto.clientId,
+                        active = clientDto.active,
+                        maxMinutes = clientDto.maxMinutes,
+                        name = clientDto.name,
+                        newClient = !exists,
+                        notes = clientDto.notes,
+                        rateInCentsPerHour = clientDto.rateInCentsPerHour
+                )
+        )
     }
 
-    fun deleteClient(id: String) =
-            repository.deleteById(id)
+    fun deleteClient(id: String) = repository.deleteById(id)
 
-    fun clientList(): Flux<ClientListDto> {
+    fun clientList(): List<ClientListDto> {
         val user = userService.reactiveCurrentUserDto()
 
         val clients = repository.findActives().map { ClientListDto(it.clientId, it.name) }
 
         return user
-                .flux()
-                .flatMap { u ->
+                ?.let { u ->
                     if (u.admin) {
                         clients
                     } else {
                         clients
                                 .filter { u.clients.map { c -> c.clientId }.contains(it.clientId) }
                     }
-                }
+                } ?: listOf()
     }
 
     fun findById(clientId: String) = repository.findById(clientId)

@@ -1,41 +1,39 @@
 package io.github.titaniumcoder.reporting.reporting
 
-import org.springframework.format.annotation.DateTimeFormat
-import org.springframework.http.HttpHeaders
-import org.springframework.http.ResponseEntity
-import org.springframework.security.access.annotation.Secured
-import org.springframework.web.bind.annotation.*
-import reactor.core.publisher.Mono
-import java.io.ByteArrayInputStream
+import io.micronaut.http.HttpHeaders
+import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.PathVariable
+import io.micronaut.http.annotation.QueryValue
+import io.micronaut.security.annotation.Secured
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-@RestController
-@RequestMapping("/api")
+@Controller("/api")
 class ReportingController(val service: ReportingService) {
-    @GetMapping("/client-info")
+    @Get("/client-info")
     @Secured("isAuthenticated()")
-    fun info(@RequestParam("clientId", required = false) clientId: String?,
-             @RequestParam("from") @DateTimeFormat(pattern = "yyyy-MM-dd") from: LocalDate?,
-             @RequestParam("to") @DateTimeFormat(pattern = "yyyy-MM-dd") to: LocalDate?) = service.info(clientId, from, to)
+    fun info(@QueryValue("clientId") clientId: String?,
+             @QueryValue("from") @DateTimeFormat(pattern = "yyyy-MM-dd") from: LocalDate?,
+             @QueryValue("to") @DateTimeFormat(pattern = "yyyy-MM-dd") to: LocalDate?) = service.info(clientId, from, to)
 
     @Secured("isAuthenticated()")
-    @GetMapping("/timesheet/{clientId}", produces = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"])
+    @Get("/timesheet/{clientId}", produces = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"])
     fun timesheet(
             @PathVariable("clientId") clientId: String,
-            @RequestParam("billableOnly") billableOnly: Boolean
-    ): Mono<ResponseEntity<ByteArray>> =
-            service.timesheet(clientId, billableOnly)
-                    .map { sheet ->
-                        val dateFormatted = sheet.date.format(DateTimeFormatter.ofPattern("yyyy-MM"))
-                        val filename = "${sheet.name.toUpperCase()}-$dateFormatted.xlsx"
+            @QueryValue("billableOnly") billableOnly: Boolean
+    ): ResponseEntity<ByteArray> {
+        return service.timesheet(clientId, billableOnly)
+                ?.let { sheet ->
+                    val dateFormatted = sheet.date.format(DateTimeFormatter.ofPattern("yyyy-MM"))
+                    val filename = "${sheet.name.toUpperCase()}-$dateFormatted.xlsx"
 
-                        ResponseEntity
-                                .ok()
-                                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = $filename")
-                                .header("filename", filename)
-                                .body(sheet.excel)
-                    }
-                    .switchIfEmpty(Mono.just(ResponseEntity.noContent().build()))
+                    ResponseEntity
+                            .ok()
+                            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = $filename")
+                            .header("filename", filename)
+                            .body(sheet.excel)
+                } ?: ResponseEntity.noContent().build())
+    }
 
 }

@@ -1,7 +1,5 @@
 package io.github.titaniumcoder.reporting.config
 
-import reactor.core.publisher.Mono
-
 interface TokenValidationService {
-    fun validateIdToken(idToken: String): Mono<String>
+    fun validateIdToken(idToken: String): String?
 }

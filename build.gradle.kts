@@ -5,12 +5,11 @@ import com.moowork.gradle.node.npm.NpmTask
 plugins {
     id("com.moowork.node") version "1.3.1" apply false
 
-    kotlin("jvm") version "1.3.61" apply false
-    kotlin("kapt") version "1.3.61" apply false
-    kotlin("plugin.spring") version "1.3.61" apply false
-    kotlin("plugin.jpa") version "1.3.61" apply false
-
-    id("com.gradle.build-scan").version("3.1.1")
+    kotlin("jvm") version "1.3.72" apply false
+    kotlin("kapt") version "1.3.72" apply false
+    kotlin("plugin.spring") version "1.3.72" apply false
+    kotlin("plugin.jpa") version "1.3.72" apply false
+    kotlin("plugin.allopen") version "1.3.72" apply false
 }
 
 tasks {
@@ -93,13 +92,4 @@ project(":client") {
             dependsOn(npmInstall)
         }
     }
-}
-
-buildScan {
-    if (!System.getenv("CI").isNullOrEmpty()) {
-        publishAlways()
-        tag("CI")
-    }
-    termsOfServiceUrl = "https://gradle.com/terms-of-service"
-    termsOfServiceAgree = "yes"
 }

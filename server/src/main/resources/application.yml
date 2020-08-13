@@ -1,17 +1,17 @@
-spring:
-  r2dbc:
-    url: ${R2DBC_DATABASE_URL:r2dbc:postgresql://localhost:5432/reporting}
+micronaut:
+  application:
+    name: reporting
+  security:
+    authentication: bearer
+    token:
+      jwt:
+        signatures:
+          secret:
+            generator:
+              secret: '"${JWT_GENERATOR_SIGNATURE_SECRET:pleaseChangeThisSecretForANewOne}"'
+datasources:
+  default:
+    driverClassName: org.postgresql.Driver
+    url: ${JDBC_DATABASE_URL:jdbc:postgresql://localhost:5432/reporting}
     username: ${JDBC_DATABASE_USER:reporting}
     password: ${JDBC_DATABASE_PASSWORD:""}
-  flyway:
-    enabled: false
-  cache:
-    type: caffeine
-    cache-names: tokens
-    caffeine:
-      spec: maximumSize=100,expireAfterAccess=60s # TODO may be optimize later
-  webflux:
-    static-path-pattern: /static/**
-reporting:
-  clientId: 483387557047-olrn4mkp6m7gltp5fqhgr76094q6qf6e.apps.googleusercontent.com
-  adminEmail: rico.metzger@gmail.com

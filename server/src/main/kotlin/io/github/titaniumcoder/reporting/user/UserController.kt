@@ -1,43 +1,47 @@
 package io.github.titaniumcoder.reporting.user
 
 import io.github.titaniumcoder.reporting.config.Roles.Admin
-import org.springframework.http.HttpStatus.CONFLICT
-import org.springframework.http.HttpStatus.NO_CONTENT
-import org.springframework.http.ResponseEntity
-import org.springframework.security.access.annotation.Secured
-import org.springframework.security.core.Authentication
-import org.springframework.validation.annotation.Validated
-import org.springframework.web.bind.annotation.*
-import reactor.core.publisher.Mono
+import io.micronaut.http.HttpStatus
+import io.micronaut.http.annotation.*
+import io.micronaut.security.annotation.Secured
+import io.micronaut.security.authentication.Authentication
+import io.micronaut.validation.Validated
 
-@RestController
-@RequestMapping("/api")
-class UserController(val service: UserService) {
+@Controller("/api")
+class UserController(
+        private val service: UserService
+) {
 
     @Secured("isAuthenticated()")
-    @GetMapping("/current-user")
+    @Get("/current-user")
     fun me(auth: Authentication) = service.reactiveCurrentUserDto()
 
     @Secured(Admin)
-    @GetMapping("/users")
+    @Get("/users")
     fun list() = service.listUsers()
 
     @Secured(Admin)
-    @PostMapping("/users")
-    fun save(@RequestBody @Validated user: UserUpdateDto) = service.saveUser(user)
+    @Post("/users")
+    @Validated
+    fun save(@Body user: UserUpdateDto) = service.saveUser(user)
 
     @Secured(Admin)
-    @DeleteMapping("/users/{email}")
-    fun delete(@PathVariable("email") email: String) =
-            service.reactiveCurrentUser()
-                    .flatMap { u ->
-                        if (u.email == email) {
-                            Mono.just(ResponseEntity.status(CONFLICT).build<Void>())
-                        } else {
-                            Mono.empty()
-                        }
-                    }.switchIfEmpty(
-                            service.deleteUser(email)
-                                    .map { ResponseEntity.status(NO_CONTENT).build<Void>() }
-                    )
+    @Delete("/users/{email}")
+    fun delete(@PathVariable("email") email: String): HttpStatus {
+        val user = service.reactiveCurrentUser()
+
+        return when (user) {
+            null -> {
+                HttpStatus.UNAUTHORIZED
+            }
+            else -> {
+                if (user.email == email) {
+                    HttpStatus.CONFLICT
+                } else {
+                    service.deleteUser(email)
+                    HttpStatus.NO_CONTENT
+                }
+            }
+        }
+    }
 }
