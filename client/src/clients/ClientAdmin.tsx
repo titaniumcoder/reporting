@@ -48,10 +48,6 @@ const ClientAdmin = () => {
         const {clients, error, loading} = state.client;
         return {clients, error, loading};
     });
-    const {loggedIn, email} = useSelector((state: RootState) => {
-        const {loggedIn, email} = state.auth;
-        return {loggedIn, email};
-    });
 
     const updateRecord = async (client: UpdatingClient) => {
         await reportingApi.saveClient(toClient(client));
@@ -98,7 +94,7 @@ const ClientAdmin = () => {
 
     useEffect(() => {
         dispatch(fetchClients());
-    }, [loggedIn, email, dispatch]);
+    }, [dispatch]);
 
     const cancelEditing = () => {
         setInstance(EMPTY_CLIENT_FORM);

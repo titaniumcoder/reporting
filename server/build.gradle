@@ -32,7 +32,6 @@ dependencies {
     implementation("io.micronaut:micronaut-http-client")
     implementation("io.micronaut.flyway:micronaut-flyway")
     implementation("io.micronaut.sql:micronaut-jdbc-hikari")
-    implementation("io.micronaut.security:micronaut-security-jwt")
     implementation("io.micronaut.kotlin:micronaut-kotlin-extension-functions")
 
     implementation("io.micronaut.mongodb:micronaut-mongo-reactive")
@@ -42,7 +41,8 @@ dependencies {
     developmentOnly("net.java.dev.jna:jna")
     developmentOnly("io.methvin:directory-watcher")
 
-    // for Google Security Login
+    // for Login
+    implementation("io.micronaut.security:micronaut-security-jwt")
     implementation("io.micronaut.security:micronaut-security-oauth2")
 
     // for creating the excel sheets

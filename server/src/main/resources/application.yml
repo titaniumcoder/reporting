@@ -2,15 +2,24 @@ micronaut:
   application:
     name: reporting
   security:
+    enabled: false
+    authentication: idtoken
     oauth2:
       clients:
         google:
-          client-secret: ???
-          client-id: 483387557047-olrn4mkp6m7gltp5fqhgr76094q6qf6e.apps.googleusercontent.com
+          client-id: '${OAUTH_CLIENT_ID}'
+          client-secret: '${OAUTH_CLIENT_SECRET}'
           openid:
-            issuer: https://accounts.google.com
-    reject-not-found: true
-    enabled: false
+            issuer: 'https://accounts.google.com'
+    endpoints:
+      logout:
+        get-allowed: true
+  router:
+    static-resources:
+      react:
+        enabled: true
+        paths: classpath:static
+        mapping: /**
 mongodb:
   uri: mongodb+srv://reporting:zdpo9pk765JvfAHx@reporting.bkqix.mongodb.net/<dbname>?retryWrites=true&w=majority
 ---

@@ -12,13 +12,15 @@ import javax.inject.Singleton
 class UserService(
         private val repository: UserRepository,
         private val clientRepository: ClientRepository,
-        private val securityService: SecurityService
+        private val securityService: SecurityService?
 ) {
     fun usersExists(): Boolean = repository.count() > 0
 
     fun listUsers() = repository.findAll().map { toDto(it) }
 
     fun findByEmail(email: String) = repository.findById(email)
+
+    fun findFirst() = repository.findAll().firstOrNull()
 
     fun saveUser(user: UserUpdateDto): UserDto {
         val exists = repository.existsById(user.email)
@@ -83,14 +85,13 @@ class UserService(
     }
 
     // FIXME @Transactional
-    fun reactiveCurrentUser(): User? {
-        if (securityService.isAuthenticated) {
-            val authentication = securityService.authentication.orElse(null)
-            return findByEmail(authentication.name)
-        } else {
-            return null
-        }
-    }
+    fun reactiveCurrentUser(): User? =
+            when {
+                securityService == null -> findFirst()
+                securityService.isAuthenticated ->
+                    findByEmail(securityService.authentication.get().name)
+                else -> null
+            }
 
     // FIXME @Transactional
     fun reactiveCurrentUserDto(): UserDto? =

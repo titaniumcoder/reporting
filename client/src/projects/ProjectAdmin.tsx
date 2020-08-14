@@ -50,10 +50,6 @@ const ProjectAdmin = () => {
         const {projects, error, loading} = state.project;
         return {projects, error, loading};
     });
-    const {loggedIn, email} = useSelector((state: RootState) => {
-        const {loggedIn, email} = state.auth;
-        return {loggedIn, email};
-    });
 
     const updateRecord = async (project: UpdatingProject) => {
         await reportingApi.saveProject(toProject(project));
@@ -99,7 +95,7 @@ const ProjectAdmin = () => {
 
     useEffect(() => {
         dispatch(fetchProjects());
-    }, [loggedIn, email, dispatch]);
+    }, [dispatch]);
 
     const cancelEditing = () => {
         setInstance(EMPTY_PROJECT_FORM);
@@ -198,15 +194,11 @@ interface UpdateFormProps {
 const UpdateForm = ({instance, cancel, update}: UpdateFormProps) => {
     const clientList = useSelector((state: RootState) => state.client.clientList);
 
-    const loggedIn = useSelector((state: RootState) => state.auth.loggedIn);
-
     const dispatch = useDispatch();
 
     useEffect(() => {
-        if (loggedIn) {
-            dispatch(fetchClientList());
-        }
-    }, [dispatch, loggedIn]);
+        dispatch(fetchClientList());
+    }, [dispatch]);
 
     const validator = (value) => {
         let errors: FormErrors = {};
@@ -214,7 +206,7 @@ const UpdateForm = ({instance, cancel, update}: UpdateFormProps) => {
             errors['name'] = 'Name is required';
         }
         if (!value.clientId || value.clientId.length === 0) {
-            errors['clientId'] =  'Client is required';
+            errors['clientId'] = 'Client is required';
         }
         return errors;
     };

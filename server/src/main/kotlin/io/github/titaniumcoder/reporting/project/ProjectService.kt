@@ -2,8 +2,6 @@ package io.github.titaniumcoder.reporting.project
 
 import io.github.titaniumcoder.reporting.client.Client
 import io.github.titaniumcoder.reporting.client.ClientRepository
-import io.github.titaniumcoder.reporting.config.Roles.Admin
-import io.github.titaniumcoder.reporting.config.Roles.Booking
 import io.github.titaniumcoder.reporting.user.UserDto
 import io.github.titaniumcoder.reporting.user.UserService
 import io.micronaut.security.annotation.Secured
@@ -16,7 +14,7 @@ class ProjectService(
         private val clientRepository: ClientRepository,
         private val userService: UserService
 ) {
-    @Secured(Admin)
+    @Secured("isAuthenticated()")
     fun projects(): List<ProjectAdminDto> =
             repository.findAllSortedByName().mapNotNull { toAdminDto(it) }
 
@@ -46,7 +44,7 @@ class ProjectService(
                 }
     }
 
-    @Secured(Admin)
+    @Secured("isAuthenticated()")
     fun saveProject(dto: ProjectAdminDto): ProjectAdminDto? {
         val project = Project(
                 dto.id,
@@ -61,7 +59,7 @@ class ProjectService(
         return toAdminDto(repository.save(project))
     }
 
-    @Secured(Admin, Booking)
+    @Secured("isAuthenticated()")
     fun findProject(id: Long, user: UserDto): Project? {
         val project = repository.findById(id)
 
@@ -73,14 +71,14 @@ class ProjectService(
                 }
     }
 
-    @Secured(Admin, Booking)
+    @Secured("isAuthenticated()")
     fun findProjectAdminDto(id: Long, user: UserDto): ProjectAdminDto? = findProject(id, user)?.let { toAdminDto(it) }
 
-    @Secured(Admin, Booking)
+    @Secured("isAuthenticated()")
     fun findClientForProject(id: Long, user: UserDto): Client? =
             findProject(id, user)?.let { clientRepository.findById(it.clientId) }
 
-    @Secured(Admin)
+    @Secured("isAuthenticated()")
     fun deleteProject(id: Long) {
         return repository.deleteById(id)
     }

@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Alert, Button, ButtonGroup, Col, Form, Modal, ModalBody, ModalFooter, ModalHeader, Row} from "reactstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useDispatch, useSelector} from "react-redux";
@@ -24,10 +24,6 @@ const CurrentTimeEntry = () => {
         billed: false
     });
 
-    const {loggedIn, admin, canBook, authToken} = useSelector((root: RootState) => root.auth);
-
-    const isAllowed = useMemo(() => loggedIn && (admin || canBook), [loggedIn, admin, canBook]);
-
     const currentTimeEntry: TimeEntry | undefined = useSelector((root: RootState) => root.timeentry.currentTimeEntry);
 
     const updateTimeEntry = async (timeEntry: SavingTimeEntry) => {
@@ -47,27 +43,22 @@ const CurrentTimeEntry = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        if (isAllowed && authToken) {
-            const sse = new EventSource(`/sse/current-timeentry?token=${authToken}`);
-            sse.onmessage = (e) => {
-                const parsed = JSON.parse(e.data);
-                if (!parsed.id) {
-                    dispatch(currentTimeEntrySuccess(undefined))
-                } else {
-                    dispatch(currentTimeEntrySuccess(parsed));
-                }
-            };
-
-            dispatch(fetchProjectList());
-
-            return () => {
-                sse.close()
-            };
-        } else {
-            return () => {
+        const sse = new EventSource(`/sse/current-timeentry`);
+        sse.onmessage = (e) => {
+            const parsed = JSON.parse(e.data);
+            if (!parsed.id) {
+                dispatch(currentTimeEntrySuccess(undefined))
+            } else {
+                dispatch(currentTimeEntrySuccess(parsed));
             }
-        }
-    }, [isAllowed, authToken, dispatch]);
+        };
+
+        dispatch(fetchProjectList());
+
+        return () => {
+            sse.close()
+        };
+    }, [dispatch]);
 
     const stopCurrentEntry = async () => {
         const result = await reportingApi.stopTimeEntry(currentTimeEntry?.id || -1);

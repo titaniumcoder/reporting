@@ -1,6 +1,5 @@
 package io.github.titaniumcoder.reporting.client
 
-import io.github.titaniumcoder.reporting.config.Roles.Admin
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
@@ -13,16 +12,16 @@ class ClientController(
     @Get("/client-list")
     fun clientList() = service.clientList()
 
-    @Secured(Admin)
+    @Secured("isAuthenticated()")
     @Get("/clients")
     fun clients() = service.clients()
 
-    @Secured(Admin)
+    @Secured("isAuthenticated()")
     @Post("/clients")
     @Validated
     fun save(@Body client: ClientUpdatingDto) = service.saveClient(client)
 
-    @Secured(Admin)
+    @Secured("isAuthenticated()")
     @Delete("/clients/{id}")
     fun delete(@PathVariable("id") id: String) {
         service.deleteClient(id)

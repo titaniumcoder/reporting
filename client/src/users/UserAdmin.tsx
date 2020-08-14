@@ -44,10 +44,6 @@ const UserAdmin = () => {
         const {users, error, loading} = state.user;
         return {users, error, loading};
     });
-    const {loggedIn, email} = useSelector((state: RootState) => {
-        const {loggedIn, email} = state.auth;
-        return {loggedIn, email};
-    });
 
     const updateRecord = async (user: UpdatingUser) => {
         if (user.clients === undefined) {
@@ -85,7 +81,7 @@ const UserAdmin = () => {
 
     useEffect(() => {
         dispatch(fetchUsers());
-    }, [loggedIn, email, dispatch]);
+    }, [dispatch]);
 
     const cancelEditing = () => {
         setInstance(EMPTY_USER_FORM);

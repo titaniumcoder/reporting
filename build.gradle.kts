@@ -56,8 +56,8 @@ project(":client") {
     apply<NodePlugin>()
 
     configure<NodeExtension> {
-        version = "10.16.3"
-        npmVersion = "6.11.2"
+        version = "12.18.3"
+        npmVersion = "6.14.6"
         download = true
     }
 

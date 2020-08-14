@@ -7,19 +7,15 @@ import {fetchClientList} from "./clientSlice";
 
 const Clients = () => {
     const clientList = useSelector((state: RootState) => state.client.clientList);
-    const loggedIn = useSelector((state: RootState) => state.auth.loggedIn);
-
     const dispatch = useDispatch();
 
     useEffect(() => {
         const loadClients = () => {
-            if (loggedIn) {
-                dispatch(fetchClientList());
-            }
+            dispatch(fetchClientList());
         };
 
         loadClients();
-    }, [loggedIn, dispatch]);
+    }, [dispatch]);
 
     return (
         <Nav tabs>

@@ -6,14 +6,16 @@ import {
     Alert,
     Button,
     ButtonGroup,
+    Col,
     Form,
+    FormGroup,
+    Input,
+    Label,
     ModalBody,
     ModalFooter,
     ModalHeader,
-    Table,
-    Input,
-    Col,
-    Row, FormGroup, Label
+    Row,
+    Table
 } from "reactstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {RootState} from "../rootReducer";
@@ -52,15 +54,14 @@ const TimeEntries = () => {
     const dispatch = useDispatch();
     const {loggedIn, admin, canBook, canViewMoney, from, to, selectedClient, allEntries, timeentries, error, loading, currentTimeEntry} =
         useSelector((state: RootState) => {
-            const {loggedIn, admin, canBook, canViewMoney} = state.auth;
             const {from, to, allEntries, timeentries, error, loading, currentTimeEntry} = state.timeentry;
             const {selectedClient} = state.client;
 
             return {
-                loggedIn,
-                admin,
-                canBook,
-                canViewMoney,
+                loggedIn: true,
+                admin: true,
+                canBook: true,
+                canViewMoney: true,
                 from,
                 to,
                 selectedClient,
@@ -361,7 +362,8 @@ const TimeEntries = () => {
                                     <td className="d-none d-md-table-cell">{timeentry.username}</td>
                                     <td className="text-center d-none d-md-table-cell"><Checkbox value={timeentry.billed}/>
                                     </td>
-                                    <td className="text-right d-none d-md-table-cell"><ShowHours minutes={timeentry.timeUsed}/></td>
+                                    <td className="text-right d-none d-md-table-cell"><ShowHours
+                                        minutes={timeentry.timeUsed}/></td>
                                     {(canViewMoney || admin) &&
                                     <td className="text-right d-none d-md-table-cell"><ShowRate
                                         rate={timeentry.amount * 100}/></td>
@@ -401,15 +403,11 @@ interface UpdateFormProps {
 const UpdateForm = ({instance, cancel, update}: UpdateFormProps) => {
     const projectList = useSelector((state: RootState) => state.project.projectList);
 
-    const loggedIn = useSelector((state: RootState) => state.auth.loggedIn);
-
     const dispatch = useDispatch();
 
     useEffect(() => {
-        if (loggedIn) {
-            dispatch(fetchClientList());
-        }
-    }, [dispatch, loggedIn]);
+        dispatch(fetchClientList());
+    }, [dispatch]);
 
     const handleSave = async (te: SavingTimeEntry) => {
         try {
