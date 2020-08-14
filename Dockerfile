@@ -3,7 +3,7 @@
 #############
 
 # base image
-FROM gradle:5.6-jdk11 as builder
+FROM gradle:6.5-jdk11 as builder
 
 ENV GRADLE_OPTS '-Dorg.gradle.daemon=false'
 
