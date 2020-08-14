@@ -3,6 +3,7 @@ package io.github.titaniumcoder.reporting.timeentry
 import com.fasterxml.jackson.annotation.JsonFormat
 import io.github.titaniumcoder.reporting.config.Roles.Admin
 import io.github.titaniumcoder.reporting.config.Roles.Booking
+import io.micronaut.core.convert.format.Format
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import java.time.LocalDate
@@ -21,8 +22,8 @@ class TimeEntryController(val service: TimeEntryService) {
     @Secured("isAuthenticated()")
     @Get("/timeentries")
     fun retrieveTimeEntries(
-            @QueryValue("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) from: LocalDate?,
-            @QueryValue("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @JsonFormat(pattern = "yyyy-MM-dd") to: LocalDate?,
+            @QueryValue("from") @Format("yyyy-MM-dd") from: LocalDate?,
+            @QueryValue("to") @Format("yyyy-MM-dd") @JsonFormat(pattern = "yyyy-MM-dd") to: LocalDate?,
             @QueryValue("clientId") clientId: String?,
             @QueryValue("allEntries", defaultValue = "false") allEntries: Boolean
     ) = service.retrieveTimeEntries(from, to, clientId, allEntries, false)

@@ -2,6 +2,7 @@ package io.github.titaniumcoder.reporting.user
 
 import io.github.titaniumcoder.reporting.client.ClientRepository
 import io.github.titaniumcoder.reporting.project.Project
+import io.micronaut.security.utils.SecurityService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import javax.inject.Singleton
@@ -10,7 +11,8 @@ import javax.inject.Singleton
 // FIXME @Transactional
 class UserService(
         private val repository: UserRepository,
-        private val clientRepository: ClientRepository
+        private val clientRepository: ClientRepository,
+        private val securityService: SecurityService
 ) {
     fun usersExists(): Boolean = repository.count() > 0
 
@@ -82,15 +84,17 @@ class UserService(
 
     // FIXME @Transactional
     fun reactiveCurrentUser(): User? {
-        TODO("not yet translated")
-//        return ReactiveSecurityContextHolder
-//                .getContext()
-//                .map { it.authentication }
-//                .flatMap { findByEmail(it.principal as String) }
+        if (securityService.isAuthenticated) {
+            val authentication = securityService.authentication.orElse(null)
+            return findByEmail(authentication.name)
+        } else {
+            return null
+        }
     }
 
     // FIXME @Transactional
-    fun reactiveCurrentUserDto(): UserDto? = reactiveCurrentUser()?.let { toDto(it) }
+    fun reactiveCurrentUserDto(): UserDto? =
+            reactiveCurrentUser()?.let { toDto(it) }
 
     fun deleteUser(email: String) {
         return repository.deleteById(email)

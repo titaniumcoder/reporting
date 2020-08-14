@@ -4,8 +4,8 @@ import io.github.titaniumcoder.reporting.config.Roles.Admin
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
-import io.micronaut.security.authentication.Authentication
 import io.micronaut.validation.Validated
+import java.security.Principal
 
 @Controller("/api")
 class UserController(
@@ -14,7 +14,7 @@ class UserController(
 
     @Secured("isAuthenticated()")
     @Get("/current-user")
-    fun me(auth: Authentication) = service.reactiveCurrentUserDto()
+    fun me() = service.reactiveCurrentUserDto()
 
     @Secured(Admin)
     @Get("/users")

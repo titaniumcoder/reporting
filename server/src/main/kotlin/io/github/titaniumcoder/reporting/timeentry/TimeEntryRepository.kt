@@ -1,56 +1,24 @@
 package io.github.titaniumcoder.reporting.timeentry
 
-import org.jdbi.v3.sqlobject.customizer.Bind
-import org.jdbi.v3.sqlobject.statement.SqlQuery
 import java.time.LocalDate
+import javax.inject.Singleton
 
-interface TimeEntryRepository {
-    @SqlQuery("select t.id, t.starting, t.ending, t.project_id, t.description, t.email, t.billed from time_entry t where t.email = :email and t.ending is null order by t.starting desc nulls first limit 1")
-    fun findLastOpenEntry(email: String): TimeEntry?
+@Singleton
+class TimeEntryRepository {
+    fun findLastOpenEntry(email: String): TimeEntry? = TODO()
 
-    @SqlQuery("""select t.id, t.starting, t.ending, t.project_id, t.description, t.email, t.billed 
-            from time_entry t 
-            where (:from is null or t.starting >= :from) 
-            and (:to is null or t.ending < :to) 
-            and (:clientId is null or t.project_id in (select p.id from project p where p.client_id = :clientId)) 
-            and (:email is null or t.email = :email or t.project_id in (select p1.id from project p1 join client c1 on c1.id = p1.client_id join client_user cu on cu.client_id = c1.id where cu.email = :email)) 
-            order by t.starting """)
-    fun findAllWithin(@Bind("from") from: LocalDate?,
-                      @Bind("to") to: LocalDate?,
-                      @Bind("clientId") clientId: String?,
-                      @Bind("email") email: String?): List<TimeEntry>
+    fun findAllWithin(from: LocalDate?,
+                      to: LocalDate?,
+                      clientId: String?,
+                      email: String?): List<TimeEntry> = TODO()
 
-    @SqlQuery("""
-            select t.id, t.starting, t.ending, t.project_id, t.description, t.email, t.billed 
-            from time_entry t 
-            where (
-                :clientId is null or 
-                t.project_id in (
-                    select p.id 
-                    from project p 
-                    where 
-                        p.client_id = :clientId and
-                        (:billableOnly = false or p.billable = true)
-                )
-            ) and (
-                :email is null or 
-                t.email = :email or 
-                t.project_id in (
-                    select p1.id 
-                    from project p1 
-                        join client c1 on c1.id = p1.client_id 
-                        join client_user cu on cu.client_id = c1.id 
-                    where cu.email = :email
-                )
-            ) and (t.billed = false) 
-            order by t.starting """)
-    fun findNonBilled(@Bind("clientId") clientId: String?, @Bind("billableOnly") billableOnly: Boolean, @Bind("email") email: String?): List<TimeEntry>
+    fun findNonBilled(clientId: String?, billableOnly: Boolean, email: String?): List<TimeEntry> = TODO()
 
-    fun delete(timeentry: TimeEntry)
+    fun delete(timeentry: TimeEntry): Unit = TODO()
 
-    fun findAllById(ids: List<Long>): List<TimeEntry>
+    fun findAllById(ids: List<Long>): List<TimeEntry> = TODO()
 
-    fun save(it: TimeEntry): TimeEntry
+    fun save(it: TimeEntry): TimeEntry = TODO()
 
-    fun findById(id: Long): TimeEntry?
+    fun findById(id: Long): TimeEntry? = TODO()
 }

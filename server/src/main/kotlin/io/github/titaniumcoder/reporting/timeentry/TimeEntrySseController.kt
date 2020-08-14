@@ -1,39 +1,44 @@
 package io.github.titaniumcoder.reporting.timeentry
 
-import io.github.titaniumcoder.reporting.config.Roles.Booking
-import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
-import org.springframework.http.server.reactive.ServerHttpResponse
-import org.springframework.security.authentication.ReactiveAuthenticationManager
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.Authentication
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
-import java.time.Duration
+import io.micronaut.http.MediaType
+import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.QueryValue
+import io.micronaut.http.sse.Event
+import io.micronaut.scheduling.TaskExecutors
+import io.micronaut.scheduling.annotation.ExecuteOn
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
+@Controller("/sse")
+class TimeEntrySseController(
+        val service: TimeEntryService
+        // val tokenServices: ReactiveAuthenticationManager
+) {
+    // FIXME implement this completely, by reacting to evets for the current user
+    @ExecuteOn(TaskExecutors.IO)
+    @Get("/current-timeentry", produces = [MediaType.TEXT_EVENT_STREAM])
+    fun currentTimeEntry(@QueryValue("token") token: String): Flow<Event<TimeEntryDto?>> =
+            flow {
+                Event.of(
+                        service.activeTimeEntry("rm") // FIXME use auth
+                )
+            }
+    /*
+    return tokenServices.authenticate(UsernamePasswordAuthenticationToken(token, token))
+            .filter { it.isAuthenticated && checkBooking(it) }
+            .map { it.principal as String }
+            .flatMapMany {p ->
+                Flux.interval(Duration.ofSeconds(0), Duration.ofSeconds(30))
+                        .flatMap { service.activeTimeEntry(p) }
+            }
+     */
 
-@RestController
-@RequestMapping("/sse")
-class TimeEntrySseController(val service: TimeEntryService, val tokenServices: ReactiveAuthenticationManager) {
-    @GetMapping("/current-timeentry", produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
-    fun currentTimeEntry(@RequestParam("token") token: String, response: ServerHttpResponse): Flux<TimeEntryDto> {
-        response.headers.set(HttpHeaders.CACHE_CONTROL, "no-transform")
-        return tokenServices.authenticate(UsernamePasswordAuthenticationToken(token, token))
-                .filter { it.isAuthenticated && checkBooking(it) }
-                .map { it.principal as String }
-                .flatMapMany {p ->
-                    Flux.interval(Duration.ofSeconds(0), Duration.ofSeconds(30))
-                            .flatMap { service.activeTimeEntry(p) }
-                }
-    }
-
+    /*
     private fun checkBooking(auth: Authentication): Boolean =
             auth
                     .authorities
                     .map { it.authority }
                     .contains(Booking)
+     */
 }

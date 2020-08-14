@@ -35,20 +35,23 @@ dependencies {
     implementation("io.micronaut.security:micronaut-security-jwt")
     implementation("io.micronaut.kotlin:micronaut-kotlin-extension-functions")
 
-    // JDBI
-    implementation("io.micronaut.sql:micronaut-jdbi")
-    implementation platform("org.jdbi:jdbi3-bom:3.14.1")
-    implementation("org.jdbi:jdbi3-kotlin")
-    implementation("org.jdbi:jdbi3-kotlin-sqlobject")
+    implementation("io.micronaut.mongodb:micronaut-mongo-reactive")
 
     // Runtime OSX
     developmentOnly("io.micronaut:micronaut-runtime-osx:$micronautVersion")
+    developmentOnly("net.java.dev.jna:jna")
+    developmentOnly("io.methvin:directory-watcher")
 
     // for Google Security Login
-    implementation("com.google.api-client:google-api-client:1.30.7")
+    implementation("io.micronaut.security:micronaut-security-oauth2")
 
     // for creating the excel sheets
     implementation("org.apache.poi:poi-ooxml:4.1.0")
+
+    // Coroutines
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.8'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.3.8'
+
 
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -61,9 +64,11 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     testImplementation(platform("org.testcontainers:testcontainers-bom:1.14.3"))
     testRuntimeOnly("org.testcontainers:postgresql")
+
 }
 
 test.classpath += configurations.developmentOnly
+run.classpath += configurations.developmentOnly
 
 mainClassName = "io.github.titaniumcoder.reporting.ApplicationKt"
 
@@ -78,6 +83,8 @@ java {
 
 allOpen {
     annotation("io.micronaut.aop.Around")
+    annotation("javax.inject.Singleton")
+    annotation("io.micronaut.http.annotation.Controller")
 }
 compileKotlin {
     kotlinOptions {
