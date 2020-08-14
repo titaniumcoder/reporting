@@ -5,7 +5,9 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 
 @Controller("/api")
-class ProjectController(val service: ProjectService) {
+class ProjectController(
+        private val service: ProjectService
+) {
     @Secured("isAuthenticated()")
     @Get("/projects")
     fun projects() = service.projects()

@@ -10,7 +10,6 @@ import java.time.temporal.ChronoUnit
 import javax.inject.Singleton
 
 @Singleton
-//@Transactional
 class TimeEntryService(
         private val repository: TimeEntryRepository,
         private val projectService: ProjectService,

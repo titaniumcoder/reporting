@@ -12,7 +12,9 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Controller("/api")
-class ReportingController(val service: ReportingService) {
+class ReportingController(
+        private val service: ReportingService
+) {
     @Get("/client-info")
     @Secured("isAuthenticated()")
     fun info(@QueryValue("clientId") clientId: String?,

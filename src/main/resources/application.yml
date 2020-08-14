@@ -14,6 +14,15 @@ micronaut:
     endpoints:
       logout:
         get-allowed: true
+    intercept-url-map:
+      -
+        pattern: /ui/**
+        access:
+          - isAuthenticated()
+      -
+        pattern: /
+        access:
+          - isAuthenticated()
   router:
     static-resources:
       react:

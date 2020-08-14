@@ -6,8 +6,10 @@ import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import java.time.LocalDate
 
-@Controller
-class TimeEntryController(val service: TimeEntryService) {
+@Controller("/api")
+class TimeEntryController(
+        private val service: TimeEntryService
+) {
     @Secured("isAuthenticated()")
     @Post("/start-timeentry")
     fun startTimeEntry(@QueryValue("ref") ref: Long?) = service.startTimeEntry(ref)

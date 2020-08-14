@@ -1,8 +1,10 @@
 .gradle
 /build/
 !gradle/wrapper/gradle-wrapper.jar
-
+out/
 .env
+src/main/resources/static
+
 
 ### STS ###
 .apt_generated
@@ -37,3 +39,4 @@
 !.elasticbeanstalk/*.global.yml
 
 .DS_Store
+Thumbs.db
