@@ -12,9 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 import java.time.Duration
-
 
 @RestController
 @RequestMapping("/sse")
@@ -26,7 +24,7 @@ class TimeEntrySseController(val service: TimeEntryService, val tokenServices: R
                 .filter { it.isAuthenticated && checkBooking(it) }
                 .map { it.principal as String }
                 .flatMapMany {p ->
-                    Flux.interval(Duration.ofSeconds(0), Duration.ofSeconds(30))
+                    Flux.interval(Duration.ofSeconds(0), Duration.ofSeconds(1))
                             .flatMap { service.activeTimeEntry(p) }
                 }
     }
