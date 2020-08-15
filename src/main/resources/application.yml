@@ -16,11 +16,7 @@ micronaut:
         get-allowed: true
     intercept-url-map:
       -
-        pattern: /ui/**
-        access:
-          - isAuthenticated()
-      -
-        pattern: /
+        pattern: /**
         access:
           - isAuthenticated()
   router:

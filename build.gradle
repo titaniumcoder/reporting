@@ -81,6 +81,7 @@ allOpen {
     annotation("io.micronaut.aop.Around")
     annotation("javax.inject.Singleton")
     annotation("io.micronaut.http.annotation.Controller")
+    annotation("org.bson.codecs.pojo.annotations.BsonDiscriminator")
 }
 compileKotlin {
     kotlinOptions {
@@ -96,12 +97,14 @@ compileTestKotlin {
     }
 }
 kapt {
+    /*
     arguments {
         arg("micronaut.processing.incremental", true)
         arg("micronaut.processing.annotations", "io.github.titaniumcoder.reporting.*")
         arg("micronaut.processing.group", "io.github.titaniumcoder.reporting")
         arg("micronaut.processing.module", "io.github.titaniumcoder.reporting")
     }
+     */
 }
 
 shadowJar {

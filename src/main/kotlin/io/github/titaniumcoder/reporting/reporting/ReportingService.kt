@@ -1,13 +1,16 @@
 package io.github.titaniumcoder.reporting.reporting
 
-import io.github.titaniumcoder.reporting.client.Client
 import io.github.titaniumcoder.reporting.client.ClientService
+import io.github.titaniumcoder.reporting.model.Client
 import io.github.titaniumcoder.reporting.timeentry.TimeEntryDto
 import io.github.titaniumcoder.reporting.timeentry.TimeEntryService
-import io.github.titaniumcoder.reporting.user.UserService
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import java.time.Duration
 import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.inject.Singleton
-import kotlin.math.max
+import kotlin.math.floor
 
 class ExcelSheet(
         val name: String,
@@ -17,11 +20,10 @@ class ExcelSheet(
 
 @Singleton
 class ReportingService(
-        val userService: UserService,
         val timeEntryService: TimeEntryService,
         val clientService: ClientService
 ) {
-    fun timesheet(clientId: String, billableOnly: Boolean): ExcelSheet? {
+    suspend fun timesheet(clientId: String, billableOnly: Boolean): ExcelSheet? {
         return clientService
                 .findById(clientId)
                 ?.let { c ->
@@ -32,127 +34,64 @@ class ReportingService(
                         val sortedList = t.sortedBy { it.starting }.toList()
                         val body = generateExcel(c, sortedList)
 
-                        ExcelSheet(name = c.clientId, date = sortedList.first().date, excel = body)
+                        ExcelSheet(name = c.id, date = sortedList.first().date, excel = body)
                     }
                 }
     }
 
-    fun info(clientId: String?, from: LocalDate?, to: LocalDate?): List<ClientInfo> {
-        return userService.reactiveCurrentUserDto()
-                ?.let { user ->
-                    val canSeeMoney = user.admin || user.canViewMoney
-                    val email = if (user.admin) null else user.email
+    private fun calcMinutes(start: LocalDateTime, end: LocalDateTime): Int {
+        val dur = Duration.between(start, end)
 
-                    var sql = "select * from client_overview "
-                    var where = false
-                    if (clientId != null) {
-                        sql += "where client_id = '$clientId'"
-                        where = true
-                    }
-                    if (email != null) {
-                        sql += if (where) " and " else " where "
-                        sql += "(client_id in (select c1.id from client c1 join client_user cu on cu.client_id = c1.id where cu.email = '$email'))"
-                    }
-
-                    TODO("refactor this")
-//                    jdbi.withHandle<List<ClientInfo>, Exception> { handle ->
-//                        val clientInfos = handle.createQuery(sql)
-//                                .map { row ->
-//                                    ClientInfo(
-//                                            id = row.getColumn("client_id", String::class.java) ?: "<<ID>>",
-//                                            name = row.getColumn("client_name", String::class.java)
-//                                                    ?: "<<<< NAME >>>>>",
-//                                            maxMinutes = row.getColumn("client_max_minutes", Integer::class.java)?.toInt(),
-//                                            rateInCentsPerHour = row.getColumn("client_rate_in_cents_per_hour", Integer::class.java)?.toInt(),
-//                                            billedAmount = null,
-//                                            billedMinutes = 0,
-//                                            openAmount = null,
-//                                            openMinutes = 0,
-//                                            remainingAmount = null,
-//                                            remainingMinutes = null,
-//                                            projects = listOf(
-//                                                    ProjectInfo(
-//                                                            projectId = row.getColumn("project_id", java.lang.Long::class.java)?.toLong(),
-//                                                            name = row.getColumn("project_name", String::class.java)
-//                                                                    ?: "<<< NAME >>>>",
-//                                                            maxMinutes = row.getColumn("project_max_minutes", Integer::class.java)?.toInt(),
-//                                                            billable = row.getColumn("project_billable", java.lang.Boolean::class.java)?.booleanValue()
-//                                                                    ?: false,
-//                                                            rateInCentsPerHour = row.getColumn("project_rate_in_cents_per_hour", Integer::class.java)?.toInt(),
-//                                                            billedMinutes = row.getColumn("project_billed_minutes", Integer::class.java)?.toInt()
-//                                                                    ?: 0,
-//                                                            billedAmount = null,
-//                                                            openMinutes = row.getColumn("project_open_minutes", Integer::class.java)?.toInt()
-//                                                                    ?: 0,
-//                                                            openAmount = null,
-//                                                            remainingMinutes = null,
-//                                                            remainingAmount = null
-//                                                    )
-//                                            )
-//                                    )
-//                                }
-//                                .list()
-//                                .toList()
-//
-//                        clientInfos
-//                                .groupBy { it.id }
-//                                .map { e ->
-//                                    val client = e.value.first()
-//                                    val projects = e.value.flatMap { it.projects }
-//
-//                                    val projectWithRemainingMinutes =
-//                                            projects.map { project ->
-//                                                project.copy(
-//                                                        remainingMinutes = project.maxMinutes?.let { max(it - project.billedMinutes - project.openMinutes, 0) }
-//                                                )
-//                                            }
-//
-//                                    val cProjects =
-//                                            if (canSeeMoney) {
-//                                                projectWithRemainingMinutes
-//                                                        .map { project ->
-//                                                            val rateN = if (project.billable) project.rateInCentsPerHour?.let { if (it == 0) null else it }
-//                                                                    ?: client.rateInCentsPerHour else null
-//                                                            project.copy(
-//                                                                    rateInCentsPerHour = rateN,
-//                                                                    billedAmount = rateN?.let { rate -> project.billedMinutes * rate / 60.0 },
-//                                                                    openAmount = rateN?.let { rate -> project.openMinutes * rate / 60.0 },
-//                                                                    remainingAmount = rateN?.let { rate -> project.remainingMinutes?.let { it * rate / 60.0 } }
-//                                                            )
-//                                                        }
-//                                            } else
-//                                                projectWithRemainingMinutes
-//
-//
-//                                    val clientBase = client.copy(
-//                                            rateInCentsPerHour = if (canSeeMoney) client.rateInCentsPerHour else null,
-//                                            projects = cProjects.sortedBy { it.name }
-//                                    )
-//
-//                                    val clientWithMinutes = clientBase.copy(
-//                                            billedMinutes = clientBase.projects.filter { it.billable }.sumBy { it.billedMinutes },
-//                                            openMinutes = clientBase.projects.filter { it.billable }.sumBy { it.openMinutes }
-//                                    )
-//
-//                                    val remainingMinutes = clientWithMinutes.maxMinutes?.let { mm -> max(0, mm - clientWithMinutes.billedMinutes - clientWithMinutes.openMinutes) }
-//
-//                                    val clientWithProjects = clientWithMinutes.copy(
-//                                            remainingMinutes = remainingMinutes,
-//
-//                                            billedAmount = clientWithMinutes.rateInCentsPerHour?.let { rate -> rate * clientWithMinutes.billedMinutes / 60.0 },
-//                                            openAmount = clientBase.rateInCentsPerHour?.let { rate -> rate * clientWithMinutes.openMinutes / 60.0 },
-//                                            remainingAmount = clientBase.rateInCentsPerHour?.let { rate -> remainingMinutes?.let { rate * it / 60.0 } }
-//                                    )
-//
-//                                    if (clientId == null) {
-//                                        clientWithProjects.copy(projects = listOf())
-//                                    } else {
-//                                        clientWithProjects
-//                                    }
-//                                }
-//                    }
-                } ?: listOf()
+        return floor(dur.toSeconds().toDouble() / 60).toInt()
     }
+
+    suspend fun info(clientId: String?, from: LocalDate?, to: LocalDate?): Flow<ClientInfo> =
+            clientService.clients()
+                    .map { client ->
+                        val rate = client.rateInCentsPerHour ?: 0
+
+                        val projects = client
+                                .projects
+                                .map { project ->
+                                    val billed = project.timeEntries.filter { it.billed }
+                                    val open = project.timeEntries.filterNot { it.billed }
+
+                                    val billedMinutes = billed.map { calcMinutes(it.starting, it.ending) }.sum()
+                                    val openMinutes = open.map { calcMinutes(it.starting, it.ending) }.sum()
+
+                                    val billedAmount = billedMinutes.toDouble() * rate / 60 / 100
+                                    val openAmount = openMinutes.toDouble() * rate / 60 / 100
+
+                                    ProjectInfo(
+                                            projectId = null,
+                                            name = project.name,
+                                            billable = project.billable,
+                                            billedMinutes = billedMinutes,
+                                            billedAmount = billedAmount,
+                                            openMinutes = openMinutes,
+                                            openAmount = openAmount
+                                    )
+                                }
+
+                        val openMinutes = projects.map { it.openMinutes }.sum()
+                        val billedMinutes = projects.map { it.billedMinutes }.sum()
+                        val remainingMinutes = client.maxMinutes?.let { it - openMinutes - billedMinutes }
+                        val remainingAmount = remainingMinutes?.let { it.toDouble() * rate / 60 / 100 }
+
+                        ClientInfo(
+                                id = client.id,
+                                name = client.name,
+                                rateInCentsPerHour = client.rateInCentsPerHour,
+                                maxMinutes = client.maxMinutes,
+                                billedMinutes = billedMinutes,
+                                billedAmount = projects.map { it.billedAmount }.sum(),
+                                openMinutes = openMinutes,
+                                openAmount = projects.map { it.openAmount }.sum(),
+                                remainingMinutes = remainingMinutes,
+                                remainingAmount = remainingAmount,
+                                projects = projects
+                        )
+                    }
 
     private fun generateExcel(client: Client, timeEntries: List<TimeEntryDto>): ByteArray {
         fun tableheader(cell: Cell) {
@@ -431,12 +370,8 @@ data class ProjectInfo(
         val projectId: Long? = null,
         val name: String,
         val billable: Boolean,
-        val rateInCentsPerHour: Int? = null,
-        val maxMinutes: Int? = null,
         val billedMinutes: Int,
-        val billedAmount: Double? = null,
+        val billedAmount: Double,
         val openMinutes: Int,
-        val openAmount: Double? = null,
-        val remainingMinutes: Int? = null,
-        val remainingAmount: Double? = null
+        val openAmount: Double
 )

@@ -1,50 +1,26 @@
 package io.github.titaniumcoder.reporting.client
 
-import io.github.titaniumcoder.reporting.user.UserService
+import io.github.titaniumcoder.reporting.model.Client
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Singleton
 
 @Singleton
-// TODO @Transactional
 class ClientService(
-        private val repository: ClientRepository,
-        private val userService: UserService
+        private val repository: ClientRepository
 ) {
-    fun clients() = repository.findAllSortedById()
+    fun clients(): Flow<Client> = repository.findAllSortedById()
 
-    fun saveClient(clientDto: ClientUpdatingDto): Client {
-        val exists = repository.existsById(clientDto.clientId) != null
+    suspend fun saveClient(client: Client): Client = repository.save(client)
 
-        return repository.save(
-                Client(
-                        clientId = clientDto.clientId,
-                        active = clientDto.active,
-                        maxMinutes = clientDto.maxMinutes,
-                        name = clientDto.name,
-                        newClient = !exists,
-                        notes = clientDto.notes,
-                        rateInCentsPerHour = clientDto.rateInCentsPerHour
-                )
-        )
-    }
+    suspend fun deleteClient(id: String) = repository.deleteById(id)
 
-    fun deleteClient(id: String) = repository.deleteById(id)
+    suspend fun clientList(): Flow<ClientListDto> =
+         repository.findActives()
+                .map {
+                    ClientListDto(it.id, it.name)
+                }
 
-    fun clientList(): List<ClientListDto> {
-        val user = userService.reactiveCurrentUserDto()
-
-        val clients = repository.findActives().map { ClientListDto(it.clientId, it.name) }
-
-        return user
-                ?.let { u ->
-                    if (u.admin) {
-                        clients
-                    } else {
-                        clients
-                                .filter { u.clients.map { c -> c.clientId }.contains(it.clientId) }
-                    }
-                } ?: listOf()
-    }
-
-    fun findById(clientId: String) = repository.findById(clientId)
+    suspend fun findById(clientId: String) = repository.findById(clientId)
 }
 

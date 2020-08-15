@@ -1,29 +1,28 @@
 package io.github.titaniumcoder.reporting.client
 
+import io.github.titaniumcoder.reporting.model.Client
+import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
-import io.micronaut.security.annotation.Secured
 import io.micronaut.validation.Validated
 
 @Controller("/api")
 class ClientController(
         private val service: ClientService
 ) {
-    @Secured("isAuthenticated()")
     @Get("/client-list")
-    fun clientList() = service.clientList()
+    suspend fun clientList() = service.clientList()
 
-    @Secured("isAuthenticated()")
     @Get("/clients")
     fun clients() = service.clients()
 
-    @Secured("isAuthenticated()")
     @Post("/clients")
     @Validated
-    fun save(@Body client: ClientUpdatingDto) = service.saveClient(client)
+    suspend fun save(@Body client: Client) = service.saveClient(client)
 
-    @Secured("isAuthenticated()")
     @Delete("/clients/{id}")
-    fun delete(@PathVariable("id") id: String) {
-        service.deleteClient(id)
-    }
+    suspend fun delete(@PathVariable("id") id: String): HttpResponse<Unit> =
+            if (service.deleteClient(id))
+                HttpResponse.noContent()
+            else
+                HttpResponse.notModified()
 }

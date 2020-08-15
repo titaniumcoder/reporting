@@ -69,7 +69,7 @@ const ClientAdmin = () => {
 
     const toClientForm = (client: Client) => ({
         active: client.active,
-        clientId: client.clientId,
+        clientId: client.id,
         name: client.name,
         notes: client.notes || '',
         maxHours: client.maxMinutes ? toHours(client.maxMinutes, false) : '0:00',
@@ -78,7 +78,7 @@ const ClientAdmin = () => {
 
     const toClient = (client: UpdatingClient) => ({
         active: client.active,
-        clientId: client.clientId,
+        id: client.clientId,
         name: client.name,
         notes: client.notes === '' ? undefined : client.notes,
         maxMinutes: toMinutes(client.maxHours),
@@ -89,7 +89,7 @@ const ClientAdmin = () => {
         setInstance(toClientForm(client));
         setEditing(true);
         setNewRecord(false);
-        setEditingId(client.clientId);
+        setEditingId(client.id);
     };
 
     useEffect(() => {
@@ -141,16 +141,16 @@ const ClientAdmin = () => {
                 </thead>
                 <tbody>
                 {clients.map(client => (
-                        (editing && !newRecord && editingId === client.clientId) ? (
-                            <tr key={client.clientId}>
+                        (editing && !newRecord && editingId === client.id) ? (
+                            <tr key={client.id}>
                                 <td colSpan={6}>
                                     <UpdateForm instance={instance} cancel={cancelEditing} update={updateRecord}/>
                                 </td>
                             </tr>
                         ) : (
-                            <tr key={client.clientId} className="row">
+                            <tr key={client.id} className="row">
                                 <td className="col-1 text-center"><Checkbox value={client.active}/></td>
-                                <td className="col-1">{client.clientId}</td>
+                                <td className="col-1">{client.id}</td>
                                 <td className="col-3">{client.name}</td>
                                 <td className="col">{client.notes}</td>
                                 <td className="col-1"><ShowHours minutes={client.maxMinutes}/></td>
@@ -240,12 +240,12 @@ const UpdateForm = ({instance, cancel, update}: UpdateFormProps) => {
                         autoFocus={true}
                         type="text"
                         name="clientId"
-                        valid={!errors['clientId']}
-                        invalid={!!errors['clientId']}
+                        valid={!errors['id']}
+                        invalid={!!errors['id']}
                         value={values.clientId}
                         onChange={handleChange}
                     />
-                    <FormFeedback>{errors['clientId']}</FormFeedback>
+                    <FormFeedback>{errors['id']}</FormFeedback>
                 </FormGroup>
                 <FormGroup>
                     <Label for="name">Name:</Label>

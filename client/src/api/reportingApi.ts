@@ -43,12 +43,13 @@ export interface ProjectList {
 }
 
 export interface Client {
-    clientId: string;
+    id: string;
     active: boolean;
     name: string;
     notes?: string;
     maxMinutes?: number;
     rateInCentsPerHour?: number;
+    project?: Project[];
 }
 
 export interface ClientList {
@@ -132,12 +133,6 @@ export interface IReportingApi {
 
     logout(): void;
 
-    fetchUsers(): Promise<AxiosResponse<User[]>>
-
-    saveUser(user: UpdatingUser): Promise<AxiosResponse<void>>
-
-    deleteUser(email: string): Promise<AxiosResponse<void>>
-
     fetchClients(): Promise<AxiosResponse<Client[]>>
 
     fetchClientList(): Promise<AxiosResponse<ClientList[]>>
@@ -145,14 +140,6 @@ export interface IReportingApi {
     saveClient(client: Client): Promise<AxiosResponse<void>>
 
     deleteClient(id: string): Promise<AxiosResponse<void>>
-
-    fetchProjects(): Promise<AxiosResponse<Project[]>>
-
-    fetchProjectList(): Promise<AxiosResponse<ProjectList[]>>
-
-    saveProject(client: Project): Promise<AxiosResponse<void>>
-
-    deleteProject(id: number): Promise<AxiosResponse<void>>
 
     startTimeEntry(ref: number | undefined): Promise<AxiosResponse<TimeEntry>>
 
@@ -192,18 +179,6 @@ export class ReportingApi implements IReportingApi {
         delete axios.defaults.headers['Authorization'];
     }
 
-    async fetchUsers() {
-        return axios.get<User[]>('users');
-    }
-
-    async saveUser(user: UpdatingUser) {
-        return await axios.post<void>('users', user);
-    }
-
-    async deleteUser(email: string) {
-        return await axios.delete<void>('users/' + email);
-    }
-
     async fetchClients() {
         return axios.get<Client[]>('clients');
     }
@@ -218,22 +193,6 @@ export class ReportingApi implements IReportingApi {
 
     async deleteClient(id: string) {
         return await axios.delete<void>('clients/' + id);
-    }
-
-    async fetchProjects() {
-        return axios.get<Project[]>('projects');
-    }
-
-    async fetchProjectList() {
-        return axios.get<ProjectList[]>('project-list');
-    }
-
-    async saveProject(project: Project) {
-        return await axios.post<void>('projects', project);
-    }
-
-    async deleteProject(id: number) {
-        return await axios.delete<void>('projects/' + id);
     }
 
     async startTimeEntry(ref: number | undefined) {

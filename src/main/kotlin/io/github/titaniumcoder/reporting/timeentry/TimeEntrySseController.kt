@@ -6,7 +6,6 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.sse.Event
 import io.micronaut.scheduling.TaskExecutors
 import io.micronaut.scheduling.annotation.ExecuteOn
-import io.micronaut.security.annotation.Secured
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -18,7 +17,6 @@ class TimeEntrySseController(
     // FIXME implement this completely, by reacting to evets for the current user
     @ExecuteOn(TaskExecutors.IO)
     @Get("current-timeentry", produces = [MediaType.TEXT_EVENT_STREAM])
-    @Secured("isAuthenticated()")
     fun currentTimeEntry(): Flow<Event<TimeEntryDto?>> =
             flow {
                 Event.of(

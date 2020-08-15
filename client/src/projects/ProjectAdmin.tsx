@@ -206,7 +206,7 @@ const UpdateForm = ({instance, cancel, update}: UpdateFormProps) => {
             errors['name'] = 'Name is required';
         }
         if (!value.clientId || value.clientId.length === 0) {
-            errors['clientId'] = 'Client is required';
+            errors['id'] = 'Client is required';
         }
         return errors;
     };
@@ -258,8 +258,8 @@ const UpdateForm = ({instance, cancel, update}: UpdateFormProps) => {
                     <Input
                         type="select"
                         name="clientId"
-                        valid={!errors['clientId']}
-                        invalid={!!errors['clientId']}
+                        valid={!errors['id']}
+                        invalid={!!errors['id']}
                         value={values.clientId}
                         onChange={handleChange}>
                         <option value=''>-- Please choose a client --</option>

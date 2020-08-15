@@ -1,7 +1,7 @@
 package io.github.titaniumcoder.reporting.transformers
 
 import com.fasterxml.jackson.annotation.JsonFormat
-import io.github.titaniumcoder.reporting.timeentry.TimeEntry
+import io.github.titaniumcoder.reporting.model.TimeEntry
 import java.time.LocalDate
 
 object ViewModel {

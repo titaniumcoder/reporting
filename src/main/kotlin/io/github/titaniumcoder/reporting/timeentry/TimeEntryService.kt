@@ -1,8 +1,9 @@
 package io.github.titaniumcoder.reporting.timeentry
 
+import io.github.titaniumcoder.reporting.client.ClientService
+import io.github.titaniumcoder.reporting.model.CurrentTimeEntry
+import io.github.titaniumcoder.reporting.model.TimeEntry
 import io.github.titaniumcoder.reporting.project.ProjectService
-import io.github.titaniumcoder.reporting.user.UserDto
-import io.github.titaniumcoder.reporting.user.UserService
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -13,97 +14,65 @@ import javax.inject.Singleton
 class TimeEntryService(
         private val repository: TimeEntryRepository,
         private val projectService: ProjectService,
-        private val userService: UserService
+        private val clientService: ClientService
 ) {
-    fun activeTimeEntry(principal: String) =
-            userService.findByEmail(principal)
-                    ?.let { userService.toDto(it) }
-                    ?.let { u ->
-                        Pair(repository.findLastOpenEntry(u.email)
-                                ?: TimeEntry(
-                                        id = null,
-                                        starting = LocalDateTime.now(),
-                                        ending = null,
-                                        projectId = null,
-                                        description = null,
-                                        email = u.email,
-                                        billed = false), u)
-                    }
-                    ?.let { toDto(it.first, it.second) }
+    suspend fun activeTimeEntry(principal: String): TimeEntryDto? =
+            toDto(
+                    repository.findCurrentEntry()
+                            ?: CurrentTimeEntry(
+                                    starting = LocalDateTime.now(),
+                                    description = null,
+                                    billed = false,
+                                    projectId = null
+                            )
+            )
 
-    fun findById(id: Long): TimeEntry? {
-        val te = repository.findById(id)
+    private fun findById(id: String): TimeEntry? = repository.findById(id)
 
-        val user = userService.reactiveCurrentUserDto()!! // TODO make sure this works
-
-        return when {
-            te == null -> null
-            user.admin -> te
-            user.canBook && te.projectId == null -> te
-            user.canBook && te.projectId != null ->
-                if (projectService.findProject(te.projectId, user)?.let {
-                            userService.userHasAccessToProject(user, it)
-                        } == true) te else null
-            else -> null
-        }
-    }
-
-    fun startTimeEntry(reference: Long?): TimeEntryDto? {
+    // this must be a current time entry!!
+    suspend fun startTimeEntry(reference: String?): TimeEntryDto? {
         val ref = reference?.let { findById(it) }
 
-        val user = userService.reactiveCurrentUserDto() ?: return null
-
-        return repository.save(TimeEntry(
-                id = null,
+        return repository.save(CurrentTimeEntry(
                 starting = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES).plusMinutes(1),
-                ending = null,
-                projectId = ref?.projectId,
                 description = ref?.description,
-                email = user.email,
-                billed = false
+                billed = false,
+                projectId = ref?.projectId
         ))
-                .let { toDto(it, user) }
+                .let { toDto(it) }
     }
 
-    fun stopTimeEntry(id: Long): TimeEntryDto? {
+    suspend fun stopTimeEntry(id: String): TimeEntryDto? {
         val entry = repository.findById(id) ?: return null
-        val user = userService.reactiveCurrentUserDto() ?: return null
 
-        return toDto(repository.save(entry.copy(ending = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES))), user)
+        return toDto(repository.save(entry.copy(ending = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES))))
     }
 
-    fun updateTimeEntry(entry: TimeEntryUpdateDto): TimeEntryDto? {
+    suspend fun updateTimeEntry(entry: TimeEntryUpdateDto): TimeEntryDto? {
         val oldEntry = repository.findById(entry.id) ?: return null // TODO may be make this a little bit more robus
-
-        val user = userService.reactiveCurrentUserDto() ?: return null
 
         return toDto(repository.save(
                 oldEntry.copy(
-                        projectId = entry.projectId,
                         billed = entry.billed,
                         description = entry.description,
                         ending = entry.ending,
-                        starting = entry.starting,
-                        email = user.email
-                )), user)
+                        starting = entry.starting
+                )))
     }
 
-    private fun toDto(te: TimeEntry, userDto: UserDto): TimeEntryDto? {
-        val project = te.projectId?.let { projectService.findProjectAdminDto(it, userDto) }
-        val client = te.projectId?.let { projectService.findClientForProject(it, userDto) }
+    private suspend fun toDto(te: TimeEntry): TimeEntryDto? {
+        val project = te.projectId?.let { projectService.findProject(it) }
+        val client = project?.clientId?.let { clientService.findById(it) }
 
-        val realEnding: LocalDateTime = te.ending ?: LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
+        val realEnding: LocalDateTime = te.ending
 
-        val projectRate = project?.rateInCentsPerHour?.let { if (it == 0) null else it }
-        val clientRate = client?.rateInCentsPerHour
-
-        val finalRate = projectRate ?: clientRate ?: 0
+        val finalRate = client?.rateInCentsPerHour ?: 0
         val running: Long = Duration.between(te.starting, realEnding).toMinutes()
 
         val amount = if (project?.billable != false) running * finalRate / 60.0 / 100.0 else 0.0
 
         return TimeEntryDto(
-                id = te.id,
+                id = te.id.toHexString(),
                 starting = te.starting,
                 billed = te.billed,
                 description = te.description,
@@ -112,7 +81,33 @@ class TimeEntryService(
                 projectId = project?.id,
                 projectName = project?.name,
 
-                username = te.email,
+                date = te.starting.toLocalDate(),
+
+                timeUsed = running,
+                amount = amount
+        )
+    }
+
+    private suspend fun toDto(te: CurrentTimeEntry): TimeEntryDto? {
+        val project = te.projectId?.let { projectService.findProject(it) }
+        val client = project?.clientId?.let { clientService.findById(it) }
+
+        val realEnding: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
+
+        val finalRate = client?.rateInCentsPerHour ?: 0
+        val running: Long = Duration.between(te.starting, realEnding).toMinutes()
+
+        val amount = if (project?.billable != false) running * finalRate / 60.0 / 100.0 else 0.0
+
+        return TimeEntryDto(
+                id = te.id.toHexString(),
+                starting = te.starting,
+                billed = te.billed,
+                description = te.description,
+                ending = null,
+
+                projectId = project?.id,
+                projectName = project?.name,
 
                 date = te.starting.toLocalDate(),
 
@@ -121,24 +116,23 @@ class TimeEntryService(
         )
     }
 
-    fun deleteTimeEntry(id: Long) {
+    fun deleteTimeEntry(id: String) {
         findById(id)?.let { repository.delete(it) }
     }
 
-    fun retrieveTimeEntries(from: LocalDate?, to: LocalDate?, clientId: String?, allEntries: Boolean, billableOnly: Boolean): List<TimeEntryDto> {
-        val user = userService.reactiveCurrentUserDto()!!
+    suspend fun retrieveTimeEntries(from: LocalDate?, to: LocalDate?, clientId: String?, allEntries: Boolean, billableOnly: Boolean): List<TimeEntryDto> {
         return if (allEntries) {
             repository
-                    .findAllWithin(from, to, clientId, if (user.admin) null else user.email)
-                    .mapNotNull { toDto(it, user) }
+                    .findAllWithin(from, to, clientId)
+                    .mapNotNull { toDto(it) }
         } else {
             repository
-                    .findNonBilled(clientId, billableOnly, if (user.admin) null else user.email)
-                    .mapNotNull { toDto(it, user) }
+                    .findNonBilled(clientId, billableOnly)
+                    .mapNotNull { toDto(it) }
         }
     }
 
-    fun togglTimeEntries(ids: List<Long>): Int =
+    fun togglTimeEntries(ids: List<String>): Int =
             repository.findAllById(ids)
                     .map {
                         it.copy(billed = !it.billed)

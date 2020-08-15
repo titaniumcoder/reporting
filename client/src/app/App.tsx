@@ -5,7 +5,6 @@ import Navigation from "../Navigation";
 import {Container} from "reactstrap";
 import Clients from "../clients/Clients";
 import ClientInfo from "../clients/ClientInfo";
-import UserAdmin from "../users/UserAdmin";
 import ClientAdmin from "../clients/ClientAdmin";
 import ProjectAdmin from "../projects/ProjectAdmin";
 import CurrentTimeEntry from "../timeentry/CurrentTimeEntry";
@@ -20,7 +19,6 @@ const App = () => {
                     <Switch>
                         <Route path="/admin">
                                     <div>
-                                        <UserAdmin/>
                                         <ClientAdmin/>
                                         <ProjectAdmin/>
                                     </div>

@@ -1,5 +1,6 @@
 package io.github.titaniumcoder.reporting.project
 
+import io.github.titaniumcoder.reporting.model.Project
 import javax.inject.Singleton
 
 @Singleton
@@ -10,7 +11,7 @@ class ProjectRepository {
     fun save(project: Project): Project = TODO()
 
     // TODO implement this
-    fun findById(id: Long): Project? = TODO()
+    fun findById(id: String): Project? = TODO()
 
-    fun deleteById(id: Long): Unit = TODO()
+    fun deleteById(id: String): Unit = TODO()
 }
