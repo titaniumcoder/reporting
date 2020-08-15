@@ -60,10 +60,6 @@ dependencies {
     // for a cache implementation
     implementation("com.github.ben-manes.caffeine:caffeine:2.8.0")
 
-    // flyway and postgres
-    runtimeOnly("org.postgresql:postgresql")
-    implementation("org.flywaydb:flyway-core")
-
     // Postgres for r2dbc
     runtimeOnly("io.r2dbc:r2dbc-postgresql")
 
